@@ -2,7 +2,10 @@
 title: "final_project_proposal"
 author: "p8105 group"
 date: "2023-11-10"
-output: html_document
+output: 
+  html_document:
+    toc: true
+    toc_float: true
 ---
 
 ```{r setup, include=FALSE}
@@ -41,4 +44,5 @@ The government corruption index seems very far away from us, but as socially con
 
 ## The planned analyses / visualizations / coding challenges
 
-##  
+## The planned timeline
+
