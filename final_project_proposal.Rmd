@@ -7,5 +7,20 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
 ```
+
+## The group members
+
+```{r, echo = FALSE}
+group_member =
+  tibble(
+    name = c("Shaoyu Chen", "Xiangxiong Feng", "Haitian Huang", "Yunshen Bai", "Kindle Zhang"),
+    uni = c("sc5351", "xf2270", "hh3043", "yb2584", "qz2527")
+  ) |>
+  knitr::kable()
+
+group_member
+```
+
 
