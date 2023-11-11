@@ -42,7 +42,7 @@ for people who see the report.
 
 ``` mermaid
 graph TD
-A("time point 1")
+A("time point 1:balabalabala")
 ==>B("time point 2")
 ==>C("time point 3")
 ==>D("time point 4")
