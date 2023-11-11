@@ -37,6 +37,26 @@ The government corruption index seems very far away from us, but as socially con
 
 ## The intended final products
 
+The final project will cover following  
+**Data**:  
+-	Description of data and variables  
+-	Data cleaning and manipulation  
+
+**Data Visualization**:  
+-	Use a variety of graphs and tables to present our findings.  
+- Perform exploratory data analysis.   
+- box plots and histograms  
+-	A map of the world corruption levels  
+
+**Analysis**:  
+-	Figure out factors related to corruption index  
+-	Statistical analyses such as several kinds of hypothesis tests.  
+
+**Regression Model**:  
+-	Build a basic regression model  
+-	Model improvement, model diagnostics and predictions  
+
+
 ## The anticipated data sources
 
 ## The planned analyses / visualizations / coding challenges
