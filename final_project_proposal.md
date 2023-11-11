@@ -1,3 +1,8 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 final_project_proposal
 ================
 p8105 group
@@ -85,9 +90,9 @@ need to learn some new html elements and shiny app function.
 
 ``` mermaid
 graph TD
-A("time point 1:balabalabala")
-==>B("time point 2")
-==>C("time point 3")
-==>D("time point 4")
-==>E("time point 5")
+A("until November 12th:Assign everyone's task.")
+==>B("November 17th:Group meeting.Check the progress and communicate.")
+==>C("November 24th:Group meeting.Communicate to solve the difficulties.")
+==>D("November 29th:Push contents to the website.Start to generate final report and screencast.")
+==>E("December 6th:Everything is done.")
 ```
