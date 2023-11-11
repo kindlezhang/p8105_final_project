@@ -52,7 +52,8 @@ Histograms and boxplots will be used to show arranged estimated control of corru
 The tendency for each key variable will be presented by correlation and scatter plots. Furthermore, the linear plots for each regression model will be created to clarify the correlation between different variables and the estimated control of corruption.
 
 Coding Challenges:
-There are some expected coding challenges. In the regression section, there might be some difficulties to code modeling and the validation method such as cross-validation. 
+There are some expected coding challenges. In the regression section, there might be some difficulties to code modeling and the validation method such as cross-validation.
+Furthermore, there will also be expected difficulties in setting up the website. We might need to learn some new html elements and shiny app function.
 
 ## Time table
 
