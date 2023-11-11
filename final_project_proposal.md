@@ -1,0 +1,41 @@
+final_project_proposal
+================
+p8105 group
+2023-11-10
+
+## The group members
+
+| name            | uni    |
+|:----------------|:-------|
+| Shaoyu Chen     | sc5351 |
+| Xiangxiong Feng | xf2270 |
+| Haitian Huang   | hh3043 |
+| Yunshen Bai     | yb2584 |
+| Kindle Zhang    | qz2527 |
+
+## The tentative project title
+
+Preliminary Exploration of Regional Differences and Influencing Factors
+in Government Corruption Index
+
+## The motivation for this project
+
+“We hang the petty thieves and appoint the great ones to public
+office.” - Aesop
+
+The Corruption Perceptions Index (CPI) measures the perceived levels of
+government corruption in different countries.
+
+The government corruption index seems very far away from us, but as
+socially concerned students, we want to explore some of the subtle and
+deep factors behind the index and the reasons for regional differences.
+And by visualizing the results to deepen the understanding of the index
+for people who see the report.
+
+## The intended final products
+
+## The anticipated data sources
+
+## The planned analyses / visualizations / coding challenges
+
+## Time table

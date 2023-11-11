@@ -2,10 +2,7 @@
 title: "final_project_proposal"
 author: "p8105 group"
 date: "2023-11-10"
-output: 
-  html_document:
-    toc: true
-    toc_float: true
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
