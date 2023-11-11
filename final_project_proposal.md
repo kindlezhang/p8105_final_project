@@ -39,3 +39,12 @@ for people who see the report.
 ## The planned analyses / visualizations / coding challenges
 
 ## Time table
+
+``` mermaid
+graph TD
+A("time point 1")
+==>B("time point 2")
+==>C("time point 3")
+==>D("time point 4")
+==>E("time point 5")
+```
