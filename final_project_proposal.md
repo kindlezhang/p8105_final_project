@@ -34,9 +34,52 @@ for people who see the report.
 
 ## The intended final products
 
+The final project will cover following  
+**Data**:  
+- Description of data and variables  
+- Data cleaning and manipulation
+
+**Data Visualization**:  
+- Use a variety of graphs and tables to present our findings.  
+- Perform exploratory data analysis.  
+- box plots and histograms  
+- A map of the world corruption levels
+
+**Analysis**:  
+- Figure out factors related to corruption index  
+- Statistical analyses such as several kinds of hypothesis tests.
+
+**Regression Model**:  
+- Build a basic regression model  
+- Model improvement, model diagnostics and predictions
+
 ## The anticipated data sources
 
 ## The planned analyses / visualizations / coding challenges
+
+Analyses： We will try to figure out factors related to corruption
+index. We will model the relationship between corruption index and some
+variables within countries year by year. These variables include
+government effectiveness, voice and accountability, economy stats such
+as GDP per capita, development indicators such as education, etc.
+Corruption index will also be analyzed by continents. We might also do a
+cluster analysis to classify countries. We will build models through
+linear regression, and use cross-validation to choose the best one.
+
+Visualization: In this part, we will use several different types of
+graphs and tables to illustrate our results and present exploratory data
+analysis. Histograms and boxplots will be used to show arranged
+estimated control of corruption of each region from different years. The
+tendency for each key variable will be presented by correlation and
+scatter plots. Furthermore, the linear plots for each regression model
+will be created to clarify the correlation between different variables
+and the estimated control of corruption.
+
+Coding Challenges: There are some expected coding challenges. In the
+regression section, there might be some difficulties to code modeling
+and the validation method such as cross-validation. Furthermore, there
+will also be expected difficulties in setting up the website. We might
+need to learn some new html elements and shiny app function.
 
 ## Time table
 
