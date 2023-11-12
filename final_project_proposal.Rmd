@@ -59,6 +59,21 @@ The final project will cover following
 
 ## The anticipated data sources
 
+https://databank.worldbank.org/source/worldwide-governance-indicators
+
+https://ourworldindata.org/
+
+https://www.kaggle.com/datasets/
+
+https://github.com/
+
+https://osf.io/
+
+https://data.gov/
+
+https://data.world/datasets/corruption
+
+
 ## The planned analyses / visualizations / coding challenges
 
 Analyses：

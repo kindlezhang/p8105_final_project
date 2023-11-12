@@ -1,8 +1,3 @@
----
-output:
-  pdf_document: default
-  html_document: default
----
 final_project_proposal
 ================
 p8105 group
@@ -59,6 +54,20 @@ The final project will cover following
 - Model improvement, model diagnostics and predictions
 
 ## The anticipated data sources
+
+<https://databank.worldbank.org/source/worldwide-governance-indicators>
+
+<https://ourworldindata.org/>
+
+<https://www.kaggle.com/datasets/>
+
+<https://github.com/>
+
+<https://osf.io/>
+
+<https://data.gov/>
+
+<https://data.world/datasets/corruption>
 
 ## The planned analyses / visualizations / coding challenges
 
