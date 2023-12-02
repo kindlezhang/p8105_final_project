@@ -1,0 +1,38 @@
+library(tidyverse)
+library(rvest)
+library(httr)
+
+
+country_html = 
+  read_html("https://simple.wikipedia.org/wiki/List_of_countries_by_continents")
+
+Africa=
+  country_html |>
+  html_elements("ol:nth-child(13) a:nth-child(1)") |>
+  html_text()
+
+Asia=
+  country_html |>
+  html_elements("ol:nth-child(20) a:nth-child(1)") |>
+  html_text()
+
+Europe=
+  country_html |>
+  html_elements("ol:nth-child(23) a:nth-child(1)") |>
+  html_text()
+
+North_America=
+  country_html |>
+  html_elements("ol:nth-child(30) a:nth-child(1)") |>
+  html_text()
+
+South_America=
+  country_html |>
+  html_elements("ol:nth-child(33) a:nth-child(1)") |>
+  html_text()
+
+Oceania=
+  country_html |>
+  html_elements("ol:nth-child(38) a:nth-child(1)") |>
+  html_text()
+
