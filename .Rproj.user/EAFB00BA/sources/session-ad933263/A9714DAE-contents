@@ -2,7 +2,7 @@
 title: "Data Manipulation and cleaning"
 author: "Yunshen Bai"
 date: "`r Sys.Date()`"
-output: github_document
+output: html_document
 ---
 
 ```{r setup,message=FALSE,warning=FALSE}

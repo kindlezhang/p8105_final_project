@@ -3,7 +3,7 @@
     "path": "C:/Users/Leon/Desktop/p8105_final_project/Data Manipulation and cleaning.Rmd",
     "project_path": "Data Manipulation and cleaning.Rmd",
     "type": "r_markdown",
-    "hash": "1180747449",
+    "hash": "2796724395",
     "contents": "",
     "dirty": false,
     "created": 1701495496389.0,
@@ -13,16 +13,16 @@
         "tempName": "Untitled1",
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "4,14",
+        "cursorPosition": "4,12",
         "scrollLine": "0",
         "last_setup_crc32": "ad9332633f920828"
     },
     "folds": "",
-    "lastKnownWriteTime": 1701505040,
+    "lastKnownWriteTime": 1701505146,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1701505040402,
+    "last_content_update": 1701505146503,
     "read_only": false,
     "read_only_alternatives": []
 }
