@@ -1,0 +1,13 @@
+"0","GDP=read_csv(""./data/GDP.csv"")|>"
+"0","  janitor::clean_names()|>"
+"0","  filter(average_gdp!=""#DIV/0!"")|>"
+"0","  mutate(GDP=as.numeric(average_gdp))|>"
+"0","  select(country_name,country_code,GDP)"
+"2","[1mRows: [22m[34m266[39m [1mColumns: [22m[34m68[39m"
+"2","[36m--[39m [1mColumn specification[22m [36m------------------------------------------------[39m
+[1mDelimiter:[22m "",""
+[31mchr[39m  (5): Country Name, Country Code, Indicator Name, Indicator Code...
+[32mdbl[39m (63): 1960, 1961, 1962, 1963, 1964, 1965, 1966, 1967, 1968, 1969..."
+"2","
+[36mi[39m Use `spec()` to retrieve the full column specification for this data.
+[36mi[39m Specify the column types or set `show_col_types = FALSE` to quiet this message."

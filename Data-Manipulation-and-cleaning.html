@@ -362,18 +362,96 @@ library(rvest)
 library(httr)</code></pre>
 <div id="source-1corruption-index" class="section level2">
 <h2>source 1:corruption index</h2>
-<pre class="r"><code>corruption=read_csv(&quot;./data/corruption_index.csv&quot;)</code></pre>
-<pre><code>## Warning: One or more parsing issues, call `problems()` on your data frame for details,
-## e.g.:
-##   dat &lt;- vroom(...)
-##   problems(dat)</code></pre>
-<pre><code>## Rows: 1296 Columns: 28
+<pre class="r"><code>corruption=read_csv(&quot;./data/corruption_index.csv&quot;)|&gt;
+  janitor::clean_names()|&gt;
+  mutate(value=(as.numeric(x2020_yr2020)+as.numeric(x2020_yr2020)+as.numeric(x2020_yr2020))/3)|&gt;
+  select(country_name,country_code,series_name,value)|&gt;
+  pivot_wider(
+    names_from = &quot;series_name&quot;,
+    values_from = &quot;value&quot;
+  )|&gt;
+  janitor::clean_names()</code></pre>
+</div>
+<div id="sourse-2gdp" class="section level2">
+<h2>sourse 2:GDP</h2>
+<pre class="r"><code>GDP=read_csv(&quot;./data/GDP.csv&quot;)|&gt;
+  janitor::clean_names()|&gt;
+  filter(average_gdp!=&quot;#DIV/0!&quot;)|&gt;
+  mutate(GDP=as.numeric(average_gdp))|&gt;
+  select(country_name,country_code,GDP)</code></pre>
+<pre><code>## Rows: 266 Columns: 68
 ## -- Column specification --------------------------------------------------------
 ## Delimiter: &quot;,&quot;
-## chr (28): Country Name, Country Code, Series Name, Series Code, 1996 [YR1996...
+## chr  (5): Country Name, Country Code, Indicator Name, Indicator Code, averag...
+## dbl (63): 1960, 1961, 1962, 1963, 1964, 1965, 1966, 1967, 1968, 1969, 1970, ...
 ## 
 ## i Use `spec()` to retrieve the full column specification for this data.
 ## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div id="source-3continent" class="section level2">
+<h2>source 3:continent</h2>
+<pre class="r"><code>Africa=
+  read_html(&quot;https://www.countrycallingcodes.com/iso-country-codes/africa-codes.php&quot;) |&gt;
+  html_elements(&quot;tr+ tr td:nth-child(3) font&quot;) |&gt;
+  html_text()
+
+Asia=
+  read_html(&quot;https://www.countrycallingcodes.com/iso-country-codes/asia-codes.php&quot;) |&gt;
+  html_elements(&quot;tr+ tr td:nth-child(3) font&quot;) |&gt;
+  html_text()
+
+Europe=
+  read_html(&quot;https://www.countrycallingcodes.com/iso-country-codes/africa-codes.php&quot;) |&gt;
+  html_elements(&quot;tr+ tr td:nth-child(3) font&quot;) |&gt;
+  html_text()
+
+North_America=
+  read_html(&quot;https://www.countrycallingcodes.com/iso-country-codes/north-america-codes.php&quot;) |&gt;
+  html_elements(&quot;tr+ tr td:nth-child(3) font&quot;) |&gt;
+  html_text()
+
+South_America=
+  read_html(&quot;https://www.countrycallingcodes.com/iso-country-codes/south-america-codes.php&quot;) |&gt;
+  html_elements(&quot;tr+ tr td:nth-child(3) font&quot;) |&gt;
+  html_text()
+
+Oceania=
+  read_html(&quot;https://www.countrycallingcodes.com/iso-country-codes/australia-codes.php&quot;) |&gt;
+  html_elements(&quot;tr+ tr td:nth-child(3) font&quot;) |&gt;
+  html_text()
+
+Antarctica=
+  read_html(&quot;https://www.countrycallingcodes.com/iso-country-codes/antarctica-codes.php&quot;) |&gt;
+  html_elements(&quot;tr+ tr td:nth-child(3) font&quot;) |&gt;
+  html_text()</code></pre>
+</div>
+<div id="source-4-coordinate" class="section level2">
+<h2>source 4: coordinate</h2>
+<pre class="r"><code>coordinate_html=
+  read_html(&quot;https://developers.google.com/public-data/docs/canonical/countries_csv?hl=en&quot;)
+
+country_name=
+  coordinate_html |&gt;
+  html_elements(&quot;td:nth-child(4)&quot;) |&gt;
+  html_text()
+
+country_code=
+  coordinate_html |&gt;
+  html_elements(&quot;td:nth-child(1)&quot;) |&gt;
+  html_text() 
+
+latitude=
+  coordinate_html |&gt;
+  html_elements(&quot;td:nth-child(2)&quot;) |&gt;
+  html_text()
+
+longitude=
+  coordinate_html |&gt;
+  html_elements(&quot;td:nth-child(3)&quot;) |&gt;
+  html_text()
+
+country_coordinate=
+  data.frame(country_name,country_code,latitude,longitude)</code></pre>
 </div>
 
 

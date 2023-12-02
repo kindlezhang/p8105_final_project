@@ -14,9 +14,93 @@ library(httr)
 
 ## source 1:corruption index
 
-```{r}
-corruption=read_csv("./data/corruption_index.csv")
+```{r,message=FALSE,warning=FALSE}
+corruption=read_csv("./data/corruption_index.csv")|>
+  janitor::clean_names()|>
+  mutate(value=(as.numeric(x2020_yr2020)+as.numeric(x2020_yr2020)+as.numeric(x2020_yr2020))/3)|>
+  select(country_name,country_code,series_name,value)|>
+  pivot_wider(
+    names_from = "series_name",
+    values_from = "value"
+  )|>
+  janitor::clean_names()
 ```
 
+## sourse 2:GDP
+
+```{r}
+GDP=read_csv("./data/GDP.csv")|>
+  janitor::clean_names()|>
+  filter(average_gdp!="#DIV/0!")|>
+  mutate(GDP=as.numeric(average_gdp))|>
+  select(country_name,country_code,GDP)
+```
+
+## source 3:continent
+```{r}
+Africa=
+  read_html("https://www.countrycallingcodes.com/iso-country-codes/africa-codes.php") |>
+  html_elements("tr+ tr td:nth-child(3) font") |>
+  html_text()
+
+Asia=
+  read_html("https://www.countrycallingcodes.com/iso-country-codes/asia-codes.php") |>
+  html_elements("tr+ tr td:nth-child(3) font") |>
+  html_text()
+
+Europe=
+  read_html("https://www.countrycallingcodes.com/iso-country-codes/africa-codes.php") |>
+  html_elements("tr+ tr td:nth-child(3) font") |>
+  html_text()
+
+North_America=
+  read_html("https://www.countrycallingcodes.com/iso-country-codes/north-america-codes.php") |>
+  html_elements("tr+ tr td:nth-child(3) font") |>
+  html_text()
+
+South_America=
+  read_html("https://www.countrycallingcodes.com/iso-country-codes/south-america-codes.php") |>
+  html_elements("tr+ tr td:nth-child(3) font") |>
+  html_text()
+
+Oceania=
+  read_html("https://www.countrycallingcodes.com/iso-country-codes/australia-codes.php") |>
+  html_elements("tr+ tr td:nth-child(3) font") |>
+  html_text()
+
+Antarctica=
+  read_html("https://www.countrycallingcodes.com/iso-country-codes/antarctica-codes.php") |>
+  html_elements("tr+ tr td:nth-child(3) font") |>
+  html_text()
+```
+
+## source 4: coordinate
+```{r}
+coordinate_html=
+  read_html("https://developers.google.com/public-data/docs/canonical/countries_csv?hl=en")
+
+country_name=
+  coordinate_html |>
+  html_elements("td:nth-child(4)") |>
+  html_text()
+
+country_code=
+  coordinate_html |>
+  html_elements("td:nth-child(1)") |>
+  html_text() 
+
+latitude=
+  coordinate_html |>
+  html_elements("td:nth-child(2)") |>
+  html_text()
+
+longitude=
+  coordinate_html |>
+  html_elements("td:nth-child(3)") |>
+  html_text()
+
+country_coordinate=
+  data.frame(country_name,country_code,latitude,longitude)
+```
 
 
