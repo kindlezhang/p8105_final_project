@@ -4,9 +4,21 @@ navbar:
   title: "Home"
   right:
     - text: "Exploratory Analyses"
-      href: website.html
+      submenu:
+        - text: "EDA"
+          href: website.html
+        - text: "Regression"
+          href: website.html
+        - text: "Work"
+          href: website.html
     - text: "Statistical Analyses"
-      href: website.html
+      submenu:
+        - text: "Statistical test"
+          href: website.html
+        - text: "Statistical test"
+          href: website.html
+        - text: "Statistical test"
+          href: website.html
     - text: "Mapping"
       href: website.html
     - text: "Project Report"
