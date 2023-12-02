@@ -1,0 +1,20 @@
+name: "Yay internet!"
+output_dir: "."
+navbar:
+  title: "Home"
+  right:
+    - text: "Exploratory Analyses"
+      href: website.html
+    - text: "Statistical Analyses"
+      href: website.html
+    - text: "Mapping"
+      href: website.html
+    - text: "Project Report"
+      href: website.html
+    - text: "Screencast"
+      href: website.html
+    - text: "References"
+      href: website.html
+output:
+  html_document:
+    theme: journal
