@@ -453,6 +453,48 @@ longitude=
 country_coordinate=
   data.frame(country_name,country_code,latitude,longitude)</code></pre>
 </div>
+<div id="source-5-developeddeveloping" class="section level2">
+<h2>source 5: developed/developing</h2>
+<pre class="r"><code>developed=
+  read_csv(&quot;./data/developed-countries-2023.csv&quot;)|&gt;
+  pull(cca3)</code></pre>
+<pre><code>## Rows: 66 Columns: 18
+## -- Column specification --------------------------------------------------------
+## Delimiter: &quot;,&quot;
+## chr  (6): country, cca3, cca2, region, subregion, officialName
+## dbl (11): place, pop2023, growthRate, area, ccn3, landAreaKm, density, densi...
+## lgl  (1): unMember
+## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>least_develpoed=
+  read_csv(&quot;./data/least-developed-countries-2023.csv&quot;)|&gt;
+  pull(cca3)</code></pre>
+<pre><code>## Rows: 49 Columns: 21
+## -- Column specification --------------------------------------------------------
+## Delimiter: &quot;,&quot;
+## chr  (8): country, cca3, cca2, region, subregion, officialName, LeastDevelop...
+## dbl (12): place, pop2023, growthRate, area, ccn3, landAreaKm, density, densi...
+## lgl  (1): unMember
+## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div id="source-6-country-code" class="section level2">
+<h2>source 6: country code</h2>
+<pre class="r"><code>isso_code=
+  read_html(&quot;https://www.countrycode.org/&quot;)|&gt;
+  html_elements(&quot;td:nth-child(3)&quot;)|&gt;
+  html_text()
+
+country_name_isso=
+  read_html(&quot;https://www.countrycode.org/&quot;)|&gt;
+  html_elements(&quot;td:nth-child(1)&quot;)|&gt;
+  html_text()
+
+country_code=data.frame(country_name_isso,str_split_fixed(isso_code, &#39;/&#39;,2))|&gt;
+  rename(c(country_code_2=X1,country_code_3=X2))</code></pre>
+</div>
 
 
 
