@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 <img src="government.jpeg" style="width:100%">
 
-
+<br>
 
 ## Inroduction
 “We hang the petty thieves and appoint the great ones to public office.” - Aesop
@@ -20,10 +20,13 @@ The Corruption Perceptions Index (CPI) measures the perceived levels of governme
 
 The government corruption index seems very far away from us, but as socially concerned students, we want to explore some of the subtle and deep factors behind the index and the reasons for regional differences. And by visualizing the results to deepen the understanding of the index for people who see the report.
 
+<br>
+
 ## Screencast
 
+<iframe width="560" height="315" src="https://www.youtube.com/embed/hglpdc8vwW0" frameborder="0" allowfullscreen></iframe>
 
-
+<br>
 
 ## Website Overview
 Analyses：
@@ -39,6 +42,8 @@ The tendency for each key variable will be presented by correlation and scatter 
 Coding Challenges:
 There are some expected coding challenges. In the regression section, there might be some difficulties to code modeling and the validation method such as cross-validation.
 Furthermore, there will also be expected difficulties in setting up the website. We might need to learn some new html elements and shiny app function.
+
+<br>
 
 ## Collaborators
 Shaoyu Chen (sc5351)
