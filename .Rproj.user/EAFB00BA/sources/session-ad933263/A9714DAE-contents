@@ -105,7 +105,7 @@ country_coordinate=
 
 ## source 5: developed/developing
 
-```{r}
+```{r,message=FALSE}
 developed=
   read_csv("./data/developed-countries-2023.csv")|>
   pull(cca3)
