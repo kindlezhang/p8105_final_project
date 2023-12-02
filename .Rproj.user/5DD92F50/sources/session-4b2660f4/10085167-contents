@@ -9,7 +9,7 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-<img src="government.jpeg" style="width:100%">
+<img src="government.jpeg" style="width:85%">
 
 <br>
 
