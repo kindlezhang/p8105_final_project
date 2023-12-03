@@ -1,0 +1,32 @@
+name: "Yay internet!"
+output_dir: "."
+navbar:
+  title: "Home"
+  right:
+    - text: "Exploratory Analyses"
+      menu:
+        - text: "EDA"
+          href: website.html
+        - text: "Regression"
+          href: website.html
+        - text: "Work"
+          href: website.html
+    - text: "Statistical Analyses"
+      menu:
+        - text: "Statistical test"
+          href: website.html
+        - text: "Statistical test"
+          href: website.html
+        - text: "Statistical test"
+          href: website.html
+    - text: "Mapping"
+      href: website.html
+    - text: "Project Report"
+      href: website.html
+    - text: "Screencast"
+      href: website.html
+    - text: "References"
+      href: website.html
+output:
+  html_document:
+    theme: united
