@@ -1,0 +1,130 @@
+---
+title: "Untitled"
+author: "Xiangxiong Feng"
+date: "2023-12-03"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(modelr)
+library(mgcv)
+library(MPV)
+library(leaps)
+library(p8105.datasets)
+library(MASS)
+library(ggplot2)
+library(car)
+```
+
+# import data
+```{r}
+overall_dataset = read.csv("data/overall_dataset.csv")|>
+  drop_na()
+```
+
+# build full model and empty model
+```{r}
+full.model = lm(corruption_index ~ government_effectiveness + political_stability_and_absence_of_violence_terrorism + regulatory_quality + rule_of_law+voice_and_accountability+GDP + development+continent, data = overall_dataset)
+empty.model = lm(corruption_index ~ 1,data = overall_dataset)
+```
+
+
+# summary of full model
+```{r}
+All.Criteria = function(the.model){
+  tibble(
+    the.BIC = BIC(the.model),
+    the.LL = logLik(the.model),
+    the.AIC = AIC(the.model),
+    the.PRESS = PRESS(the.model),
+    the.R2adj = summary(the.model)$adj.r.squared,
+   
+    
+  )
+}
+full.model|>
+  broom::tidy()
+All.Criteria(full.model)
+```
+
+
+
+# check normality and remove outlier
+```{r}
+par(mfrow=c(2,2))
+plot(full.model)
+SR = stdres(full.model)
+n = length(full.model$residuals) 
+p = length(full.model$coefficients)
+alpha = 0.01 
+t.cutoff = qt(1- alpha/2, n-p)
+t.cutoff
+outliers = which(abs(SR)>t.cutoff)
+outliers
+new.data = overall_dataset[-outliers,]
+
+```
+
+
+# forward model selection
+```{r}
+full.model = lm(corruption_index ~ government_effectiveness + political_stability_and_absence_of_violence_terrorism + regulatory_quality + rule_of_law+voice_and_accountability+GDP + development+continent, data = new.data)
+```
+
+```{r}
+forward.model.AIC = stepAIC(empty.model, scope = list(lower = empty.model, upper= full.model), k = 2,direction = "forward",trace = FALSE)
+```
+
+
+
+# summary of selected model
+```{r}
+forward.model.AIC|>
+  broom::tidy()
+
+All.Criteria(forward.model.AIC)
+```
+```{r}
+par(mfrow=c(2,2))
+plot(forward.model.AIC) 
+```
+
+```{r}
+modelr::add_predictions(new.data, forward.model.AIC)|>
+  ggplot(aes(x = corruption_index, y = pred)) + geom_point()
+```
+
+# cross validation 
+```{r}
+cv_df =
+  crossv_mc(new.data, 100) |> 
+  mutate(
+    train = map(train, as_tibble),
+    test = map(test, as_tibble))
+
+forward.model.AIC
+```
+
+```{r}
+cv_df = 
+  cv_df |> 
+  mutate(
+    model  = map(train, \(df) lm(corruption_index ~ rule_of_law + government_effectiveness + voice_and_accountability + development, data = df)))|> 
+  mutate(
+    rmse = map2_dbl(model, test, \(mod, df) rmse(model = mod, data = df)))
+```
+
+
+```{r}
+cv_df |> 
+  select(starts_with("rmse")) |> 
+  pivot_longer(
+    everything(),
+    names_to = "model", 
+    values_to = "rmse",
+    names_prefix = "rmse_") |> 
+  mutate(model = fct_inorder(model)) |> 
+  ggplot(aes(x = model, y = rmse)) + geom_violin()
+```
+
