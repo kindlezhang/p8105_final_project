@@ -19,13 +19,30 @@ library(car)
 
 # import data
 ```{r}
-overall_dataset = read.csv("data/overall_dataset.csv")|>
-  drop_na()
+overall_dataset = read.csv("data/overall_dataset.csv")
 ```
+
+
+```{r}
+NA_table_1 = 
+  overall_dataset|> 
+  is.na()|> 
+  colSums()
+NA_table_1|> 
+    knitr::kable(col.names = c("Counts of NA"))
+```
+
+```{r}
+overall_dataset =
+  overall_dataset|>
+  drop_na()|>
+  dplyr::select(-country_name, -latitude, -longitude)
+```
+
 
 # build full model and empty model
 ```{r}
-full.model = lm(corruption_index ~ government_effectiveness + political_stability_and_absence_of_violence_terrorism + regulatory_quality + rule_of_law+voice_and_accountability+GDP + development+continent, data = overall_dataset)
+full.model = lm(corruption_index ~ ., data = overall_dataset)
 empty.model = lm(corruption_index ~ 1,data = overall_dataset)
 ```
 
@@ -69,7 +86,7 @@ new.data = overall_dataset[-outliers,]
 
 # forward model selection
 ```{r}
-full.model = lm(corruption_index ~ government_effectiveness + political_stability_and_absence_of_violence_terrorism + regulatory_quality + rule_of_law+voice_and_accountability+GDP + development+continent, data = new.data)
+full.model = lm(corruption_index ~ ., data = new.data)
 ```
 
 ```{r}
@@ -118,7 +135,7 @@ cv_df =
 
 ```{r}
 cv_df |> 
-  select(starts_with("rmse")) |> 
+  dplyr::select(starts_with("rmse")) |> 
   pivot_longer(
     everything(),
     names_to = "model", 
