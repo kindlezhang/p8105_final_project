@@ -1,0 +1,118 @@
+---
+title: "Untitled"
+author: "Xiangxiong Feng"
+date: "2023-12-02"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(modelr)
+library(mgcv)
+library(MPV)
+library(leaps)
+library(p8105.datasets)
+library(MASS)
+library(ggplot2)
+library(car)
+```
+
+
+```{r}
+birthweight <- read.csv('regression_example/birthweight.csv')
+```
+
+# build full model and empty model
+```{r}
+full.model = lm(bwt ~ delwt + gaweeks + mheight + momage + bhead + ppbmi, data = birthweight)
+empty.model = lm(bwt ~ 1,data = birthweight)
+```
+
+
+# summary of full model
+```{r}
+All.Criteria = function(the.model){
+  tibble(
+    the.BIC = BIC(the.model),
+    the.LL = logLik(the.model),
+    the.AIC = AIC(the.model),
+    the.PRESS = PRESS(the.model),
+    the.R2adj = summary(the.model)$adj.r.squared,
+   
+    
+  )
+}
+full.model|>
+  broom::tidy()
+All.Criteria(full.model)
+
+```
+
+
+# forward selection 
+```{r}
+forward.model.AIC = stepAIC(empty.model, scope = list(lower = empty.model, upper= full.model), k = 2,direction = "forward",trace = FALSE)
+
+```
+
+# summary of selected model
+```{r}
+forward.model.AIC|>
+  broom::tidy()
+
+All.Criteria(forward.model.AIC)
+```
+
+
+
+
+# check normality (qqplot)
+```{r}
+par(mfrow=c(2,2))
+plot(forward.model.AIC) 
+
+```
+
+
+# remove outlier
+```{r}
+SR = stdres(forward.model.AIC)
+n = length(forward.model.AIC$residuals) 
+p = length(forward.model.AIC$coefficients)
+alpha = 0.01 
+t.cutoff = qt(1- alpha/2, n-p)
+t.cutoff
+
+```
+
+```{r}
+outliers = which(abs(SR)>t.cutoff)
+outliers
+new.data = birthweight[-outliers,]
+```
+
+# selected model after remove outlier
+
+```{r}
+forward.model = lm( bwt ~ bhead + gaweeks + delwt + ppbmi + momage, 
+    data = new.data)
+par(mfrow=c(2,2))
+plot(forward.model) 
+
+forward.model|>
+  broom::tidy()
+
+All.Criteria(forward.model)
+```
+
+
+
+
+# trans
+```{r}
+inverseResponsePlot(forward.model, key = TRUE)
+```
+
+
+# Cross Validation & Prediction
+?
