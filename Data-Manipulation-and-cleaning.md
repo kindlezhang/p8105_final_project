@@ -30,7 +30,8 @@ GDP=read_csv("./data/GDP.csv")|>
   janitor::clean_names()|>
   filter(average_gdp!="#DIV/0!")|>
   mutate(GDP=as.numeric(average_gdp))|>
-  select(country_name,country_code,GDP)
+  select(country_name,country_code,GDP)|>
+  mutate(GDP=GDP/10^9)
 ```
 
     ## Rows: 266 Columns: 68
@@ -56,9 +57,10 @@ Asia=
   html_text()
 
 Europe=
-  read_html("https://www.countrycallingcodes.com/iso-country-codes/africa-codes.php") |>
+  read_html("https://www.countrycallingcodes.com/iso-country-codes/europe-codes.php") |>
   html_elements("tr+ tr td:nth-child(3) font") |>
-  html_text()
+  html_text()|>
+  append("JEY")
 
 North_America=
   read_html("https://www.countrycallingcodes.com/iso-country-codes/north-america-codes.php") |>
@@ -117,33 +119,10 @@ country_coordinate=
 developed=
   read_csv("./data/developed-countries-2023.csv")|>
   pull(cca3)
-```
-
-    ## Rows: 66 Columns: 18
-    ## -- Column specification --------------------------------------------------------
-    ## Delimiter: ","
-    ## chr  (6): country, cca3, cca2, region, subregion, officialName
-    ## dbl (11): place, pop2023, growthRate, area, ccn3, landAreaKm, density, densi...
-    ## lgl  (1): unMember
-    ## 
-    ## i Use `spec()` to retrieve the full column specification for this data.
-    ## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
-
-``` r
 least_develpoed=
   read_csv("./data/least-developed-countries-2023.csv")|>
   pull(cca3)
 ```
-
-    ## Rows: 49 Columns: 21
-    ## -- Column specification --------------------------------------------------------
-    ## Delimiter: ","
-    ## chr  (8): country, cca3, cca2, region, subregion, officialName, LeastDevelop...
-    ## dbl (12): place, pop2023, growthRate, area, ccn3, landAreaKm, density, densi...
-    ## lgl  (1): unMember
-    ## 
-    ## i Use `spec()` to retrieve the full column specification for this data.
-    ## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
 ## source 6: country code
 
@@ -159,5 +138,38 @@ country_name_isso=
   html_text()
 
 country_code=data.frame(country_name_isso,str_split_fixed(isso_code, '/',2))|>
-  rename(c(country_code_2=X1,country_code_3=X2))
+  rename(c(country_code_2=X1,country_code_3=X2))|>
+  mutate(country_code_2=gsub('[ ]','',country_code_2),
+         country_code_3=gsub('[ ]','',country_code_3))|>
+  distinct(country_code_3, .keep_all = T)
+```
+
+## overall dataset
+
+``` r
+corruption_data=left_join(corruption,country_code,join_by(country_code==country_code_3))|>
+  left_join(GDP,join_by(country_code==country_code))|>
+  left_join(country_coordinate,join_by(country_code_2==country_code))|>
+  mutate(development=case_when(
+    country_code %in% developed ~ "Developed",
+    country_code %in% least_develpoed ~ "Least Developed",
+    (!country_code %in% developed) & (!country_code %in% least_develpoed) ~ "Developing"
+  ))|>
+  mutate(continent=case_when(
+    country_code %in% Asia ~ "Asia",
+    country_code %in% Africa ~ "Africa",
+    country_code %in% Europe ~ "Europe",
+    country_code %in% North_America ~ "North America",
+    country_code %in% South_America ~ "South America",
+    country_code %in% Oceania ~ "Oceania",
+    country_code %in% Antarctica ~ "Antarctica"
+  ))|>
+  select(country_name,
+         corruption_index=control_of_corruption_estimate,
+         government_effectiveness=government_effectiveness_estimate,
+         political_stability_and_absence_of_violence_terrorism=political_stability_and_absence_of_violence_terrorism_estimate,
+         regulatory_quality=regulatory_quality_estimate,
+         rule_of_law=rule_of_law_estimate,
+         voice_and_accountability=voice_and_accountability_estimate,
+         GDP,latitude,longitude,development,continent)
 ```
