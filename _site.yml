@@ -21,12 +21,18 @@ navbar:
           href: website.html
     - text: "Mapping"
       href: website.html
+    - text: "Shiny"
+      href: shiny.html
     - text: "Project Report"
       href: website.html
     - text: "Screencast"
       href: website.html
     - text: "References"
       href: website.html
+    - icon: fa-envelope fa-lg
+      href: mailto:<sc5351@cumc.columbia.edu>
+    - icon: fa-github fa-lg
+      href: https://github.com/kindlezhang/p8105_final_project
 output:
   html_document:
     theme: united
