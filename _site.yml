@@ -24,7 +24,7 @@ navbar:
     - text: "Shiny"
       href: shiny.html
     - text: "Project Report"
-      href: website.html
+      href: project_report.html
     - text: "Screencast"
       href: website.html
     - icon: fa-envelope fa-lg
