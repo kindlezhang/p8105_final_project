@@ -1,0 +1,206 @@
+---
+title: "eda"
+output: html_document
+date: "2023-12-01"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(dplyr)
+library(tidyverse)
+library(cowplot)
+
+```
+read combined dataset.
+```{r}
+overall = read_csv('.\\data\\overall_dataset.csv')
+continent = read_csv('.\\data\\continents.csv')
+```
+
+
+add country code
+```{r}
+country_code = continent|>
+  select(name,'alpha-3')|>
+  rename(country_name = name,
+         country_code = 'alpha-3')
+
+  
+overall = left_join(overall,country_code)
+```
+
+
+
+
+
+```{r}
+gov = read_csv('.\\data\\gov.csv')|>
+  janitor::clean_names()|>
+  select(country_code,series_name,x2019_yr2019:x2022_yr2022)|>
+  filter(x2019_yr2019 !='..')|>
+  filter(x2022_yr2022 !='..')|>
+  pivot_longer(
+    x2019_yr2019:x2022_yr2022,
+    names_to = 'year',
+    values_to = 'value'
+  )|>
+  pivot_wider(
+    names_from = series_name,
+    values_from = value
+  )|>
+  mutate(year = recode(year,x2019_yr2019 = '2019',
+                       x2020_yr2020 = '2020',
+                       x2021_yr2021 = '2021',
+                       x2022_yr2022 = '2022'
+                       
+                       
+                       )
+         )|>
+  janitor::clean_names()|>
+  mutate(government_effectiveness_estimate = as.numeric(government_effectiveness_estimate))|>
+  mutate(government_effectiveness_estimate = signif(government_effectiveness_estimate,3))|>
+  mutate(control_of_corruption_estimate = as.numeric(control_of_corruption_estimate))|>
+  mutate(control_of_corruption_estimate = signif(control_of_corruption_estimate,3))
+```
+corruption index
+
+```{r}
+corruption = gov|>
+  select(country_code,year,control_of_corruption_estimate)
+```
+
+
+
+
+```{r}
+myplots <- vector('list', 4)
+for (i in 2019:2022){
+    myplots[[i-2018]] =
+      gov %>% 
+      filter(year == i) %>% 
+      ggplot(aes(x = government_effectiveness_estimate, y = control_of_corruption_estimate))+geom_point()+geom_smooth(method = 'lm', se = TRUE, color = 'red'
+                                                                                                                      )+
+      labs(title = sprintf("year %s", i))
+    
+  
+}
+
+plot_row1 <- plot_grid(myplots[[1]], myplots[[2]])
+plot_row2 <- plot_grid(myplots[[3]], myplots[[4]])
+# title
+title <- ggdraw() + 
+  draw_label(
+    "Scatter Plot for corruption and effectiveness",
+    fontface = 'bold',
+    x = 0,
+    hjust = 0
+  ) +
+  theme(
+    # add margin on the left of the drawing canvas,
+    # so title is aligned with left edge of first plot
+    plot.margin = margin(0, 0, 0, 7)
+  )
+plot_grid(title,plot_row1,plot_row2 ,ncol=1,  label_size = 12,rel_heights=c(0.1, 1,1))
+
+```
+```{r}
+iou = gov|>
+  select(year,control_of_corruption_estimate)
+
+
+  iou |>
+  ggplot(aes(x = year, y = control_of_corruption_estimate)) + 
+geom_boxplot()+
+  labs(
+ 
+    x = "YEAR", 
+    y = "CPI") 
+
+
+```
+
+
+```{r}
+develop = overall|>
+  select(country_name,country_code,development)|>
+
+  left_join(corruption)|>
+  group_by(year,development)|>
+  summarize(mean_of_cpi = mean(control_of_corruption_estimate,na.rm = TRUE))
+
+develop|>
+  ggplot(aes(x = year,y = mean_of_cpi, group = development,color = development)) +
+  geom_point(shape=19,size = 3)+geom_line()
+
+```
+plot continent
+```{r}
+continent = overall|>
+  select(country_name,country_code,continent)|>
+  left_join(corruption)|>
+  group_by(continent)|>
+  summarize(mean_cpi = mean(control_of_corruption_estimate,na.rm=TRUE))
+
+
+continent|>
+  ggplot(aes(x = continent,y = mean_cpi,fill = continent))+
+  geom_bar(stat='identity')
+```
+
+plot gdp
+```{r}
+
+overall|>
+  select(country_name,country_code,GDP)|>
+  ggplot(aes(x = GDP))+geom_histogram(bins = 60)
+
+
+```
+
+```{r}
+gdp = overall|>
+  select(country_code,GDP,corruption_index)|>
+  arrange(GDP)|>
+  mutate(order = order(GDP))|>
+  mutate(
+    gdp_group = case_when(
+      order<120~'low',
+      order<190 & order >120 ~'middle',
+      .default = 'high'
+    
+      
+    )
+  )|>
+  group_by(gdp_group)|>
+  summarize(mean_cpi = mean(corruption_index,na.rm = TRUE) )|>
+  mutate(gdp_group = forcats::fct_relevel(gdp_group, c("low", "middle", "high")))
+
+
+gdp|>
+  ggplot(aes(x = gdp_group,y = mean_cpi,fill = gdp_group))+
+  geom_bar(stat='identity')
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
