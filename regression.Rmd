@@ -3,6 +3,7 @@ title: "Untitled"
 author: "Xiangxiong Feng"
 date: "2023-12-03"
 output: html_document
+
 ---
 
 ```{r}
@@ -16,6 +17,10 @@ library(MASS)
 library(ggplot2)
 library(car)
 ```
+
+
+
+
 
 # import data
 ```{r}
@@ -40,17 +45,27 @@ overall_dataset =
 ```
 
 
-# build full model and empty model
+# Full model
 ```{r}
 full.model = lm(corruption_index ~ ., data = overall_dataset)
 empty.model = lm(corruption_index ~ 1,data = overall_dataset)
 ```
 
 
-# summary of full model
+The full model includes all variables except latitude and longitude since continent is included as location information. This model is treated as the baseline to compare with model after selection. 
+
+## summary of full model
+
+
+
+Tables below show summary information of the full model. The p-value for government_effectiveness, rule_of_law, voice_and_accountability, continentEurope 
+have p-value lower than any reasonable significance level(1%, 5%, 10%), which means these variable are more significant than other in this model. The R2adj for this model is 0.8983053, which presents a very high proportion of variance in response variable explained the linear relationship between with predictors and response variable.
+
+
 ```{r}
 All.Criteria = function(the.model){
   tibble(
+   
     the.BIC = BIC(the.model),
     the.LL = logLik(the.model),
     the.AIC = AIC(the.model),
@@ -61,58 +76,125 @@ All.Criteria = function(the.model){
   )
 }
 full.model|>
-  broom::tidy()
-All.Criteria(full.model)
+  broom::tidy()|>
+  dplyr::select(term, estimate, p.value)|>
+  knitr::kable(caption ="Estimate and P-value for full model")
+  
+All.Criteria(full.model)|>
+  knitr::kable(caption = "Criterias for full model")
 ```
 
 
 
-# check normality and remove outlier
+
+## check normality and remove outlier
+
+
+
+Plots below shows that the residuals are overall normally distributed. The qq-plot shows the regression is linear and there is no need to add transformation variables. Then, outliers are detected and removed by using cutoffs based on t distribution. With data after removing oultiers, the full model is updated, and BIC and AIC are all decreased.
+
 ```{r}
-par(mfrow=c(2,2))
-plot(full.model)
 SR = stdres(full.model)
 n = length(full.model$residuals) 
 p = length(full.model$coefficients)
 alpha = 0.01 
 t.cutoff = qt(1- alpha/2, n-p)
-t.cutoff
+
+par(mfrow=c(2,2))
+plot(full.model)
+
 outliers = which(abs(SR)>t.cutoff)
-outliers
+outliers|>
+  knitr::kable(caption = "outliers")
 new.data = overall_dataset[-outliers,]
 
-```
-
-
-# forward model selection
-```{r}
 full.model = lm(corruption_index ~ ., data = new.data)
+All.Criteria(full.model)|>
+  knitr::kable(caption ="Estimate and P-value for updated full model")
+  
 ```
 
+# Selected model
+
+
+
+After the updated full model is built, backward and forward selection function is applied to gain selected  models.
+
+
+
+## backward model selection
+
+
+
+The summary of backward selected model is shown below. political_stability_and_absence_of_violence_terrorism, regulatory_quality, GDP are deleted.
+
+
 ```{r}
+backward.model.AIC = stepAIC(full.model, scope = list(lower = empty.model, upper= full.model), k = 2,direction = "backward",trace = FALSE)
 forward.model.AIC = stepAIC(empty.model, scope = list(lower = empty.model, upper= full.model), k = 2,direction = "forward",trace = FALSE)
 ```
 
+```{r}
+backward.model.AIC|>
+  broom::tidy()|>
+  dplyr::select(term, estimate, p.value)|>
+  knitr::kable(caption ="Estimate and P-value for backward selected model")
+
+All.Criteria(backward.model.AIC)|>
+  knitr::kable(caption = "Criterias for backward selected selected model")
+```
 
 
-# summary of selected model
+## forward model selection 
+
+
+
+The summary of forward selected model is shown below. political_stability_and_absence_of_violence_terrorism, regulatory_quality, GDP, continent are deleted.
+
 ```{r}
 forward.model.AIC|>
-  broom::tidy()
+  broom::tidy()|>
+  dplyr::select(term, estimate, p.value)|>
+  knitr::kable(caption ="Estimate and P-value for forward selected model")
 
-All.Criteria(forward.model.AIC)
+All.Criteria(forward.model.AIC)|>
+  knitr::kable(caption = "Criterias for forward selected selected model")
 ```
+
+
+## Comparision of full model, forward and backward selected model
+
+
+
+
 ```{r}
-par(mfrow=c(2,2))
-plot(forward.model.AIC) 
+forward_model = All.Criteria(forward.model.AIC)|>
+  mutate(the.LL = as.double(the.LL))
+backward_model = All.Criteria(backward.model.AIC)|>
+  mutate(the.LL = as.double(the.LL))
+
+full_model = All.Criteria(full.model)|>
+  mutate(the.LL = as.double(the.LL))
+
+comparsion = 
+  bind_rows( full_model,forward_model, backward_model)|>
+  mutate(model = c('full', 'forward', 'backward'))|>
+  dplyr::select(model, everything())|>
+  knitr::kable(caption = "Comparision of full model, forward and backward selected model")
+  
+  
+comparsion
+
+
+  
+
+
 ```
 
-```{r}
-modelr::add_predictions(new.data, forward.model.AIC)|>
-  ggplot(aes(x = corruption_index, y = pred)) + geom_point()
-```
 
-# cross validation 
+## cross validation 
+
+
 ```{r}
 cv_df =
   crossv_mc(new.data, 100) |> 
@@ -127,9 +209,13 @@ forward.model.AIC
 cv_df = 
   cv_df |> 
   mutate(
-    model  = map(train, \(df) lm(corruption_index ~ rule_of_law + government_effectiveness + voice_and_accountability + development, data = df)))|> 
+    model_full  = map(train, \(df) lm(corruption_index ~ ., data = df)),
+    model_forward  = map(train, \(df) lm(corruption_index ~ rule_of_law + government_effectiveness + voice_and_accountability + development, data = df)),
+    model_backward  = map(train, \(df) lm(corruption_index ~ rule_of_law + government_effectiveness + voice_and_accountability + development+ continent, data = df)))|> 
   mutate(
-    rmse = map2_dbl(model, test, \(mod, df) rmse(model = mod, data = df)))
+    rmse_full = map2_dbl(model_full, test, \(mod, df) rmse(model = mod, data = df)),
+    rmse_forward = map2_dbl(model_forward, test, \(mod, df) rmse(model = mod, data = df)),
+    rmse_backward = map2_dbl(model_backward, test, \(mod, df) rmse(model = mod, data = df)))
 ```
 
 
