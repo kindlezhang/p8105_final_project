@@ -2,7 +2,7 @@
 title: "Data Manipulation and cleaning"
 author: "Yunshen Bai"
 date: "`r Sys.Date()`"
-output: github_document
+output: html_document
 ---
 
 ```{r setup,message=FALSE,warning=FALSE}
@@ -15,7 +15,7 @@ library(httr)
 ## source 1:corruption index
 
 ```{r,message=FALSE,warning=FALSE}
-corruption=read_csv("./data/corruption_index.csv")|>
+corruption=read_csv("C:/Users/Leon/Desktop/p8105_final_project/data/corruption_index.csv")|>
   janitor::clean_names()|>
   mutate(value=(as.numeric(x2020_yr2020)+as.numeric(x2020_yr2020)+as.numeric(x2020_yr2020))/3)|>
   select(country_name,country_code,series_name,value)|>
@@ -109,10 +109,10 @@ country_coordinate=
 
 ```{r,message=FALSE}
 developed=
-  read_csv("./data/developed-countries-2023.csv")|>
+  read_csv("C:/Users/Leon/Desktop/p8105_final_project/data/developed-countries-2023.csv")|>
   pull(cca3)
 least_develpoed=
-  read_csv("./data/least-developed-countries-2023.csv")|>
+  read_csv("C:/Users/Leon/Desktop/p8105_final_project/data/least-developed-countries-2023.csv")|>
   pull(cca3)
 ```
 ## source 6: country code
@@ -163,4 +163,34 @@ corruption_data=left_join(corruption,country_code,join_by(country_code==country_
          GDP,latitude,longitude,development,continent)
 ```
 
+
+```{r,message=FALSE}
+corruption_EDA=read_csv("C:/Users/Leon/Desktop/p8105_final_project/data/corruption_index.csv")|>
+  janitor::clean_names()|>
+  pivot_longer(
+    cols = x1996_yr1996:x2022_yr2022,
+    names_to = "year",
+    values_to = "value"
+  )|>
+  mutate(year=substr(year,2,5))|>
+  select(-series_code)|>
+  pivot_wider(
+    names_from = "series_name",
+    values_from = "value"
+  )
+
+GDP_EDA=
+  read_csv("./data/GDP.csv")|>
+  janitor::clean_names()|>
+  select(country_code,x1996:x2022)|>
+  pivot_longer(
+    x1996:x2022,
+    names_to = "year",
+    values_to = "GDP"
+               )|>
+  mutate(GDP=GDP/10^9,
+         year=substr(year,2,5))
+
+corruption_EDA=left_join(corruption_EDA,GDP_EDA,by = join_by(country_code, year))
+```
 
