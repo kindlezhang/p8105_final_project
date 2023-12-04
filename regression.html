@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Xiangxiong Feng" />
+
+<meta name="date" content="2023-12-03" />
+
+<title>Untitled</title>
+
+<script src="site_libs/header-attrs-2.25/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/united.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Home</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Exploratory Analyses
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="website.html">EDA</a>
+    </li>
+    <li>
+      <a href="website.html">Regression</a>
+    </li>
+    <li>
+      <a href="website.html">Work</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Statistical Analyses
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="website.html">Statistical test</a>
+    </li>
+    <li>
+      <a href="website.html">Statistical test</a>
+    </li>
+    <li>
+      <a href="website.html">Statistical test</a>
+    </li>
+  </ul>
+</li>
+<li>
+  <a href="website.html">Mapping</a>
+</li>
+<li>
+  <a href="website.html">Project Report</a>
+</li>
+<li>
+  <a href="website.html">Screencast</a>
+</li>
+<li>
+  <a href="website.html">References</a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Untitled</h1>
+<h4 class="author">Xiangxiong Feng</h4>
+<h4 class="date">2023-12-03</h4>
+
+</div>
+
+
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+## ✔ dplyr     1.1.3     ✔ readr     2.1.4
+## ✔ forcats   1.0.0     ✔ stringr   1.5.0
+## ✔ ggplot2   3.4.3     ✔ tibble    3.2.1
+## ✔ lubridate 1.9.2     ✔ tidyr     1.3.0
+## ✔ purrr     1.0.2     
+## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## ✖ dplyr::filter() masks stats::filter()
+## ✖ dplyr::lag()    masks stats::lag()
+## ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+<pre class="r"><code>library(modelr)
+library(mgcv)</code></pre>
+<pre><code>## 载入需要的程辑包：nlme
+## 
+## 载入程辑包：&#39;nlme&#39;
+## 
+## The following object is masked from &#39;package:dplyr&#39;:
+## 
+##     collapse
+## 
+## This is mgcv 1.9-0. For overview type &#39;help(&quot;mgcv-package&quot;)&#39;.</code></pre>
+<pre class="r"><code>library(MPV)</code></pre>
+<pre><code>## Warning: 程辑包&#39;MPV&#39;是用R版本4.3.2 来建造的</code></pre>
+<pre><code>## 载入需要的程辑包：lattice
+## 载入需要的程辑包：KernSmooth
+## KernSmooth 2.23 loaded
+## Copyright M. P. Wand 1997-2009
+## 载入需要的程辑包：randomForest
+## randomForest 4.7-1.1
+## Type rfNews() to see new features/changes/bug fixes.
+## 
+## 载入程辑包：&#39;randomForest&#39;
+## 
+## The following object is masked from &#39;package:dplyr&#39;:
+## 
+##     combine
+## 
+## The following object is masked from &#39;package:ggplot2&#39;:
+## 
+##     margin</code></pre>
+<pre class="r"><code>library(leaps)</code></pre>
+<pre><code>## Warning: 程辑包&#39;leaps&#39;是用R版本4.3.2 来建造的</code></pre>
+<pre class="r"><code>library(p8105.datasets)
+library(MASS)</code></pre>
+<pre><code>## 
+## 载入程辑包：&#39;MASS&#39;
+## 
+## The following object is masked from &#39;package:MPV&#39;:
+## 
+##     cement
+## 
+## The following object is masked from &#39;package:dplyr&#39;:
+## 
+##     select</code></pre>
+<pre class="r"><code>library(ggplot2)
+library(car)</code></pre>
+<pre><code>## Warning: 程辑包&#39;car&#39;是用R版本4.3.2 来建造的</code></pre>
+<pre><code>## 载入需要的程辑包：carData
+## 
+## 载入程辑包：&#39;car&#39;
+## 
+## The following object is masked from &#39;package:dplyr&#39;:
+## 
+##     recode
+## 
+## The following object is masked from &#39;package:purrr&#39;:
+## 
+##     some</code></pre>
+<div id="import-data" class="section level1">
+<h1>import data</h1>
+<pre class="r"><code>overall_dataset = read.csv(&quot;data/overall_dataset.csv&quot;)</code></pre>
+<pre class="r"><code>NA_table_1 = 
+  overall_dataset|&gt; 
+  is.na()|&gt; 
+  colSums()
+NA_table_1|&gt; 
+    knitr::kable(col.names = c(&quot;Counts of NA&quot;))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="right">Counts of NA</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">country_name</td>
+<td align="right">3</td>
+</tr>
+<tr class="even">
+<td align="left">corruption_index</td>
+<td align="right">3</td>
+</tr>
+<tr class="odd">
+<td align="left">government_effectiveness</td>
+<td align="right">3</td>
+</tr>
+<tr class="even">
+<td
+align="left">political_stability_and_absence_of_violence_terrorism</td>
+<td align="right">1</td>
+</tr>
+<tr class="odd">
+<td align="left">regulatory_quality</td>
+<td align="right">3</td>
+</tr>
+<tr class="even">
+<td align="left">rule_of_law</td>
+<td align="right">3</td>
+</tr>
+<tr class="odd">
+<td align="left">voice_and_accountability</td>
+<td align="right">6</td>
+</tr>
+<tr class="even">
+<td align="left">GDP</td>
+<td align="right">14</td>
+</tr>
+<tr class="odd">
+<td align="left">latitude</td>
+<td align="right">3</td>
+</tr>
+<tr class="even">
+<td align="left">longitude</td>
+<td align="right">3</td>
+</tr>
+<tr class="odd">
+<td align="left">development</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">continent</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>overall_dataset =
+  overall_dataset|&gt;
+  drop_na()|&gt;
+  dplyr::select(-country_name, -latitude, -longitude)</code></pre>
+</div>
+<div id="full-model" class="section level1">
+<h1>Full model</h1>
+<pre class="r"><code>full.model = lm(corruption_index ~ ., data = overall_dataset)
+empty.model = lm(corruption_index ~ 1,data = overall_dataset)</code></pre>
+<p>The full model includes all variables except latitude and longitude
+since continent is included as location information. This model is
+treated as the baseline to compare with model after selection.</p>
+<div id="summary-of-full-model" class="section level2">
+<h2>summary of full model</h2>
+<p>Tables below show summary information of the full model. The p-value
+for government_effectiveness, rule_of_law, voice_and_accountability,
+continentEurope have p-value lower than any reasonable significance
+level(1%, 5%, 10%), which means these variable are more significant than
+other in this model. The R2adj for this model is 0.8983053, which
+presents a very high proportion of variance in response variable
+explained the linear relationship between with predictors and response
+variable.</p>
+<pre class="r"><code>All.Criteria = function(the.model){
+  tibble(
+   
+    the.BIC = BIC(the.model),
+    the.LL = logLik(the.model),
+    the.AIC = AIC(the.model),
+    the.PRESS = PRESS(the.model),
+    the.R2adj = summary(the.model)$adj.r.squared,
+   
+    
+  )
+}
+full.model|&gt;
+  broom::tidy()|&gt;
+  dplyr::select(term, estimate, p.value)|&gt;
+  knitr::kable(caption =&quot;Estimate and P-value for full model&quot;)</code></pre>
+<table>
+<caption>Estimate and P-value for full model</caption>
+<colgroup>
+<col width="72%" />
+<col width="14%" />
+<col width="13%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">term</th>
+<th align="right">estimate</th>
+<th align="right">p.value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">0.1523043</td>
+<td align="right">0.0733336</td>
+</tr>
+<tr class="even">
+<td align="left">government_effectiveness</td>
+<td align="right">0.4465416</td>
+<td align="right">0.0000002</td>
+</tr>
+<tr class="odd">
+<td
+align="left">political_stability_and_absence_of_violence_terrorism</td>
+<td align="right">0.0283823</td>
+<td align="right">0.5324848</td>
+</tr>
+<tr class="even">
+<td align="left">regulatory_quality</td>
+<td align="right">-0.0388673</td>
+<td align="right">0.6007547</td>
+</tr>
+<tr class="odd">
+<td align="left">rule_of_law</td>
+<td align="right">0.4555096</td>
+<td align="right">0.0000004</td>
+</tr>
+<tr class="even">
+<td align="left">voice_and_accountability</td>
+<td align="right">0.1605535</td>
+<td align="right">0.0011255</td>
+</tr>
+<tr class="odd">
+<td align="left">GDP</td>
+<td align="right">-0.0000066</td>
+<td align="right">0.5607391</td>
+</tr>
+<tr class="even">
+<td align="left">developmentDeveloping</td>
+<td align="right">-0.1096876</td>
+<td align="right">0.1403518</td>
+</tr>
+<tr class="odd">
+<td align="left">developmentLeast Developed</td>
+<td align="right">0.0176445</td>
+<td align="right">0.8598391</td>
+</tr>
+<tr class="even">
+<td align="left">continentAsia</td>
+<td align="right">-0.1247569</td>
+<td align="right">0.1038164</td>
+</tr>
+<tr class="odd">
+<td align="left">continentEurope</td>
+<td align="right">-0.2211527</td>
+<td align="right">0.0178381</td>
+</tr>
+<tr class="even">
+<td align="left">continentNorth America</td>
+<td align="right">-0.1367619</td>
+<td align="right">0.1492751</td>
+</tr>
+<tr class="odd">
+<td align="left">continentOceania</td>
+<td align="right">-0.0151796</td>
+<td align="right">0.8877381</td>
+</tr>
+<tr class="even">
+<td align="left">continentSouth America</td>
+<td align="right">-0.0818944</td>
+<td align="right">0.4882106</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>All.Criteria(full.model)|&gt;
+  knitr::kable(caption = &quot;Criterias for full model&quot;)</code></pre>
+<table>
+<caption>Criterias for full model</caption>
+<thead>
+<tr class="header">
+<th align="right">the.BIC</th>
+<th align="right">the.LL</th>
+<th align="right">the.AIC</th>
+<th align="right">the.PRESS</th>
+<th align="right">the.R2adj</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">167.1942</td>
+<td align="right">-43.93509</td>
+<td align="right">117.8702</td>
+<td align="right">21.03754</td>
+<td align="right">0.8983053</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="check-normality-and-remove-outlier" class="section level2">
+<h2>check normality and remove outlier</h2>
+<p>Plots below shows that the residuals are overall normally
+distributed. The qq-plot shows the regression is linear and there is no
+need to add transformation variables. Then, outliers are detected and
+removed by using cutoffs based on t distribution. With data after
+removing oultiers, the full model is updated, and BIC and AIC are all
+decreased.</p>
+<pre class="r"><code>SR = stdres(full.model)
+n = length(full.model$residuals) 
+p = length(full.model$coefficients)
+alpha = 0.01 
+t.cutoff = qt(1- alpha/2, n-p)
+
+par(mfrow=c(2,2))
+plot(full.model)</code></pre>
+<p><img src="regression_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<pre class="r"><code>outliers = which(abs(SR)&gt;t.cutoff)
+outliers|&gt;
+  knitr::kable(caption = &quot;outliers&quot;)</code></pre>
+<table>
+<caption>outliers</caption>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="right">x</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">18</td>
+<td align="right">18</td>
+</tr>
+<tr class="even">
+<td align="left">22</td>
+<td align="right">22</td>
+</tr>
+<tr class="odd">
+<td align="left">158</td>
+<td align="right">158</td>
+</tr>
+<tr class="even">
+<td align="left">181</td>
+<td align="right">181</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>new.data = overall_dataset[-outliers,]
+
+full.model = lm(corruption_index ~ ., data = new.data)
+All.Criteria(full.model)|&gt;
+  knitr::kable(caption =&quot;Estimate and P-value for updated full model&quot;)</code></pre>
+<table>
+<caption>Estimate and P-value for updated full model</caption>
+<thead>
+<tr class="header">
+<th align="right">the.BIC</th>
+<th align="right">the.LL</th>
+<th align="right">the.AIC</th>
+<th align="right">the.PRESS</th>
+<th align="right">the.R2adj</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">121.2881</td>
+<td align="right">-21.1351</td>
+<td align="right">72.27019</td>
+<td align="right">16.45733</td>
+<td align="right">0.9183903</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="selected-model" class="section level1">
+<h1>Selected model</h1>
+<p>After the updated full model is built, backward and forward selection
+function is applied to gain selected models.</p>
+<div id="backward-model-selection" class="section level2">
+<h2>backward model selection</h2>
+<p>The summary of backward selected model is shown below.
+political_stability_and_absence_of_violence_terrorism,
+regulatory_quality, GDP are deleted.</p>
+<pre class="r"><code>backward.model.AIC = stepAIC(full.model, scope = list(lower = empty.model, upper= full.model), k = 2,direction = &quot;backward&quot;,trace = FALSE)
+forward.model.AIC = stepAIC(empty.model, scope = list(lower = empty.model, upper= full.model), k = 2,direction = &quot;forward&quot;,trace = FALSE)</code></pre>
+<pre class="r"><code>backward.model.AIC|&gt;
+  broom::tidy()|&gt;
+  dplyr::select(term, estimate, p.value)|&gt;
+  knitr::kable(caption =&quot;Estimate and P-value for backward selected model&quot;)</code></pre>
+<table>
+<caption>Estimate and P-value for backward selected model</caption>
+<thead>
+<tr class="header">
+<th align="left">term</th>
+<th align="right">estimate</th>
+<th align="right">p.value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">0.1376752</td>
+<td align="right">0.0643409</td>
+</tr>
+<tr class="even">
+<td align="left">government_effectiveness</td>
+<td align="right">0.4179061</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="odd">
+<td align="left">rule_of_law</td>
+<td align="right">0.4672865</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="even">
+<td align="left">voice_and_accountability</td>
+<td align="right">0.1650610</td>
+<td align="right">0.0001498</td>
+</tr>
+<tr class="odd">
+<td align="left">developmentDeveloping</td>
+<td align="right">-0.0972708</td>
+<td align="right">0.1397905</td>
+</tr>
+<tr class="even">
+<td align="left">developmentLeast Developed</td>
+<td align="right">0.0038976</td>
+<td align="right">0.9645571</td>
+</tr>
+<tr class="odd">
+<td align="left">continentAsia</td>
+<td align="right">-0.1489371</td>
+<td align="right">0.0321245</td>
+</tr>
+<tr class="even">
+<td align="left">continentEurope</td>
+<td align="right">-0.2443750</td>
+<td align="right">0.0038247</td>
+</tr>
+<tr class="odd">
+<td align="left">continentNorth America</td>
+<td align="right">-0.1315702</td>
+<td align="right">0.1044792</td>
+</tr>
+<tr class="even">
+<td align="left">continentOceania</td>
+<td align="right">0.0714741</td>
+<td align="right">0.4446223</td>
+</tr>
+<tr class="odd">
+<td align="left">continentSouth America</td>
+<td align="right">-0.0796026</td>
+<td align="right">0.4484500</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>All.Criteria(backward.model.AIC)|&gt;
+  knitr::kable(caption = &quot;Criterias for backward selected selected model&quot;)</code></pre>
+<table>
+<caption>Criterias for backward selected selected model</caption>
+<thead>
+<tr class="header">
+<th align="right">the.BIC</th>
+<th align="right">the.LL</th>
+<th align="right">the.AIC</th>
+<th align="right">the.PRESS</th>
+<th align="right">the.R2adj</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">106.0023</td>
+<td align="right">-21.39401</td>
+<td align="right">66.78802</td>
+<td align="right">15.978</td>
+<td align="right">0.9195136</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="forward-model-selection" class="section level2">
+<h2>forward model selection</h2>
+<p>The summary of forward selected model is shown below.
+political_stability_and_absence_of_violence_terrorism,
+regulatory_quality, GDP, continent are deleted.</p>
+<pre class="r"><code>forward.model.AIC|&gt;
+  broom::tidy()|&gt;
+  dplyr::select(term, estimate, p.value)|&gt;
+  knitr::kable(caption =&quot;Estimate and P-value for forward selected model&quot;)</code></pre>
+<table>
+<caption>Estimate and P-value for forward selected model</caption>
+<thead>
+<tr class="header">
+<th align="left">term</th>
+<th align="right">estimate</th>
+<th align="right">p.value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">-0.0288657</td>
+<td align="right">0.5590166</td>
+</tr>
+<tr class="even">
+<td align="left">rule_of_law</td>
+<td align="right">0.4763815</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="odd">
+<td align="left">government_effectiveness</td>
+<td align="right">0.4057927</td>
+<td align="right">0.0000001</td>
+</tr>
+<tr class="even">
+<td align="left">voice_and_accountability</td>
+<td align="right">0.1599748</td>
+<td align="right">0.0000248</td>
+</tr>
+<tr class="odd">
+<td align="left">developmentDeveloping</td>
+<td align="right">-0.0211514</td>
+<td align="right">0.7460158</td>
+</tr>
+<tr class="even">
+<td align="left">developmentLeast Developed</td>
+<td align="right">0.1691951</td>
+<td align="right">0.0443599</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>All.Criteria(forward.model.AIC)|&gt;
+  knitr::kable(caption = &quot;Criterias for forward selected selected model&quot;)</code></pre>
+<table>
+<caption>Criterias for forward selected selected model</caption>
+<thead>
+<tr class="header">
+<th align="right">the.BIC</th>
+<th align="right">the.LL</th>
+<th align="right">the.AIC</th>
+<th align="right">the.PRESS</th>
+<th align="right">the.R2adj</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">134.9283</td>
+<td align="right">-48.9552</td>
+<td align="right">111.9104</td>
+<td align="right">20.29352</td>
+<td align="right">0.8974732</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="comparision-of-full-model-forward-and-backward-selected-model"
+class="section level2">
+<h2>Comparision of full model, forward and backward selected model</h2>
+<pre class="r"><code>forward_model = All.Criteria(forward.model.AIC)|&gt;
+  mutate(the.LL = as.double(the.LL))
+backward_model = All.Criteria(backward.model.AIC)|&gt;
+  mutate(the.LL = as.double(the.LL))
+
+full_model = All.Criteria(full.model)|&gt;
+  mutate(the.LL = as.double(the.LL))
+
+comparsion = 
+  bind_rows( full_model,forward_model, backward_model)|&gt;
+  mutate(model = c(&#39;full&#39;, &#39;forward&#39;, &#39;backward&#39;))|&gt;
+  dplyr::select(model, everything())|&gt;
+  knitr::kable(caption = &quot;Comparision of full model, forward and backward selected model&quot;)
+  
+  
+comparsion</code></pre>
+<table>
+<caption>Comparision of full model, forward and backward selected
+model</caption>
+<thead>
+<tr class="header">
+<th align="left">model</th>
+<th align="right">the.BIC</th>
+<th align="right">the.LL</th>
+<th align="right">the.AIC</th>
+<th align="right">the.PRESS</th>
+<th align="right">the.R2adj</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">full</td>
+<td align="right">121.2881</td>
+<td align="right">-21.13510</td>
+<td align="right">72.27019</td>
+<td align="right">16.45733</td>
+<td align="right">0.9183903</td>
+</tr>
+<tr class="even">
+<td align="left">forward</td>
+<td align="right">134.9283</td>
+<td align="right">-48.95520</td>
+<td align="right">111.91040</td>
+<td align="right">20.29352</td>
+<td align="right">0.8974732</td>
+</tr>
+<tr class="odd">
+<td align="left">backward</td>
+<td align="right">106.0023</td>
+<td align="right">-21.39401</td>
+<td align="right">66.78802</td>
+<td align="right">15.97800</td>
+<td align="right">0.9195136</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="cross-validation" class="section level2">
+<h2>cross validation</h2>
+<pre class="r"><code>cv_df =
+  crossv_mc(new.data, 100) |&gt; 
+  mutate(
+    train = map(train, as_tibble),
+    test = map(test, as_tibble))
+
+forward.model.AIC</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = corruption_index ~ rule_of_law + government_effectiveness + 
+##     voice_and_accountability + development, data = overall_dataset)
+## 
+## Coefficients:
+##                (Intercept)                 rule_of_law  
+##                   -0.02887                     0.47638  
+##   government_effectiveness    voice_and_accountability  
+##                    0.40579                     0.15997  
+##      developmentDeveloping  developmentLeast Developed  
+##                   -0.02115                     0.16920</code></pre>
+<pre class="r"><code>cv_df = 
+  cv_df |&gt; 
+  mutate(
+    model_full  = map(train, \(df) lm(corruption_index ~ ., data = df)),
+    model_forward  = map(train, \(df) lm(corruption_index ~ rule_of_law + government_effectiveness + voice_and_accountability + development, data = df)),
+    model_backward  = map(train, \(df) lm(corruption_index ~ rule_of_law + government_effectiveness + voice_and_accountability + development+ continent, data = df)))|&gt; 
+  mutate(
+    rmse_full = map2_dbl(model_full, test, \(mod, df) rmse(model = mod, data = df)),
+    rmse_forward = map2_dbl(model_forward, test, \(mod, df) rmse(model = mod, data = df)),
+    rmse_backward = map2_dbl(model_backward, test, \(mod, df) rmse(model = mod, data = df)))</code></pre>
+<pre class="r"><code>cv_df |&gt; 
+  dplyr::select(starts_with(&quot;rmse&quot;)) |&gt; 
+  pivot_longer(
+    everything(),
+    names_to = &quot;model&quot;, 
+    values_to = &quot;rmse&quot;,
+    names_prefix = &quot;rmse_&quot;) |&gt; 
+  mutate(model = fct_inorder(model)) |&gt; 
+  ggplot(aes(x = model, y = rmse)) + geom_violin()</code></pre>
+<p><img src="regression_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+</div>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
