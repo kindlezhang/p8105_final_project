@@ -202,7 +202,7 @@ corruption_EDA=
   corruption_EDA_pre|>
   left_join(GDP_EDA,by = join_by(country_code, year))|>
   janitor::clean_names()|>
-  select(country_name,country_code,
+  select(country_name,country_code,year,
          corruption_index=control_of_corruption_estimate,
          government_effectiveness=government_effectiveness_estimate,
          political_stability_and_absence_of_violence_terrorism=political_stability_and_absence_of_violence_terrorism_estimate,
