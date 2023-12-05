@@ -11,7 +11,7 @@
 
 <meta name="author" content="Yunshen Bai" />
 
-<meta name="date" content="2023-12-03" />
+<meta name="date" content="2023-12-04" />
 
 <title>Data Manipulation and cleaning</title>
 
@@ -34,6 +34,8 @@
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-6.4.0/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.4.0/css/v4-shims.min.css" rel="stylesheet" />
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -287,13 +289,25 @@ $(document).ready(function () {
   <a href="website.html">Mapping</a>
 </li>
 <li>
-  <a href="website.html">Project Report</a>
+  <a href="shiny.html">Shiny</a>
+</li>
+<li>
+  <a href="project_report.html">Project Report</a>
 </li>
 <li>
   <a href="website.html">Screencast</a>
 </li>
 <li>
-  <a href="website.html">References</a>
+  <a href="mailto:&lt;sc5351@cumc.columbia.edu&gt;">
+    <span class="fa fa-envelope fa-lg"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="https://github.com/kindlezhang/p8105_final_project">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
 </li>
       </ul>
     </div><!--/.nav-collapse -->
@@ -306,7 +320,7 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">Data Manipulation and cleaning</h1>
 <h4 class="author">Yunshen Bai</h4>
-<h4 class="date">2023-12-03</h4>
+<h4 class="date">2023-12-04</h4>
 
 </div>
 
@@ -326,25 +340,35 @@ library(httr)</code></pre>
   )|&gt;
   janitor::clean_names()</code></pre>
 </div>
-<div id="sourse-2gdp" class="section level2">
-<h2>sourse 2:GDP</h2>
+<div id="source-2-country-code" class="section level2">
+<h2>source 2: country code</h2>
+<pre class="r"><code>isso_code=
+  read_html(&quot;https://www.countrycode.org/&quot;)|&gt;
+  html_elements(&quot;td:nth-child(3)&quot;)|&gt;
+  html_text()
+
+country_name_isso=
+  read_html(&quot;https://www.countrycode.org/&quot;)|&gt;
+  html_elements(&quot;td:nth-child(1)&quot;)|&gt;
+  html_text()
+
+country_code=data.frame(country_name_isso,str_split_fixed(isso_code, &#39;/&#39;,2))|&gt;
+  rename(c(country_code_2=X1,country_code_3=X2))|&gt;
+  mutate(country_code_2=gsub(&#39;[ ]&#39;,&#39;&#39;,country_code_2),
+         country_code_3=gsub(&#39;[ ]&#39;,&#39;&#39;,country_code_3))|&gt;
+  distinct(country_code_3, .keep_all = T)</code></pre>
+</div>
+<div id="sourse-3gdp" class="section level2">
+<h2>sourse 3:GDP</h2>
 <pre class="r"><code>GDP=read_csv(&quot;./data/GDP.csv&quot;)|&gt;
   janitor::clean_names()|&gt;
   filter(average_gdp!=&quot;#DIV/0!&quot;)|&gt;
   mutate(GDP=as.numeric(average_gdp))|&gt;
   select(country_name,country_code,GDP)|&gt;
   mutate(GDP=GDP/10^9)</code></pre>
-<pre><code>## Rows: 266 Columns: 68
-## -- Column specification --------------------------------------------------------
-## Delimiter: &quot;,&quot;
-## chr  (5): Country Name, Country Code, Indicator Name, Indicator Code, averag...
-## dbl (63): 1960, 1961, 1962, 1963, 1964, 1965, 1966, 1967, 1968, 1969, 1970, ...
-## 
-## i Use `spec()` to retrieve the full column specification for this data.
-## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
 </div>
-<div id="source-3continent" class="section level2">
-<h2>source 3:continent</h2>
+<div id="source-4continent" class="section level2">
+<h2>source 4:continent</h2>
 <pre class="r"><code>Africa=
   read_html(&quot;https://www.countrycallingcodes.com/iso-country-codes/africa-codes.php&quot;) |&gt;
   html_elements(&quot;tr+ tr td:nth-child(3) font&quot;) |&gt;
@@ -381,8 +405,17 @@ Antarctica=
   html_elements(&quot;tr+ tr td:nth-child(3) font&quot;) |&gt;
   html_text()</code></pre>
 </div>
-<div id="source-4-coordinate" class="section level2">
-<h2>source 4: coordinate</h2>
+<div id="source-5-developeddeveloping" class="section level2">
+<h2>source 5: developed/developing</h2>
+<pre class="r"><code>developed=
+  read_csv(&quot;C:/Users/Leon/Desktop/p8105_final_project/data/developed-countries-2023.csv&quot;)|&gt;
+  pull(cca3)
+least_develpoed=
+  read_csv(&quot;C:/Users/Leon/Desktop/p8105_final_project/data/least-developed-countries-2023.csv&quot;)|&gt;
+  pull(cca3)</code></pre>
+</div>
+<div id="source-6-coordinate" class="section level2">
+<h2>source 6: coordinate</h2>
 <pre class="r"><code>coordinate_html=
   read_html(&quot;https://developers.google.com/public-data/docs/canonical/countries_csv?hl=en&quot;)
 
@@ -391,7 +424,7 @@ country_name=
   html_elements(&quot;td:nth-child(4)&quot;) |&gt;
   html_text()
 
-country_code=
+country_code2=
   coordinate_html |&gt;
   html_elements(&quot;td:nth-child(1)&quot;) |&gt;
   html_text() 
@@ -407,34 +440,9 @@ longitude=
   html_text()
 
 country_coordinate=
-  data.frame(country_name,country_code,latitude,longitude)</code></pre>
-</div>
-<div id="source-5-developeddeveloping" class="section level2">
-<h2>source 5: developed/developing</h2>
-<pre class="r"><code>developed=
-  read_csv(&quot;C:/Users/Leon/Desktop/p8105_final_project/data/developed-countries-2023.csv&quot;)|&gt;
-  pull(cca3)
-least_develpoed=
-  read_csv(&quot;C:/Users/Leon/Desktop/p8105_final_project/data/least-developed-countries-2023.csv&quot;)|&gt;
-  pull(cca3)</code></pre>
-</div>
-<div id="source-6-country-code" class="section level2">
-<h2>source 6: country code</h2>
-<pre class="r"><code>isso_code=
-  read_html(&quot;https://www.countrycode.org/&quot;)|&gt;
-  html_elements(&quot;td:nth-child(3)&quot;)|&gt;
-  html_text()
-
-country_name_isso=
-  read_html(&quot;https://www.countrycode.org/&quot;)|&gt;
-  html_elements(&quot;td:nth-child(1)&quot;)|&gt;
-  html_text()
-
-country_code=data.frame(country_name_isso,str_split_fixed(isso_code, &#39;/&#39;,2))|&gt;
-  rename(c(country_code_2=X1,country_code_3=X2))|&gt;
-  mutate(country_code_2=gsub(&#39;[ ]&#39;,&#39;&#39;,country_code_2),
-         country_code_3=gsub(&#39;[ ]&#39;,&#39;&#39;,country_code_3))|&gt;
-  distinct(country_code_3, .keep_all = T)</code></pre>
+  data.frame(country_name,country_code2,latitude,longitude)|&gt;
+  left_join(country_code,join_by(country_code2==country_code_2))|&gt;
+  select(country_name,country_code=country_code_3,latitude,longitude)</code></pre>
 </div>
 <div id="overall-dataset" class="section level2">
 <h2>overall dataset</h2>
@@ -463,7 +471,12 @@ country_code=data.frame(country_name_isso,str_split_fixed(isso_code, &#39;/&#39;
          rule_of_law=rule_of_law_estimate,
          voice_and_accountability=voice_and_accountability_estimate,
          GDP,latitude,longitude,development,continent)</code></pre>
-<pre class="r"><code>corruption_EDA=read_csv(&quot;C:/Users/Leon/Desktop/p8105_final_project/data/corruption_index.csv&quot;)|&gt;
+<pre><code>## Warning in left_join(left_join(left_join(corruption, country_code, join_by(country_code == : Detected an unexpected many-to-many relationship between `x` and `y`.
+## i Row 68 of `x` matches multiple rows in `y`.
+## i Row 32 of `y` matches multiple rows in `x`.
+## i If a many-to-many relationship is expected, set `relationship =
+##   &quot;many-to-many&quot;` to silence this warning.</code></pre>
+<pre class="r"><code>corruption_EDA_pre=read_csv(&quot;C:/Users/Leon/Desktop/p8105_final_project/data/corruption_index.csv&quot;)|&gt;
   janitor::clean_names()|&gt;
   pivot_longer(
     cols = x1996_yr1996:x2022_yr2022,
@@ -489,7 +502,36 @@ GDP_EDA=
   mutate(GDP=GDP/10^9,
          year=substr(year,2,5))
 
-corruption_EDA=left_join(corruption_EDA,GDP_EDA,by = join_by(country_code, year))</code></pre>
+corruption_EDA=
+  corruption_EDA_pre|&gt;
+  left_join(GDP_EDA,by = join_by(country_code, year))|&gt;
+  janitor::clean_names()|&gt;
+  select(country_name,country_code,
+         corruption_index=control_of_corruption_estimate,
+         government_effectiveness=government_effectiveness_estimate,
+         political_stability_and_absence_of_violence_terrorism=political_stability_and_absence_of_violence_terrorism_estimate,
+         regulatory_quality=regulatory_quality_estimate,
+         rule_of_law=rule_of_law_estimate,
+         voice_and_accountability=voice_and_accountability_estimate,
+         gdp)|&gt;
+  mutate(continent=case_when(
+    country_code %in% Asia ~ &quot;Asia&quot;,
+    country_code %in% Africa ~ &quot;Africa&quot;,
+    country_code %in% Europe ~ &quot;Europe&quot;,
+    country_code %in% North_America ~ &quot;North America&quot;,
+    country_code %in% South_America ~ &quot;South America&quot;,
+    country_code %in% Oceania ~ &quot;Oceania&quot;,
+    country_code %in% Antarctica ~ &quot;Antarctica&quot;
+  ))|&gt;
+  mutate(development=case_when(
+    country_code %in% developed ~ &quot;Developed&quot;,
+    country_code %in% least_develpoed ~ &quot;Least Developed&quot;,
+    (!country_code %in% developed) &amp; (!country_code %in% least_develpoed) ~ &quot;Developing&quot;
+  ))|&gt;
+    left_join(country_coordinate,join_by(country_code))|&gt;
+  select(country_name=country_name.x,everything(),-country_name.y)
+
+write.csv(corruption_EDA,&quot;./data/corruption_EDA.csv&quot;)</code></pre>
 </div>
 
 
