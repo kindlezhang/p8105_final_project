@@ -240,7 +240,7 @@ corruption_EDA=
   left_join(population,join_by(country_code,year))|>
   select(country_name=country_name.x,everything(),-country_name.y,-country_name)
   
-write.csv(corruption_EDA,"./data/corruption_EDA.csv")
+write.table(corruption_EDA,"./data/corruption_EDA.csv",row.names=FALSE,col.names=TRUE,sep=",")
 
 ```
 
