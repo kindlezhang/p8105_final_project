@@ -444,6 +444,17 @@ country_coordinate=
   left_join(country_code,join_by(country_code2==country_code_2))|&gt;
   select(country_name,country_code=country_code_3,latitude,longitude)</code></pre>
 </div>
+<div id="source-7-population" class="section level2">
+<h2>source 7: population</h2>
+<pre class="r"><code>population=read_csv(&quot;./data/population.csv&quot;)|&gt;
+  janitor::clean_names()|&gt;
+  select(country_name,country_code,x1996:x2022)|&gt;
+  pivot_longer(
+    x1996:x2022,
+    names_to = &quot;year&quot;,
+    values_to = &quot;population&quot;)|&gt;
+  mutate(year=substr(year,2,5))</code></pre>
+</div>
 <div id="overall-dataset" class="section level2">
 <h2>overall dataset</h2>
 <pre class="r"><code>corruption_data=left_join(corruption,country_code,join_by(country_code==country_code_3))|&gt;
@@ -529,8 +540,9 @@ corruption_EDA=
     (!country_code %in% developed) &amp; (!country_code %in% least_develpoed) ~ &quot;Developing&quot;
   ))|&gt;
     left_join(country_coordinate,join_by(country_code))|&gt;
-  select(country_name=country_name.x,everything(),-country_name.y)
-
+  left_join(population,join_by(country_code,year))|&gt;
+  select(country_name=country_name.x,everything(),-country_name.y,-country_name)
+  
 write.csv(corruption_EDA,&quot;./data/corruption_EDA.csv&quot;)</code></pre>
 </div>
 
