@@ -11,7 +11,7 @@
 
 <meta name="author" content="Yunshen Bai" />
 
-<meta name="date" content="2023-12-05" />
+<meta name="date" content="2023-12-07" />
 
 <title>Data Manipulation and cleaning</title>
 
@@ -320,7 +320,7 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">Data Manipulation and cleaning</h1>
 <h4 class="author">Yunshen Bai</h4>
-<h4 class="date">2023-12-05</h4>
+<h4 class="date">2023-12-07</h4>
 
 </div>
 
@@ -329,7 +329,7 @@ $(document).ready(function () {
 library(rvest)
 library(httr)</code></pre>
 <div id="source-1corruption-index" class="section level2">
-<h2>source 1:corruption index</h2>
+<h2>Source 1:Corruption Index</h2>
 <pre class="r"><code>corruption=read_csv(&quot;C:/Users/Leon/Desktop/p8105_final_project/data/corruption_index.csv&quot;)|&gt;
   janitor::clean_names()|&gt;
   mutate(value=(as.numeric(x2020_yr2020)+as.numeric(x2020_yr2020)+as.numeric(x2020_yr2020))/3)|&gt;
@@ -339,9 +339,25 @@ library(httr)</code></pre>
     values_from = &quot;value&quot;
   )|&gt;
   janitor::clean_names()</code></pre>
+<p>We believe that it would be useful to ascertain the officially
+published data on the corruption index for the last 20 years. This data
+is provided by <a
+href="https://databank.worldbank.org/source/world-development-indicators">The
+World bank</a> and is public information. World data bank gives
+estimated scores for countries on the overall corruption indicator.
+Following this indicator, we also find five indicators Government
+Effectiveness, Political Stability and Absence of Violence, Regulatory
+Quality, Rule of Law, Voice and Accountability may be correlated with
+the Corruption Index. This dataset contains information from 1996 to
+2022.</p>
+<p>The World data bank dataset was downloaded and read in. The dataset
+contains data for all indicators from 1996 to 2022 to reflect how they
+change from year to year. In this dataset, we keep all the variables. To
+make the data more readable and easier to analyze later, we made the
+dataset wide and created a new year variable to record year.</p>
 </div>
 <div id="source-2-country-code" class="section level2">
-<h2>source 2: country code</h2>
+<h2>Source 2: Country Code</h2>
 <pre class="r"><code>isso_code=
   read_html(&quot;https://www.countrycode.org/&quot;)|&gt;
   html_elements(&quot;td:nth-child(3)&quot;)|&gt;
@@ -357,18 +373,35 @@ country_code=data.frame(country_name_isso,str_split_fixed(isso_code, &#39;/&#39;
   mutate(country_code_2=gsub(&#39;[ ]&#39;,&#39;&#39;,country_code_2),
          country_code_3=gsub(&#39;[ ]&#39;,&#39;&#39;,country_code_3))|&gt;
   distinct(country_code_3, .keep_all = T)</code></pre>
+<p>In order to have a better integration of the subsequent data and to
+avoid unnecessary trouble due to the fact that the names of the
+countries recorded are different in different datasets. We decided to
+use the country code to refer to the country.</p>
+<p>This dataset is derived from <a
+href="https://www.countrycode.org/">countrycode.org</a>. The data set
+was not available to download but we were able to scrape it from the
+website. We read the country name and ISSO code columns and split the
+ISSO code into country_code_2 and country_code_3.</p>
 </div>
 <div id="sourse-3gdp" class="section level2">
-<h2>sourse 3:GDP</h2>
+<h2>Sourse 3:GDP</h2>
 <pre class="r"><code>GDP=read_csv(&quot;./data/GDP.csv&quot;)|&gt;
   janitor::clean_names()|&gt;
   filter(average_gdp!=&quot;#DIV/0!&quot;)|&gt;
   mutate(GDP=as.numeric(average_gdp))|&gt;
   select(country_name,country_code,GDP)|&gt;
   mutate(GDP=GDP/10^9)</code></pre>
+<p>We are also interested in whether there is a correlation between a
+country’s level of economic development and the corruption index. This
+dataset comes from <a
+href="https://data.worldbank.org/indicator/SP.POP.TOTL">The World
+Bank</a>. This dataset records the GDP of each country from 1960 to
+2022. we divide the GDP by <span class="math inline">\(10^9\)</span> to
+make the data more readable. We pivoted this dataset to long format and
+created average_GDP for future analysis.</p>
 </div>
 <div id="source-4continent" class="section level2">
-<h2>source 4:continent</h2>
+<h2>Source 4:Continent</h2>
 <pre class="r"><code>Africa=
   read_html(&quot;https://www.countrycallingcodes.com/iso-country-codes/africa-codes.php&quot;) |&gt;
   html_elements(&quot;tr+ tr td:nth-child(3) font&quot;) |&gt;
@@ -404,18 +437,33 @@ Antarctica=
   read_html(&quot;https://www.countrycallingcodes.com/iso-country-codes/antarctica-codes.php&quot;) |&gt;
   html_elements(&quot;tr+ tr td:nth-child(3) font&quot;) |&gt;
   html_text()</code></pre>
+<p>The geographical location of a country may also have a bearing on a
+country’s corruption index. Therefore, we decided to find the continent
+on which each country is located and explore whether it has an impact on
+the corruption index. This dataset comes from <a
+href="https://www.countrycallingcodes.com/iso-country-codes/">countrycallingcodes.com</a>,
+where we read the country codes of the countries contained in each
+continent. The data set was not available to download but we were able
+to scrape it from the website. In future analyses, we will use this data
+to match the continent of the country.</p>
 </div>
-<div id="source-5-developeddeveloping" class="section level2">
-<h2>source 5: developed/developing</h2>
+<div id="source-5-development" class="section level2">
+<h2>Source 5: Development</h2>
 <pre class="r"><code>developed=
   read_csv(&quot;C:/Users/Leon/Desktop/p8105_final_project/data/developed-countries-2023.csv&quot;)|&gt;
   pull(cca3)
 least_develpoed=
   read_csv(&quot;C:/Users/Leon/Desktop/p8105_final_project/data/least-developed-countries-2023.csv&quot;)|&gt;
   pull(cca3)</code></pre>
+<p>Countries in the world can be roughly divided into developed
+countries, developing countries and least developed countries. A
+country’s corruption index may be related to its state of development.
+This dataset comes from <a
+href="https://worldpopulationreview.com/">World Population Review</a>.
+This dataset records the state of development of countries in 2023.</p>
 </div>
 <div id="source-6-coordinate" class="section level2">
-<h2>source 6: coordinate</h2>
+<h2>Source 6: Coordinate</h2>
 <pre class="r"><code>coordinate_html=
   read_html(&quot;https://developers.google.com/public-data/docs/canonical/countries_csv?hl=en&quot;)
 
@@ -443,6 +491,10 @@ country_coordinate=
   data.frame(country_name,country_code2,latitude,longitude)|&gt;
   left_join(country_code,join_by(country_code2==country_code_2))|&gt;
   select(country_name,country_code=country_code_3,latitude,longitude)</code></pre>
+<p>We need the coordinates of the countries for the future EDA session.
+This dataset comes from <a
+href="https://developers.google.com/public-data/docs/canonical/countries_csv?hl=en">Google
+for Developers</a>.</p>
 </div>
 <div id="source-7-population" class="section level2">
 <h2>source 7: population</h2>
@@ -459,7 +511,7 @@ country_coordinate=
 <h2>overall dataset</h2>
 <pre class="r"><code>corruption_data=left_join(corruption,country_code,join_by(country_code==country_code_3))|&gt;
   left_join(GDP,join_by(country_code==country_code))|&gt;
-  left_join(country_coordinate,join_by(country_code_2==country_code))|&gt;
+  left_join(country_coordinate,join_by(country_code))|&gt;
   mutate(development=case_when(
     country_code %in% developed ~ &quot;Developed&quot;,
     country_code %in% least_develpoed ~ &quot;Least Developed&quot;,
@@ -475,18 +527,22 @@ country_coordinate=
     country_code %in% Antarctica ~ &quot;Antarctica&quot;
   ))|&gt;
   select(country_name,
-         corruption_index=control_of_corruption_estimate,
-         government_effectiveness=government_effectiveness_estimate,
-         political_stability_and_absence_of_violence_terrorism=political_stability_and_absence_of_violence_terrorism_estimate,
-         regulatory_quality=regulatory_quality_estimate,
-         rule_of_law=rule_of_law_estimate,
-         voice_and_accountability=voice_and_accountability_estimate,
-         GDP,latitude,longitude,development,continent)</code></pre>
-<pre><code>## Warning in left_join(left_join(left_join(corruption, country_code, join_by(country_code == : Detected an unexpected many-to-many relationship between `x` and `y`.
-## i Row 68 of `x` matches multiple rows in `y`.
-## i Row 32 of `y` matches multiple rows in `x`.
-## i If a many-to-many relationship is expected, set `relationship =
-##   &quot;many-to-many&quot;` to silence this warning.</code></pre>
+         con_cor=control_of_corruption_estimate,
+         gov_eff=government_effectiveness_estimate,
+         pol_vio=political_stability_and_absence_of_violence_terrorism_estimate,
+         regu_qual=regulatory_quality_estimate,
+         rul_law=rule_of_law_estimate,
+         voi_acc=voice_and_accountability_estimate,
+         GDP,latitude,longitude,development,continent)
+
+write.table(corruption_data,&quot;./data/cleaned_data/overall_dataset.csv&quot;,row.names=FALSE,col.names=TRUE,sep=&quot;,&quot;)</code></pre>
+<p><code>con_cor</code>=control of corruption<br />
+<code>gov_eff</code>=government effectiveness<br />
+<code>pol_vio</code>=political stability and absence of violence
+terrorism<br />
+<code>regu_qual</code>=regulatory quality<br />
+<code>rul_law</code>=rule of law<br />
+<code>voi_acc</code>=voice and accountability</p>
 <pre class="r"><code>corruption_EDA_pre=read_csv(&quot;C:/Users/Leon/Desktop/p8105_final_project/data/corruption_index.csv&quot;)|&gt;
   janitor::clean_names()|&gt;
   pivot_longer(
@@ -518,12 +574,12 @@ corruption_EDA=
   left_join(GDP_EDA,by = join_by(country_code, year))|&gt;
   janitor::clean_names()|&gt;
   select(country_name,country_code,year,
-         corruption_index=control_of_corruption_estimate,
-         government_effectiveness=government_effectiveness_estimate,
-         political_stability_and_absence_of_violence_terrorism=political_stability_and_absence_of_violence_terrorism_estimate,
-         regulatory_quality=regulatory_quality_estimate,
-         rule_of_law=rule_of_law_estimate,
-         voice_and_accountability=voice_and_accountability_estimate,
+         con_cor=control_of_corruption_estimate,
+         gov_eff=government_effectiveness_estimate,
+         pol_vio=political_stability_and_absence_of_violence_terrorism_estimate,
+         regu_qual=regulatory_quality_estimate,
+         rul_law=rule_of_law_estimate,
+         voi_acc=voice_and_accountability_estimate,
          gdp)|&gt;
   mutate(continent=case_when(
     country_code %in% Asia ~ &quot;Asia&quot;,
@@ -541,9 +597,24 @@ corruption_EDA=
   ))|&gt;
     left_join(country_coordinate,join_by(country_code))|&gt;
   left_join(population,join_by(country_code,year))|&gt;
-  select(country_name=country_name.x,everything(),-country_name.y,-country_name)
+  select(country_name=country_name.x,everything(),-country_name.y,-country_name)|&gt;
+  mutate(con_cor=as.numeric(con_cor),
+         gov_eff=as.numeric(gov_eff),
+         pol_vio=as.numeric(pol_vio),
+         regu_qual=as.numeric(regu_qual),
+         rul_law=as.numeric(rul_law),
+         voi_acc=as.numeric(voi_acc),
+         year=as.numeric(year)
+         )
   
 write.table(corruption_EDA,&quot;./data/corruption_EDA.csv&quot;,row.names=FALSE,col.names=TRUE,sep=&quot;,&quot;)</code></pre>
+<p><code>con_cor</code>=control of corruption<br />
+<code>gov_eff</code>=government effectiveness<br />
+<code>pol_vio</code>=political stability and absence of violence
+terrorism<br />
+<code>regu_qual</code>=regulatory quality<br />
+<code>rul_law</code>=rule of law<br />
+<code>voi_acc</code>=voice and accountability</p>
 </div>
 
 

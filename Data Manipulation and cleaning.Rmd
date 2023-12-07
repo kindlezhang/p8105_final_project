@@ -12,7 +12,7 @@ library(httr)
 
 ```
 
-## source 1:corruption index
+## Source 1:Corruption Index
 
 ```{r,message=FALSE,warning=FALSE}
 corruption=read_csv("C:/Users/Leon/Desktop/p8105_final_project/data/corruption_index.csv")|>
@@ -26,7 +26,11 @@ corruption=read_csv("C:/Users/Leon/Desktop/p8105_final_project/data/corruption_i
   janitor::clean_names()
 ```
 
-## source 2: country code
+We believe that it would be useful to ascertain the officially published data on the corruption index for the last 20 years. This data is provided by [The World bank](https://databank.worldbank.org/source/world-development-indicators) and is public information. World data bank gives estimated scores for countries on the overall corruption indicator. Following this indicator, we also find five indicators Government Effectiveness, Political Stability and Absence of Violence, Regulatory Quality, Rule of Law, Voice and Accountability may be correlated with the Corruption Index. This dataset contains information from 1996 to 2022.
+
+The World data bank dataset was downloaded and read in. The dataset contains data for all indicators from 1996 to 2022 to reflect how they change from year to year. In this dataset, we keep all the variables. To make the data more readable and easier to analyze later, we made the dataset wide and created a new year variable to record year.
+
+## Source 2: Country Code
 ```{r}
 isso_code=
   read_html("https://www.countrycode.org/")|>
@@ -45,7 +49,11 @@ country_code=data.frame(country_name_isso,str_split_fixed(isso_code, '/',2))|>
   distinct(country_code_3, .keep_all = T)
 ```
 
-## sourse 3:GDP
+In order to have a better integration of the subsequent data and to avoid unnecessary trouble due to the fact that the names of the countries recorded are different in different datasets. We decided to use the country code to refer to the country.
+
+This dataset is derived from [countrycode.org](https://www.countrycode.org/). The data set was not available to download but we were able to scrape it from the website. We read the country name and ISSO code columns and split the ISSO code into country_code_2 and country_code_3.
+
+## Sourse 3:GDP
 
 ```{r,message=FALSE}
 GDP=read_csv("./data/GDP.csv")|>
@@ -56,7 +64,9 @@ GDP=read_csv("./data/GDP.csv")|>
   mutate(GDP=GDP/10^9)
 ```
 
-## source 4:continent
+We are also interested in whether there is a correlation between a country's level of economic development and the corruption index. This dataset comes from [The World Bank](https://data.worldbank.org/indicator/SP.POP.TOTL). This dataset records the GDP of each country from 1960 to 2022. we divide the GDP by $10^9$ to make the data more readable. We pivoted this dataset to long format and created average_GDP for future analysis.
+
+## Source 4:Continent
 ```{r}
 Africa=
   read_html("https://www.countrycallingcodes.com/iso-country-codes/africa-codes.php") |>
@@ -95,9 +105,9 @@ Antarctica=
   html_text()
 ```
 
+The geographical location of a country may also have a bearing on a country's corruption index. Therefore, we decided to find the continent on which each country is located and explore whether it has an impact on the corruption index. This dataset comes from [countrycallingcodes.com](https://www.countrycallingcodes.com/iso-country-codes/), where we read the country codes of the countries contained in each continent. The data set was not available to download but we were able to scrape it from the website. In future analyses, we will use this data to match the continent of the country.
 
-
-## source 5: developed/developing
+## Source 5: Development
 
 ```{r,message=FALSE}
 developed=
@@ -108,7 +118,9 @@ least_develpoed=
   pull(cca3)
 ```
 
-## source 6: coordinate
+Countries in the world can be roughly divided into developed countries, developing countries and least developed countries. A country's corruption index may be related to its state of development. This dataset comes from [World Population Review](https://worldpopulationreview.com/). This dataset records the state of development of countries in 2023.
+
+## Source 6: Coordinate
 ```{r}
 coordinate_html=
   read_html("https://developers.google.com/public-data/docs/canonical/countries_csv?hl=en")
@@ -139,6 +151,8 @@ country_coordinate=
   select(country_name,country_code=country_code_3,latitude,longitude)
 ```
 
+We need the coordinates of the countries for the future EDA session. This dataset comes from [Google for Developers](https://developers.google.com/public-data/docs/canonical/countries_csv?hl=en).
+
 ## source 7: population
 
 ```{r,message=FALSE}
@@ -157,7 +171,7 @@ population=read_csv("./data/population.csv")|>
 ```{r}
 corruption_data=left_join(corruption,country_code,join_by(country_code==country_code_3))|>
   left_join(GDP,join_by(country_code==country_code))|>
-  left_join(country_coordinate,join_by(country_code_2==country_code))|>
+  left_join(country_coordinate,join_by(country_code))|>
   mutate(development=case_when(
     country_code %in% developed ~ "Developed",
     country_code %in% least_develpoed ~ "Least Developed",
@@ -173,17 +187,27 @@ corruption_data=left_join(corruption,country_code,join_by(country_code==country_
     country_code %in% Antarctica ~ "Antarctica"
   ))|>
   select(country_name,
-         corruption_index=control_of_corruption_estimate,
-         government_effectiveness=government_effectiveness_estimate,
-         political_stability_and_absence_of_violence_terrorism=political_stability_and_absence_of_violence_terrorism_estimate,
-         regulatory_quality=regulatory_quality_estimate,
-         rule_of_law=rule_of_law_estimate,
-         voice_and_accountability=voice_and_accountability_estimate,
+         con_cor=control_of_corruption_estimate,
+         gov_eff=government_effectiveness_estimate,
+         pol_vio=political_stability_and_absence_of_violence_terrorism_estimate,
+         regu_qual=regulatory_quality_estimate,
+         rul_law=rule_of_law_estimate,
+         voi_acc=voice_and_accountability_estimate,
          GDP,latitude,longitude,development,continent)
+
+write.table(corruption_data,"./data/cleaned_data/overall_dataset.csv",row.names=FALSE,col.names=TRUE,sep=",")
+  
 ```
 
+`con_cor`=control of corruption  
+`gov_eff`=government effectiveness  
+`pol_vio`=political stability and absence of violence terrorism    
+`regu_qual`=regulatory quality   
+`rul_law`=rule of law  
+`voi_acc`=voice and accountability   
 
-```{r,message=FALSE}
+
+```{r,message=FALSE,warning=FALSE}
 corruption_EDA_pre=read_csv("C:/Users/Leon/Desktop/p8105_final_project/data/corruption_index.csv")|>
   janitor::clean_names()|>
   pivot_longer(
@@ -215,12 +239,12 @@ corruption_EDA=
   left_join(GDP_EDA,by = join_by(country_code, year))|>
   janitor::clean_names()|>
   select(country_name,country_code,year,
-         corruption_index=control_of_corruption_estimate,
-         government_effectiveness=government_effectiveness_estimate,
-         political_stability_and_absence_of_violence_terrorism=political_stability_and_absence_of_violence_terrorism_estimate,
-         regulatory_quality=regulatory_quality_estimate,
-         rule_of_law=rule_of_law_estimate,
-         voice_and_accountability=voice_and_accountability_estimate,
+         con_cor=control_of_corruption_estimate,
+         gov_eff=government_effectiveness_estimate,
+         pol_vio=political_stability_and_absence_of_violence_terrorism_estimate,
+         regu_qual=regulatory_quality_estimate,
+         rul_law=rule_of_law_estimate,
+         voi_acc=voice_and_accountability_estimate,
          gdp)|>
   mutate(continent=case_when(
     country_code %in% Asia ~ "Asia",
@@ -238,11 +262,26 @@ corruption_EDA=
   ))|>
     left_join(country_coordinate,join_by(country_code))|>
   left_join(population,join_by(country_code,year))|>
-  select(country_name=country_name.x,everything(),-country_name.y,-country_name)
+  select(country_name=country_name.x,everything(),-country_name.y,-country_name)|>
+  mutate(con_cor=as.numeric(con_cor),
+         gov_eff=as.numeric(gov_eff),
+         pol_vio=as.numeric(pol_vio),
+         regu_qual=as.numeric(regu_qual),
+         rul_law=as.numeric(rul_law),
+         voi_acc=as.numeric(voi_acc),
+         year=as.numeric(year)
+         )
   
 write.table(corruption_EDA,"./data/corruption_EDA.csv",row.names=FALSE,col.names=TRUE,sep=",")
 
 ```
+
+`con_cor`=control of corruption  
+`gov_eff`=government effectiveness  
+`pol_vio`=political stability and absence of violence terrorism    
+`regu_qual`=regulatory quality   
+`rul_law`=rule of law  
+`voi_acc`=voice and accountability   
 
 
 
