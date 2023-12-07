@@ -1,7 +1,5 @@
 ---
-title: "Untitled"
-author: "Xiangxiong Feng"
-date: "2023-12-03"
+title: "Regression"
 output: html_document
 
 ---
@@ -164,9 +162,9 @@ All.Criteria(forward.model.AIC)|>
 
 ## Comparision of full model, forward and backward selected model
 
-
-
-
+Backward selected model has the lowest BIC and highest R2adj. We would say that the 
+backward selected model is the most optiaml model among these three.
+ 
 ```{r}
 forward_model = All.Criteria(forward.model.AIC)|>
   mutate(the.LL = as.double(the.LL))
@@ -201,8 +199,6 @@ cv_df =
   mutate(
     train = map(train, as_tibble),
     test = map(test, as_tibble))
-
-forward.model.AIC
 ```
 
 ```{r}

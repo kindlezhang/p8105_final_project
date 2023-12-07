@@ -9,11 +9,9 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Xiangxiong Feng" />
 
-<meta name="date" content="2023-12-03" />
 
-<title>Untitled</title>
+<title>Regression</title>
 
 <script src="site_libs/header-attrs-2.25/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
@@ -304,9 +302,7 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">Untitled</h1>
-<h4 class="author">Xiangxiong Feng</h4>
-<h4 class="date">2023-12-03</h4>
+<h1 class="title toc-ignore">Regression</h1>
 
 </div>
 
@@ -857,6 +853,9 @@ regulatory_quality, GDP, continent are deleted.</p>
 <div id="comparision-of-full-model-forward-and-backward-selected-model"
 class="section level2">
 <h2>Comparision of full model, forward and backward selected model</h2>
+<p>Backward selected model has the lowest BIC and highest R2adj. We
+would say that the backward selected model is the most optiaml model
+among these three.</p>
 <pre class="r"><code>forward_model = All.Criteria(forward.model.AIC)|&gt;
   mutate(the.LL = as.double(the.LL))
 backward_model = All.Criteria(backward.model.AIC)|&gt;
@@ -920,21 +919,7 @@ model</caption>
   crossv_mc(new.data, 100) |&gt; 
   mutate(
     train = map(train, as_tibble),
-    test = map(test, as_tibble))
-
-forward.model.AIC</code></pre>
-<pre><code>## 
-## Call:
-## lm(formula = corruption_index ~ rule_of_law + government_effectiveness + 
-##     voice_and_accountability + development, data = overall_dataset)
-## 
-## Coefficients:
-##                (Intercept)                 rule_of_law  
-##                   -0.02887                     0.47638  
-##   government_effectiveness    voice_and_accountability  
-##                    0.40579                     0.15997  
-##      developmentDeveloping  developmentLeast Developed  
-##                   -0.02115                     0.16920</code></pre>
+    test = map(test, as_tibble))</code></pre>
 <pre class="r"><code>cv_df = 
   cv_df |&gt; 
   mutate(
