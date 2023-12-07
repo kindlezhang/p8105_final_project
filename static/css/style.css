@@ -877,7 +877,7 @@ section{
 }
 .lds-spinner img {
   position: absolute;
-  top: 22px;
+  top: 0;
   left: 0;
   right: 0;
   width: 100%;
