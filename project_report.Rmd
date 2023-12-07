@@ -1,10 +1,30 @@
 ---
-title: "Final_Report"
-output: html_document
+title: "Final Report"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: "hide"
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(
+  warning = FALSE, 
+  message = FALSE, 
+  echo = TRUE,
+  fig.width = 6,
+  fig.asp = 0.4,
+  out.width = "90%")
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
 ```
 
 ## **Motivation**  
@@ -13,6 +33,12 @@ knitr::opts_chunk$set(echo = TRUE)
 The Corruption Perceptions Index (CPI) measures the perceived levels of government corruption in different countries. 
 
 The government corruption index seems very far away from us, but as socially concerned students, we want to explore some of the subtle and deep factors behind the index and the reasons for regional differences. And by visualizing the results to deepen the understanding of the index for people who see the report.
+
+```{r}
+12344
+```
+
+
 
 ## **Initial Questions** 
 
