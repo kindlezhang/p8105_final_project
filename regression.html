@@ -29,9 +29,14 @@
        h6 {font-size: 12px;}
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-6.4.2/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet" />
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -219,6 +224,69 @@ $(document).ready(function () {
 
 
 
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
 
 </head>
 
@@ -226,6 +294,16 @@ $(document).ready(function () {
 
 
 <div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -285,13 +363,25 @@ $(document).ready(function () {
   <a href="website.html">Mapping</a>
 </li>
 <li>
-  <a href="website.html">Project Report</a>
+  <a href="shiny.html">Shiny</a>
+</li>
+<li>
+  <a href="project_report.html">Project Report</a>
 </li>
 <li>
   <a href="website.html">Screencast</a>
 </li>
 <li>
-  <a href="website.html">References</a>
+  <a href="mailto:&lt;sc5351@cumc.columbia.edu&gt;">
+    <span class="fa fa-envelope fa-lg"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="https://github.com/kindlezhang/p8105_final_project">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
 </li>
       </ul>
     </div><!--/.nav-collapse -->
@@ -376,9 +466,13 @@ library(car)</code></pre>
 ## The following object is masked from &#39;package:purrr&#39;:
 ## 
 ##     some</code></pre>
-<div id="import-data" class="section level1">
-<h1>import data</h1>
-<pre class="r"><code>overall_dataset = read.csv(&quot;data/overall_dataset.csv&quot;)</code></pre>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>In this part, linear regression models are generated to help us to
+have a better understanding of the relationship between corruption index
+and other variables. After data cleaning, all variables and the number
+of missing data are shown below.</p>
+<pre class="r"><code>overall_dataset = read.csv(&quot;data/cleaned_data/overall_dataset.csv&quot;)</code></pre>
 <pre class="r"><code>NA_table_1 = 
   overall_dataset|&gt; 
   is.na()|&gt; 
@@ -456,8 +550,6 @@ empty.model = lm(corruption_index ~ 1,data = overall_dataset)</code></pre>
 <p>The full model includes all variables except latitude and longitude
 since continent is included as location information. This model is
 treated as the baseline to compare with model after selection.</p>
-<div id="summary-of-full-model" class="section level2">
-<h2>summary of full model</h2>
 <p>Tables below show summary information of the full model. The p-value
 for government_effectiveness, rule_of_law, voice_and_accountability,
 continentEurope have p-value lower than any reasonable significance
@@ -593,15 +685,15 @@ align="left">political_stability_and_absence_of_violence_terrorism</td>
 </tr>
 </tbody>
 </table>
-</div>
 <div id="check-normality-and-remove-outlier" class="section level2">
 <h2>check normality and remove outlier</h2>
 <p>Plots below shows that the residuals are overall normally
-distributed. The qq-plot shows the regression is linear and there is no
-need to add transformation variables. Then, outliers are detected and
-removed by using cutoffs based on t distribution. With data after
-removing oultiers, the full model is updated, and BIC and AIC are all
-decreased.</p>
+distributed. The qq-plot shows that the regression is linear and there
+is no need to add transformation variables. Then, outliers are detected
+and removed by using cutoffs based on t-distribution. With data after
+removing outliers, the full model is updated, and BIC and AIC are all
+decreased, which indicate a better balance between explaining the data
+and avoiding overfitting.</p>
 <pre class="r"><code>SR = stdres(full.model)
 n = length(full.model$residuals) 
 p = length(full.model$coefficients)
@@ -677,7 +769,9 @@ function is applied to gain selected models.</p>
 <h2>backward model selection</h2>
 <p>The summary of backward selected model is shown below.
 political_stability_and_absence_of_violence_terrorism,
-regulatory_quality, GDP are deleted.</p>
+regulatory_quality, GDP are deleted. This is expected because these
+three variables have relatively high p-value that presented in full
+model above.</p>
 <pre class="r"><code>backward.model.AIC = stepAIC(full.model, scope = list(lower = empty.model, upper= full.model), k = 2,direction = &quot;backward&quot;,trace = FALSE)
 forward.model.AIC = stepAIC(empty.model, scope = list(lower = empty.model, upper= full.model), k = 2,direction = &quot;forward&quot;,trace = FALSE)</code></pre>
 <pre class="r"><code>backward.model.AIC|&gt;
@@ -779,7 +873,11 @@ forward.model.AIC = stepAIC(empty.model, scope = list(lower = empty.model, upper
 <h2>forward model selection</h2>
 <p>The summary of forward selected model is shown below.
 political_stability_and_absence_of_violence_terrorism,
-regulatory_quality, GDP, continent are deleted.</p>
+regulatory_quality, GDP, continent are deleted. Comparing to backward
+selected model, continent is also deleted. The possible reason is that
+forward selection may be more sensitive to the order in which variable
+are added; on the other hand, backward selection tends to be more stable
+and less dependent on the order of variable removal.</p>
 <pre class="r"><code>forward.model.AIC|&gt;
   broom::tidy()|&gt;
   dplyr::select(term, estimate, p.value)|&gt;
@@ -853,9 +951,10 @@ regulatory_quality, GDP, continent are deleted.</p>
 <div id="comparision-of-full-model-forward-and-backward-selected-model"
 class="section level2">
 <h2>Comparision of full model, forward and backward selected model</h2>
-<p>Backward selected model has the lowest BIC and highest R2adj. We
-would say that the backward selected model is the most optiaml model
-among these three.</p>
+<p>Backward selected model has the lowest BIC and highest R2adj.
+Interestingly, forward selected model has the lower than BIC and R2adj
+than unselected full model, which indicated that continentEurope has
+unexcepted significance in the whole model.</p>
 <pre class="r"><code>forward_model = All.Criteria(forward.model.AIC)|&gt;
   mutate(the.LL = as.double(the.LL))
 backward_model = All.Criteria(backward.model.AIC)|&gt;
@@ -912,9 +1011,9 @@ model</caption>
 </tr>
 </tbody>
 </table>
-</div>
-<div id="cross-validation" class="section level2">
-<h2>cross validation</h2>
+<p>Then, the dataset is divided into train and test datasets 100 times.
+The graph below shows the RMSE distribution in test datasets for three
+models. From the plot,all three models have RMSE around 0.28 to 0.32</p>
 <pre class="r"><code>cv_df =
   crossv_mc(new.data, 100) |&gt; 
   mutate(
@@ -940,11 +1039,51 @@ model</caption>
   mutate(model = fct_inorder(model)) |&gt; 
   ggplot(aes(x = model, y = rmse)) + geom_violin()</code></pre>
 <p><img src="regression_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+<p>The graphs below show the Prediction VS Actual for three models.
+Overall, there is no significant difference between three models.</p>
+<pre class="r"><code>new.data|&gt;
+  modelr::add_predictions(full.model)|&gt;
+  ggplot(aes(x = corruption_index, y = pred)) +
+  geom_point() + 
+  geom_abline(intercept = 0, slope = 1, color = &quot;blue&quot;) +
+  labs(
+    title = &quot;Full model :Prediction V.S. Actual corruption_index&quot;,
+    x = &quot;Actual corruption_index&quot;,
+    y = &quot;Prediction&quot;
+  )</code></pre>
+<p><img src="regression_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+<pre class="r"><code>new.data|&gt;
+  modelr::add_predictions(forward.model.AIC)|&gt;
+  ggplot(aes(x = corruption_index, y = pred)) +
+  geom_point() + 
+  geom_abline(intercept = 0, slope = 1, color = &quot;blue&quot;) +
+  labs(
+    title = &quot;Forward selected model: Prediction V.S. Actual corruption_index&quot;,
+    x = &quot;Actual corruption_index&quot;,
+    y = &quot;Prediction&quot;
+  )</code></pre>
+<p><img src="regression_files/figure-html/unnamed-chunk-15-2.png" width="672" /></p>
+<pre class="r"><code>new.data|&gt;
+  modelr::add_predictions(backward.model.AIC)|&gt;
+  ggplot(aes(x = corruption_index, y = pred)) +
+  geom_point() + 
+  geom_abline(intercept = 0, slope = 1, color = &quot;blue&quot;) +
+  labs(
+    title = &quot;Backward selected model: Prediction V.S. Actual corruption_index&quot;,
+    x = &quot;Actual corruption_index&quot;,
+    y = &quot;Prediction&quot;
+  )</code></pre>
+<p><img src="regression_files/figure-html/unnamed-chunk-15-3.png" width="672" /></p>
+<p>To sum up, based on all analysis above, there is no significant
+difference between three models. But backward selected model is the most
+optimal model to predict corruption index.</p>
 </div>
 </div>
 
 
 
+</div>
+</div>
 
 </div>
 
@@ -977,6 +1116,35 @@ $(document).ready(function () {
 
 <!-- code folding -->
 
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>
