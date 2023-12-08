@@ -56,12 +56,24 @@ This dataset is derived from [countrycode.org](https://www.countrycode.org/). Th
 ## Sourse 3:GDP
 
 ```{r,message=FALSE}
-GDP=read_csv("./data/GDP.csv")|>
+average_GDP=read_csv("./data/GDP.csv")|>
   janitor::clean_names()|>
   filter(average_gdp!="#DIV/0!")|>
   mutate(GDP=as.numeric(average_gdp))|>
   select(country_name,country_code,GDP)|>
   mutate(GDP=GDP/10^9)
+
+GDP_EDA=
+  read_csv("./data/GDP.csv")|>
+  janitor::clean_names()|>
+  select(country_code,x1996:x2022)|>
+  pivot_longer(
+    x1996:x2022,
+    names_to = "year",
+    values_to = "GDP"
+               )|>
+  mutate(GDP=GDP/10^9,
+         year=substr(year,2,5))
 ```
 
 We are also interested in whether there is a correlation between a country's level of economic development and the corruption index. This dataset comes from [The World Bank](https://data.worldbank.org/indicator/NY.GDP.MKTP.CD). This dataset records the GDP of each country from 1960 to 2022. we divide the GDP by $10^9$ to make the data more readable. We pivoted this dataset to long format and created `average_GDP` for future analysis.
@@ -156,6 +168,13 @@ We need the coordinates of the countries for the future EDA session. This datase
 ## Source 7: Population
 
 ```{r,message=FALSE}
+average_population=read_csv("./data/population.csv")|>
+  janitor::clean_names()|>
+  filter(average_population!="#DIV/0!")|>
+  mutate(population=as.numeric(average_population))|>
+  select(country_name,country_code,population)|>
+  mutate(population=population/(10^7))
+
 population=read_csv("./data/population.csv")|>
   janitor::clean_names()|>
   select(country_name,country_code,x1996:x2022)|>
@@ -171,8 +190,9 @@ We are also interested in whether there is a correlation between a country's pop
 ## Merge Datasets
 ```{r}
 corruption_data=left_join(corruption,country_code,join_by(country_code==country_code_3))|>
-  left_join(GDP,join_by(country_code==country_code))|>
+  left_join(average_GDP,join_by(country_code==country_code))|>
   left_join(country_coordinate,join_by(country_code))|>
+  left_join(average_population,by=join_by(country_code))|>
   mutate(development=case_when(
     country_code %in% developed ~ "Developed",
     country_code %in% least_develpoed ~ "Least Developed",
@@ -187,14 +207,14 @@ corruption_data=left_join(corruption,country_code,join_by(country_code==country_
     country_code %in% Oceania ~ "Oceania",
     country_code %in% Antarctica ~ "Antarctica"
   ))|>
-  select(country_name,
+  select(country_name=country_name.x,country_code,
          con_cor=control_of_corruption_estimate,
          gov_eff=government_effectiveness_estimate,
          pol_vio=political_stability_and_absence_of_violence_terrorism_estimate,
          regu_qual=regulatory_quality_estimate,
          rul_law=rule_of_law_estimate,
          voi_acc=voice_and_accountability_estimate,
-         GDP,latitude,longitude,development,continent)
+         GDP,population,latitude,longitude,development,continent)
 
 write.table(corruption_data,"./data/cleaned_data/overall_dataset.csv",row.names=FALSE,col.names=TRUE,sep=",")
   
@@ -269,12 +289,33 @@ write.table(corruption_EDA,"./data/corruption_EDA.csv",row.names=FALSE,col.names
 
 ```
 
-`con_cor`=control of corruption  
-`gov_eff`=government effectiveness  
-`pol_vio`=political stability and absence of violence terrorism    
-`regu_qual`=regulatory quality   
-`rul_law`=rule of law  
-`voi_acc`=voice and accountability   
+Since we cleaned the datasets we got, we need to merge these datasets for our future analysis. Since `country_code` is the common variable in every datasets, we use `left_join` function to merge these datasets together. For those dataset is not suitable for `left_join`, we use `case_when` function to merge them into the cleaned dataset. The cleaned dataset include the following variables:
+
+- `country_name`: Country names
+- `country_code`: Country codes
+- `year`: year
+- `con_cor`: Control of corruption  
+- `gov_eff`: Government effectiveness  
+- `pol_vio`: Political stability and absence of violence terrorism    
+- `regu_qual`: Regulatory quality   
+- `rul_law`: Rule of law  
+- `voi_acc`: Voice and accountability   
+- `gdp`:GDP of countries($10^9$)
+- `continent`: Continent where the countries are located
+- `development`: Status of development of countries
+- `latitude`: latitude
+- `longitude`: longitude
+- `population`: Population of countries
+
+For the dataset we used in regression section, we take the average value of the numeric variables from 2020-2022.
+
+
+```{r}
+corruption_data|>
+  head(20)|>
+  knitr::kable()
+```
+
 
 
 

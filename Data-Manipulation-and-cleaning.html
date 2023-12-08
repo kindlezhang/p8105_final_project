@@ -385,12 +385,24 @@ ISSO code into country_code_2 and country_code_3.</p>
 </div>
 <div id="sourse-3gdp" class="section level2">
 <h2>Sourse 3:GDP</h2>
-<pre class="r"><code>GDP=read_csv(&quot;./data/GDP.csv&quot;)|&gt;
+<pre class="r"><code>average_GDP=read_csv(&quot;./data/GDP.csv&quot;)|&gt;
   janitor::clean_names()|&gt;
   filter(average_gdp!=&quot;#DIV/0!&quot;)|&gt;
   mutate(GDP=as.numeric(average_gdp))|&gt;
   select(country_name,country_code,GDP)|&gt;
-  mutate(GDP=GDP/10^9)</code></pre>
+  mutate(GDP=GDP/10^9)
+
+GDP_EDA=
+  read_csv(&quot;./data/GDP.csv&quot;)|&gt;
+  janitor::clean_names()|&gt;
+  select(country_code,x1996:x2022)|&gt;
+  pivot_longer(
+    x1996:x2022,
+    names_to = &quot;year&quot;,
+    values_to = &quot;GDP&quot;
+               )|&gt;
+  mutate(GDP=GDP/10^9,
+         year=substr(year,2,5))</code></pre>
 <p>We are also interested in whether there is a correlation between a
 country’s level of economic development and the corruption index. This
 dataset comes from <a
@@ -501,7 +513,14 @@ only the three-digit country code.</p>
 </div>
 <div id="source-7-population" class="section level2">
 <h2>Source 7: Population</h2>
-<pre class="r"><code>population=read_csv(&quot;./data/population.csv&quot;)|&gt;
+<pre class="r"><code>average_population=read_csv(&quot;./data/population.csv&quot;)|&gt;
+  janitor::clean_names()|&gt;
+  filter(average_population!=&quot;#DIV/0!&quot;)|&gt;
+  mutate(population=as.numeric(average_population))|&gt;
+  select(country_name,country_code,population)|&gt;
+  mutate(population=population/(10^7))
+
+population=read_csv(&quot;./data/population.csv&quot;)|&gt;
   janitor::clean_names()|&gt;
   select(country_name,country_code,x1996:x2022)|&gt;
   pivot_longer(
@@ -519,8 +538,9 @@ to 2022. We pivoted this dataset to long format and created
 <div id="merge-datasets" class="section level2">
 <h2>Merge Datasets</h2>
 <pre class="r"><code>corruption_data=left_join(corruption,country_code,join_by(country_code==country_code_3))|&gt;
-  left_join(GDP,join_by(country_code==country_code))|&gt;
+  left_join(average_GDP,join_by(country_code==country_code))|&gt;
   left_join(country_coordinate,join_by(country_code))|&gt;
+  left_join(average_population,by=join_by(country_code))|&gt;
   mutate(development=case_when(
     country_code %in% developed ~ &quot;Developed&quot;,
     country_code %in% least_develpoed ~ &quot;Least Developed&quot;,
@@ -535,14 +555,14 @@ to 2022. We pivoted this dataset to long format and created
     country_code %in% Oceania ~ &quot;Oceania&quot;,
     country_code %in% Antarctica ~ &quot;Antarctica&quot;
   ))|&gt;
-  select(country_name,
+  select(country_name=country_name.x,country_code,
          con_cor=control_of_corruption_estimate,
          gov_eff=government_effectiveness_estimate,
          pol_vio=political_stability_and_absence_of_violence_terrorism_estimate,
          regu_qual=regulatory_quality_estimate,
          rul_law=rule_of_law_estimate,
          voi_acc=voice_and_accountability_estimate,
-         GDP,latitude,longitude,development,continent)
+         GDP,population,latitude,longitude,development,continent)
 
 write.table(corruption_data,&quot;./data/cleaned_data/overall_dataset.csv&quot;,row.names=FALSE,col.names=TRUE,sep=&quot;,&quot;)</code></pre>
 <pre class="r"><code>corruption_EDA_pre=read_csv(&quot;C:/Users/Leon/Desktop/p8105_final_project/data/corruption_index.csv&quot;)|&gt;
@@ -610,13 +630,402 @@ corruption_EDA=
          )
   
 write.table(corruption_EDA,&quot;./data/corruption_EDA.csv&quot;,row.names=FALSE,col.names=TRUE,sep=&quot;,&quot;)</code></pre>
-<p><code>con_cor</code>=control of corruption<br />
-<code>gov_eff</code>=government effectiveness<br />
-<code>pol_vio</code>=political stability and absence of violence
+<p>Since we cleaned the datasets we got, we need to merge these datasets
+for our future analysis. Since <code>country_code</code> is the common
+variable in every datasets, we use <code>left_join</code> function to
+merge these datasets together. For those dataset is not suitable for
+<code>left_join</code>, we use <code>case_when</code> function to merge
+them into the cleaned dataset. The cleaned dataset include the following
+variables:</p>
+<ul>
+<li><code>country_name</code>: Country names</li>
+<li><code>country_code</code>: Country codes</li>
+<li><code>year</code>: year</li>
+<li><code>con_cor</code>: Control of corruption<br />
+</li>
+<li><code>gov_eff</code>: Government effectiveness<br />
+</li>
+<li><code>pol_vio</code>: Political stability and absence of violence
 terrorism<br />
-<code>regu_qual</code>=regulatory quality<br />
-<code>rul_law</code>=rule of law<br />
-<code>voi_acc</code>=voice and accountability</p>
+</li>
+<li><code>regu_qual</code>: Regulatory quality<br />
+</li>
+<li><code>rul_law</code>: Rule of law<br />
+</li>
+<li><code>voi_acc</code>: Voice and accountability<br />
+</li>
+<li><code>gdp</code>:GDP of countries(<span
+class="math inline">\(10^9\)</span>)</li>
+<li><code>continent</code>: Continent where the countries are
+located</li>
+<li><code>development</code>: Status of development of countries</li>
+<li><code>latitude</code>: latitude</li>
+<li><code>longitude</code>: longitude</li>
+<li><code>population</code>: Population of countries</li>
+</ul>
+<p>For the dataset we used in regression section, we take the average
+value of the numeric variables from 2020-2022.</p>
+<pre class="r"><code>corruption_data|&gt;
+  head(20)|&gt;
+  knitr::kable()</code></pre>
+<table style="width:100%;">
+<colgroup>
+<col width="11%" />
+<col width="7%" />
+<col width="6%" />
+<col width="6%" />
+<col width="6%" />
+<col width="6%" />
+<col width="6%" />
+<col width="6%" />
+<col width="6%" />
+<col width="6%" />
+<col width="6%" />
+<col width="6%" />
+<col width="9%" />
+<col width="8%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">country_name</th>
+<th align="left">country_code</th>
+<th align="right">con_cor</th>
+<th align="right">gov_eff</th>
+<th align="right">pol_vio</th>
+<th align="right">regu_qual</th>
+<th align="right">rul_law</th>
+<th align="right">voi_acc</th>
+<th align="right">GDP</th>
+<th align="right">population</th>
+<th align="left">latitude</th>
+<th align="left">longitude</th>
+<th align="left">development</th>
+<th align="left">continent</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Afghanistan</td>
+<td align="left">AFG</td>
+<td align="right">-1.4936998</td>
+<td align="right">-1.6095092</td>
+<td align="right">-2.7026317</td>
+<td align="right">-1.3891630</td>
+<td align="right">-1.8313743</td>
+<td align="right">-1.0776886</td>
+<td align="right">17.363294</td>
+<td align="right">4.0066821</td>
+<td align="left">33.93911</td>
+<td align="left">67.709953</td>
+<td align="left">Least Developed</td>
+<td align="left">Asia</td>
+</tr>
+<tr class="even">
+<td align="left">Albania</td>
+<td align="left">ALB</td>
+<td align="right">-0.5729245</td>
+<td align="right">-0.1548803</td>
+<td align="right">0.0885765</td>
+<td align="right">0.2219672</td>
+<td align="right">-0.3762492</td>
+<td align="right">0.0864026</td>
+<td align="right">17.325132</td>
+<td align="right">0.2808383</td>
+<td align="left">41.153332</td>
+<td align="left">20.168331</td>
+<td align="left">Developing</td>
+<td align="left">Europe</td>
+</tr>
+<tr class="odd">
+<td align="left">Algeria</td>
+<td align="left">DZA</td>
+<td align="right">-0.6664602</td>
+<td align="right">-0.5734335</td>
+<td align="right">-0.8478143</td>
+<td align="right">-1.3553003</td>
+<td align="right">-0.8003030</td>
+<td align="right">-1.0879523</td>
+<td align="right">167.043000</td>
+<td align="right">4.4177620</td>
+<td align="left">28.033886</td>
+<td align="left">1.659626</td>
+<td align="left">Developing</td>
+<td align="left">Africa</td>
+</tr>
+<tr class="even">
+<td align="left">American Samoa</td>
+<td align="left">ASM</td>
+<td align="right">1.2660053</td>
+<td align="right">0.6328993</td>
+<td align="right">1.0916016</td>
+<td align="right">0.5253105</td>
+<td align="right">1.1194303</td>
+<td align="right">0.9520435</td>
+<td align="right">0.712500</td>
+<td align="right">0.0045166</td>
+<td align="left">-14.270972</td>
+<td align="left">-170.132217</td>
+<td align="left">Developing</td>
+<td align="left">Oceania</td>
+</tr>
+<tr class="odd">
+<td align="left">Andorra</td>
+<td align="left">AND</td>
+<td align="right">1.2660053</td>
+<td align="right">1.7494141</td>
+<td align="right">1.5885718</td>
+<td align="right">1.3354213</td>
+<td align="right">1.6162784</td>
+<td align="right">1.0862534</td>
+<td align="right">3.189393</td>
+<td align="right">0.0078853</td>
+<td align="left">42.546245</td>
+<td align="left">1.601554</td>
+<td align="left">Developed</td>
+<td align="left">Europe</td>
+</tr>
+<tr class="even">
+<td align="left">Angola</td>
+<td align="left">AGO</td>
+<td align="right">-0.9386725</td>
+<td align="right">-1.2583939</td>
+<td align="right">-0.6007260</td>
+<td align="right">-0.8568535</td>
+<td align="right">-0.9509994</td>
+<td align="right">-0.8160028</td>
+<td align="right">74.213601</td>
+<td align="right">3.4507082</td>
+<td align="left">-11.202692</td>
+<td align="left">17.873887</td>
+<td align="left">Least Developed</td>
+<td align="left">Africa</td>
+</tr>
+<tr class="odd">
+<td align="left">Anguilla</td>
+<td align="left">AIA</td>
+<td align="right">0.6324695</td>
+<td align="right">0.9120280</td>
+<td align="right">1.5037429</td>
+<td align="right">0.9303660</td>
+<td align="right">0.3741581</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="left">18.220554</td>
+<td align="left">-63.068615</td>
+<td align="left">Developing</td>
+<td align="left">North America</td>
+</tr>
+<tr class="even">
+<td align="left">Antigua and Barbuda</td>
+<td align="left">ATG</td>
+<td align="right">0.2385333</td>
+<td align="right">-0.2044867</td>
+<td align="right">0.9295049</td>
+<td align="right">0.4976937</td>
+<td align="right">0.4079735</td>
+<td align="right">0.7427933</td>
+<td align="right">1.578157</td>
+<td align="right">0.0093215</td>
+<td align="left">17.060816</td>
+<td align="left">-61.796428</td>
+<td align="left">Developing</td>
+<td align="left">North America</td>
+</tr>
+<tr class="odd">
+<td align="left">Argentina</td>
+<td align="left">ARG</td>
+<td align="right">-0.1637807</td>
+<td align="right">-0.2538182</td>
+<td align="right">-0.0720262</td>
+<td align="right">-0.4983443</td>
+<td align="right">-0.4873348</td>
+<td align="right">0.5852944</td>
+<td align="right">501.846000</td>
+<td align="right">4.5806780</td>
+<td align="left">-38.416097</td>
+<td align="left">-63.616672</td>
+<td align="left">Developed</td>
+<td align="left">South America</td>
+</tr>
+<tr class="even">
+<td align="left">Armenia</td>
+<td align="left">ARM</td>
+<td align="right">-0.0034387</td>
+<td align="right">-0.3046165</td>
+<td align="right">-0.7716423</td>
+<td align="right">0.2387480</td>
+<td align="right">-0.1258523</td>
+<td align="right">0.0471597</td>
+<td align="right">15.335297</td>
+<td align="right">0.2792350</td>
+<td align="left">40.069099</td>
+<td align="left">45.038189</td>
+<td align="left">Developing</td>
+<td align="left">Asia</td>
+</tr>
+<tr class="odd">
+<td align="left">Aruba</td>
+<td align="left">ABW</td>
+<td align="right">1.1993917</td>
+<td align="right">1.0752245</td>
+<td align="right">1.3714974</td>
+<td align="right">0.9148085</td>
+<td align="right">1.2702624</td>
+<td align="right">1.2821430</td>
+<td align="right">2.868029</td>
+<td align="right">0.0106522</td>
+<td align="left">12.52111</td>
+<td align="left">-69.968338</td>
+<td align="left">Developing</td>
+<td align="left">North America</td>
+</tr>
+<tr class="even">
+<td align="left">Australia</td>
+<td align="left">AUS</td>
+<td align="right">1.6329559</td>
+<td align="right">1.5737755</td>
+<td align="right">0.8616769</td>
+<td align="right">1.8139470</td>
+<td align="right">1.6142451</td>
+<td align="right">1.2980305</td>
+<td align="right">1518.350000</td>
+<td align="right">2.5774101</td>
+<td align="left">-25.274398</td>
+<td align="left">133.775136</td>
+<td align="left">Developed</td>
+<td align="left">Oceania</td>
+</tr>
+<tr class="odd">
+<td align="left">Austria</td>
+<td align="left">AUT</td>
+<td align="right">1.4777892</td>
+<td align="right">1.6062636</td>
+<td align="right">0.8875288</td>
+<td align="right">1.3952273</td>
+<td align="right">1.7701634</td>
+<td align="right">1.3944378</td>
+<td align="right">462.331000</td>
+<td align="right">0.8971730</td>
+<td align="left">47.516231</td>
+<td align="left">14.550072</td>
+<td align="left">Developed</td>
+<td align="left">Europe</td>
+</tr>
+<tr class="even">
+<td align="left">Azerbaijan</td>
+<td align="left">AZE</td>
+<td align="right">-1.0770841</td>
+<td align="right">-0.1555638</td>
+<td align="right">-0.8522475</td>
+<td align="right">-0.3360401</td>
+<td align="right">-0.7307201</td>
+<td align="right">-1.5415164</td>
+<td align="right">58.746490</td>
+<td align="right">1.0135296</td>
+<td align="left">40.143105</td>
+<td align="left">47.576927</td>
+<td align="left">Developing</td>
+<td align="left">Asia</td>
+</tr>
+<tr class="odd">
+<td align="left">Bahamas, The</td>
+<td align="left">BHS</td>
+<td align="right">1.1062059</td>
+<td align="right">0.4056442</td>
+<td align="right">0.8302374</td>
+<td align="right">0.0013662</td>
+<td align="right">0.0232638</td>
+<td align="right">0.9154646</td>
+<td align="right">11.393200</td>
+<td align="right">0.0408120</td>
+<td align="left">25.03428</td>
+<td align="left">-77.39628</td>
+<td align="left">Developed</td>
+<td align="left">North America</td>
+</tr>
+<tr class="even">
+<td align="left">Bahrain</td>
+<td align="left">BHR</td>
+<td align="right">-0.0935939</td>
+<td align="right">0.3907681</td>
+<td align="right">-0.6101093</td>
+<td align="right">0.6148575</td>
+<td align="right">0.4553994</td>
+<td align="right">-1.4533018</td>
+<td align="right">39.438677</td>
+<td align="right">0.1470989</td>
+<td align="left">25.930414</td>
+<td align="left">50.637772</td>
+<td align="left">Developed</td>
+<td align="left">Asia</td>
+</tr>
+<tr class="odd">
+<td align="left">Bangladesh</td>
+<td align="left">BGD</td>
+<td align="right">-1.0036772</td>
+<td align="right">-0.7797257</td>
+<td align="right">-0.9158078</td>
+<td align="right">-0.9062135</td>
+<td align="right">-0.5679290</td>
+<td align="right">-0.7695580</td>
+<td align="right">416.789000</td>
+<td align="right">16.9321191</td>
+<td align="left">23.684994</td>
+<td align="left">90.356331</td>
+<td align="left">Least Developed</td>
+<td align="left">Asia</td>
+</tr>
+<tr class="even">
+<td align="left">Barbados</td>
+<td align="left">BRB</td>
+<td align="right">1.1940669</td>
+<td align="right">0.4440223</td>
+<td align="right">1.1205775</td>
+<td align="right">0.4677958</td>
+<td align="right">0.2966763</td>
+<td align="right">1.1254591</td>
+<td align="right">5.051171</td>
+<td align="right">0.0281176</td>
+<td align="left">13.193887</td>
+<td align="left">-59.543198</td>
+<td align="left">Developing</td>
+<td align="left">North America</td>
+</tr>
+<tr class="odd">
+<td align="left">Belarus</td>
+<td align="left">BLR</td>
+<td align="right">-0.1339642</td>
+<td align="right">-0.8295090</td>
+<td align="right">-0.8876082</td>
+<td align="right">-0.7998758</td>
+<td align="right">-1.0822419</td>
+<td align="right">-1.4534981</td>
+<td align="right">67.946320</td>
+<td align="right">0.9297079</td>
+<td align="left">53.709807</td>
+<td align="left">27.953389</td>
+<td align="left">Developed</td>
+<td align="left">Europe</td>
+</tr>
+<tr class="even">
+<td align="left">Belgium</td>
+<td align="left">BEL</td>
+<td align="right">1.4459563</td>
+<td align="right">1.0787830</td>
+<td align="right">0.5210230</td>
+<td align="right">1.3436358</td>
+<td align="right">1.3280041</td>
+<td align="right">1.2784452</td>
+<td align="right">566.056000</td>
+<td align="right">1.1600334</td>
+<td align="left">50.503887</td>
+<td align="left">4.469936</td>
+<td align="left">Developed</td>
+<td align="left">Europe</td>
+</tr>
+</tbody>
+</table>
 </div>
 
 
