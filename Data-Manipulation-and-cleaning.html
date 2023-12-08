@@ -394,11 +394,11 @@ ISSO code into country_code_2 and country_code_3.</p>
 <p>We are also interested in whether there is a correlation between a
 country’s level of economic development and the corruption index. This
 dataset comes from <a
-href="https://data.worldbank.org/indicator/SP.POP.TOTL">The World
+href="https://data.worldbank.org/indicator/NY.GDP.MKTP.CD">The World
 Bank</a>. This dataset records the GDP of each country from 1960 to
 2022. we divide the GDP by <span class="math inline">\(10^9\)</span> to
 make the data more readable. We pivoted this dataset to long format and
-created average_GDP for future analysis.</p>
+created <code>average_GDP</code> for future analysis.</p>
 </div>
 <div id="source-4continent" class="section level2">
 <h2>Source 4:Continent</h2>
@@ -494,10 +494,13 @@ country_coordinate=
 <p>We need the coordinates of the countries for the future EDA session.
 This dataset comes from <a
 href="https://developers.google.com/public-data/docs/canonical/countries_csv?hl=en">Google
-for Developers</a>.</p>
+for Developers</a>. Since this dataset records two-digit country codes
+and the other datasets use three-digit country codes, we use the
+<code>left_join</code> function to match their country codes and keep
+only the three-digit country code.</p>
 </div>
 <div id="source-7-population" class="section level2">
-<h2>source 7: population</h2>
+<h2>Source 7: Population</h2>
 <pre class="r"><code>population=read_csv(&quot;./data/population.csv&quot;)|&gt;
   janitor::clean_names()|&gt;
   select(country_name,country_code,x1996:x2022)|&gt;
@@ -506,9 +509,15 @@ for Developers</a>.</p>
     names_to = &quot;year&quot;,
     values_to = &quot;population&quot;)|&gt;
   mutate(year=substr(year,2,5))</code></pre>
+<p>We are also interested in whether there is a correlation between a
+country’s population and the corruption index. This dataset comes from
+<a href="https://data.worldbank.org/indicator/SP.POP.TOTL">The World
+Bank</a>. This dataset records the population of each country from 1960
+to 2022. We pivoted this dataset to long format and created
+<code>average_population</code> for future analysis.</p>
 </div>
-<div id="overall-dataset" class="section level2">
-<h2>overall dataset</h2>
+<div id="merge-datasets" class="section level2">
+<h2>Merge Datasets</h2>
 <pre class="r"><code>corruption_data=left_join(corruption,country_code,join_by(country_code==country_code_3))|&gt;
   left_join(GDP,join_by(country_code==country_code))|&gt;
   left_join(country_coordinate,join_by(country_code))|&gt;
@@ -536,13 +545,6 @@ for Developers</a>.</p>
          GDP,latitude,longitude,development,continent)
 
 write.table(corruption_data,&quot;./data/cleaned_data/overall_dataset.csv&quot;,row.names=FALSE,col.names=TRUE,sep=&quot;,&quot;)</code></pre>
-<p><code>con_cor</code>=control of corruption<br />
-<code>gov_eff</code>=government effectiveness<br />
-<code>pol_vio</code>=political stability and absence of violence
-terrorism<br />
-<code>regu_qual</code>=regulatory quality<br />
-<code>rul_law</code>=rule of law<br />
-<code>voi_acc</code>=voice and accountability</p>
 <pre class="r"><code>corruption_EDA_pre=read_csv(&quot;C:/Users/Leon/Desktop/p8105_final_project/data/corruption_index.csv&quot;)|&gt;
   janitor::clean_names()|&gt;
   pivot_longer(

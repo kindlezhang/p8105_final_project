@@ -64,7 +64,7 @@ GDP=read_csv("./data/GDP.csv")|>
   mutate(GDP=GDP/10^9)
 ```
 
-We are also interested in whether there is a correlation between a country's level of economic development and the corruption index. This dataset comes from [The World Bank](https://data.worldbank.org/indicator/SP.POP.TOTL). This dataset records the GDP of each country from 1960 to 2022. we divide the GDP by $10^9$ to make the data more readable. We pivoted this dataset to long format and created average_GDP for future analysis.
+We are also interested in whether there is a correlation between a country's level of economic development and the corruption index. This dataset comes from [The World Bank](https://data.worldbank.org/indicator/NY.GDP.MKTP.CD). This dataset records the GDP of each country from 1960 to 2022. we divide the GDP by $10^9$ to make the data more readable. We pivoted this dataset to long format and created `average_GDP` for future analysis.
 
 ## Source 4:Continent
 ```{r}
@@ -151,9 +151,9 @@ country_coordinate=
   select(country_name,country_code=country_code_3,latitude,longitude)
 ```
 
-We need the coordinates of the countries for the future EDA session. This dataset comes from [Google for Developers](https://developers.google.com/public-data/docs/canonical/countries_csv?hl=en).
+We need the coordinates of the countries for the future EDA session. This dataset comes from [Google for Developers](https://developers.google.com/public-data/docs/canonical/countries_csv?hl=en). Since this dataset records two-digit country codes and the other datasets use three-digit country codes, we use the `left_join` function to match their country codes and keep only the three-digit country code.
 
-## source 7: population
+## Source 7: Population
 
 ```{r,message=FALSE}
 population=read_csv("./data/population.csv")|>
@@ -166,8 +166,9 @@ population=read_csv("./data/population.csv")|>
   mutate(year=substr(year,2,5))
 ```
 
+We are also interested in whether there is a correlation between a country's population and the corruption index. This dataset comes from [The World Bank](https://data.worldbank.org/indicator/SP.POP.TOTL). This dataset records the population of each country from 1960 to 2022. We pivoted this dataset to long format and created `average_population` for future analysis.
 
-## overall dataset
+## Merge Datasets
 ```{r}
 corruption_data=left_join(corruption,country_code,join_by(country_code==country_code_3))|>
   left_join(GDP,join_by(country_code==country_code))|>
@@ -198,14 +199,6 @@ corruption_data=left_join(corruption,country_code,join_by(country_code==country_
 write.table(corruption_data,"./data/cleaned_data/overall_dataset.csv",row.names=FALSE,col.names=TRUE,sep=",")
   
 ```
-
-`con_cor`=control of corruption  
-`gov_eff`=government effectiveness  
-`pol_vio`=political stability and absence of violence terrorism    
-`regu_qual`=regulatory quality   
-`rul_law`=rule of law  
-`voi_acc`=voice and accountability   
-
 
 ```{r,message=FALSE,warning=FALSE}
 corruption_EDA_pre=read_csv("C:/Users/Leon/Desktop/p8105_final_project/data/corruption_index.csv")|>
@@ -282,6 +275,7 @@ write.table(corruption_EDA,"./data/corruption_EDA.csv",row.names=FALSE,col.names
 `regu_qual`=regulatory quality   
 `rul_law`=rule of law  
 `voi_acc`=voice and accountability   
+
 
 
 
