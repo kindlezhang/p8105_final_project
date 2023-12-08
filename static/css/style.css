@@ -51,7 +51,7 @@ a {
 }
 
 img {
-	max-width: 100%;
+	max-width: 200%;
 }
 
 a:hover {
@@ -1164,13 +1164,13 @@ section{
 }
 
 .navbar-b .navbar-brand img {
-	width: 200px;
+	width: 400px;
 	top: 0;
 	position: absolute;
 	z-index: 10000;
-	left: 0;
+	left: 100;
 	right: 0;
-  padding: 39px; 
+  padding: 24px; 
 }
 
 
@@ -1266,7 +1266,7 @@ section{
 
 .navbar-b.navbar-reduce .navbar-brand .white-logo {
 	display: block;
-    	width: 300px; 
+    	width: 400px; 
    	height: auto;
 }
 
