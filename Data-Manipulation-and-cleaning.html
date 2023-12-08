@@ -11,7 +11,7 @@
 
 <meta name="author" content="Yunshen Bai" />
 
-<meta name="date" content="2023-12-07" />
+<meta name="date" content="2023-12-08" />
 
 <title>Data Manipulation and cleaning</title>
 
@@ -249,53 +249,26 @@ $(document).ready(function () {
         
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Exploratory Analyses
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-    <li>
-      <a href="website.html">EDA</a>
-    </li>
-    <li>
-      <a href="website.html">Regression</a>
-    </li>
-    <li>
-      <a href="website.html">Work</a>
-    </li>
-  </ul>
-</li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Statistical Analyses
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-    <li>
-      <a href="website.html">Statistical test</a>
-    </li>
-    <li>
-      <a href="website.html">Statistical test</a>
-    </li>
-    <li>
-      <a href="website.html">Statistical test</a>
-    </li>
-  </ul>
+        <li>
+  <a href="data.html">Data</a>
 </li>
 <li>
-  <a href="website.html">Mapping</a>
+  <a href="eda.html">EDA</a>
 </li>
 <li>
   <a href="shiny.html">Shiny</a>
 </li>
 <li>
-  <a href="project_report.html">Project Report</a>
+  <a href="dashboard.html">Dashboard</a>
 </li>
 <li>
-  <a href="website.html">Screencast</a>
+  <a href="regression.html">Regression</a>
+</li>
+<li>
+  <a href="website.html">Video</a>
+</li>
+<li>
+  <a href="project_report.html">Report</a>
 </li>
 <li>
   <a href="mailto:&lt;sc5351@cumc.columbia.edu&gt;">
@@ -320,7 +293,7 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">Data Manipulation and cleaning</h1>
 <h4 class="author">Yunshen Bai</h4>
-<h4 class="date">2023-12-07</h4>
+<h4 class="date">2023-12-08</h4>
 
 </div>
 
@@ -402,7 +375,18 @@ GDP_EDA=
     values_to = &quot;GDP&quot;
                )|&gt;
   mutate(GDP=GDP/10^9,
-         year=substr(year,2,5))</code></pre>
+         year=substr(year,2,5))
+
+GDP_per_capita_EDA=
+  read_csv(&quot;./data/GDP_per_capita.csv&quot;)|&gt;
+  janitor::clean_names()|&gt;
+  select(country_code,x1996:x2022)|&gt;
+  pivot_longer(
+    x1996:x2022,
+    names_to = &quot;year&quot;,
+    values_to = &quot;GDP_per_capita&quot;
+               )|&gt;
+  mutate(year=substr(year,2,5))</code></pre>
 <p>We are also interested in whether there is a correlation between a
 country’s level of economic development and the corruption index. This
 dataset comes from <a
@@ -580,21 +564,11 @@ write.table(corruption_data,&quot;./data/cleaned_data/overall_dataset.csv&quot;,
     values_from = &quot;value&quot;
   )
 
-GDP_EDA=
-  read_csv(&quot;./data/GDP.csv&quot;)|&gt;
-  janitor::clean_names()|&gt;
-  select(country_code,x1996:x2022)|&gt;
-  pivot_longer(
-    x1996:x2022,
-    names_to = &quot;year&quot;,
-    values_to = &quot;GDP&quot;
-               )|&gt;
-  mutate(GDP=GDP/10^9,
-         year=substr(year,2,5))
 
 corruption_EDA=
   corruption_EDA_pre|&gt;
   left_join(GDP_EDA,by = join_by(country_code, year))|&gt;
+  left_join(GDP_per_capita_EDA,by = join_by(country_code, year))|&gt;
   janitor::clean_names()|&gt;
   select(country_name,country_code,year,
          con_cor=control_of_corruption_estimate,
@@ -603,7 +577,7 @@ corruption_EDA=
          regu_qual=regulatory_quality_estimate,
          rul_law=rule_of_law_estimate,
          voi_acc=voice_and_accountability_estimate,
-         gdp)|&gt;
+         gdp,gdp_per_capita)|&gt;
   mutate(continent=case_when(
     country_code %in% Asia ~ &quot;Asia&quot;,
     country_code %in% Africa ~ &quot;Africa&quot;,
@@ -657,6 +631,7 @@ terrorism<br />
 </li>
 <li><code>gdp</code>:GDP of countries(<span
 class="math inline">\(10^9\)</span>)</li>
+<li><code>gdp_per_capita</code>: GDP per capita of countries</li>
 <li><code>continent</code>: Continent where the countries are
 located</li>
 <li><code>development</code>: Status of development of countries</li>

@@ -323,53 +323,26 @@ div.tocify {
         
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Exploratory Analyses
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-    <li>
-      <a href="website.html">EDA</a>
-    </li>
-    <li>
-      <a href="website.html">Regression</a>
-    </li>
-    <li>
-      <a href="website.html">Work</a>
-    </li>
-  </ul>
-</li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Statistical Analyses
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-    <li>
-      <a href="website.html">Statistical test</a>
-    </li>
-    <li>
-      <a href="website.html">Statistical test</a>
-    </li>
-    <li>
-      <a href="website.html">Statistical test</a>
-    </li>
-  </ul>
+        <li>
+  <a href="data.html">Data</a>
 </li>
 <li>
-  <a href="website.html">Mapping</a>
+  <a href="eda.html">EDA</a>
 </li>
 <li>
   <a href="shiny.html">Shiny</a>
 </li>
 <li>
-  <a href="project_report.html">Project Report</a>
+  <a href="dashboard.html">Dashboard</a>
 </li>
 <li>
-  <a href="website.html">Screencast</a>
+  <a href="regression.html">Regression</a>
+</li>
+<li>
+  <a href="website.html">Video</a>
+</li>
+<li>
+  <a href="project_report.html">Report</a>
 </li>
 <li>
   <a href="mailto:&lt;sc5351@cumc.columbia.edu&gt;">
@@ -489,36 +462,43 @@ NA_table_1|&gt;
 <tbody>
 <tr class="odd">
 <td align="left">country_name</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">country_code</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">con_cor</td>
 <td align="right">3</td>
 </tr>
 <tr class="even">
-<td align="left">corruption_index</td>
+<td align="left">gov_eff</td>
 <td align="right">3</td>
 </tr>
 <tr class="odd">
-<td align="left">government_effectiveness</td>
-<td align="right">3</td>
-</tr>
-<tr class="even">
-<td
-align="left">political_stability_and_absence_of_violence_terrorism</td>
+<td align="left">pol_vio</td>
 <td align="right">1</td>
 </tr>
+<tr class="even">
+<td align="left">regu_qual</td>
+<td align="right">3</td>
+</tr>
 <tr class="odd">
-<td align="left">regulatory_quality</td>
+<td align="left">rul_law</td>
 <td align="right">3</td>
 </tr>
 <tr class="even">
-<td align="left">rule_of_law</td>
-<td align="right">3</td>
-</tr>
-<tr class="odd">
-<td align="left">voice_and_accountability</td>
+<td align="left">voi_acc</td>
 <td align="right">6</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">GDP</td>
 <td align="right">14</td>
+</tr>
+<tr class="even">
+<td align="left">population</td>
+<td align="right">9</td>
 </tr>
 <tr class="odd">
 <td align="left">latitude</td>
@@ -541,12 +521,12 @@ align="left">political_stability_and_absence_of_violence_terrorism</td>
 <pre class="r"><code>overall_dataset =
   overall_dataset|&gt;
   drop_na()|&gt;
-  dplyr::select(-country_name, -latitude, -longitude)</code></pre>
+  dplyr::select(-country_name, -latitude, -longitude,-country_code)</code></pre>
 </div>
 <div id="full-model" class="section level1">
 <h1>Full model</h1>
-<pre class="r"><code>full.model = lm(corruption_index ~ ., data = overall_dataset)
-empty.model = lm(corruption_index ~ 1,data = overall_dataset)</code></pre>
+<pre class="r"><code>full.model = lm(con_cor ~ ., data = overall_dataset)
+empty.model = lm(con_cor ~ 1,data = overall_dataset)</code></pre>
 <p>The full model includes all variables except latitude and longitude
 since continent is included as location information. This model is
 treated as the baseline to compare with model after selection.</p>
@@ -576,11 +556,6 @@ full.model|&gt;
   knitr::kable(caption =&quot;Estimate and P-value for full model&quot;)</code></pre>
 <table>
 <caption>Estimate and P-value for full model</caption>
-<colgroup>
-<col width="72%" />
-<col width="14%" />
-<col width="13%" />
-</colgroup>
 <thead>
 <tr class="header">
 <th align="left">term</th>
@@ -591,74 +566,78 @@ full.model|&gt;
 <tbody>
 <tr class="odd">
 <td align="left">(Intercept)</td>
-<td align="right">0.1523043</td>
-<td align="right">0.0733336</td>
+<td align="right">0.1405094</td>
+<td align="right">0.0993719</td>
 </tr>
 <tr class="even">
-<td align="left">government_effectiveness</td>
-<td align="right">0.4465416</td>
-<td align="right">0.0000002</td>
+<td align="left">gov_eff</td>
+<td align="right">0.4658574</td>
+<td align="right">0.0000001</td>
 </tr>
 <tr class="odd">
-<td
-align="left">political_stability_and_absence_of_violence_terrorism</td>
-<td align="right">0.0283823</td>
-<td align="right">0.5324848</td>
+<td align="left">pol_vio</td>
+<td align="right">0.0200257</td>
+<td align="right">0.6618070</td>
 </tr>
 <tr class="even">
-<td align="left">regulatory_quality</td>
-<td align="right">-0.0388673</td>
-<td align="right">0.6007547</td>
+<td align="left">regu_qual</td>
+<td align="right">-0.0512946</td>
+<td align="right">0.4923111</td>
 </tr>
 <tr class="odd">
-<td align="left">rule_of_law</td>
-<td align="right">0.4555096</td>
+<td align="left">rul_law</td>
+<td align="right">0.4528029</td>
 <td align="right">0.0000004</td>
 </tr>
 <tr class="even">
-<td align="left">voice_and_accountability</td>
-<td align="right">0.1605535</td>
-<td align="right">0.0011255</td>
+<td align="left">voi_acc</td>
+<td align="right">0.1649606</td>
+<td align="right">0.0008278</td>
 </tr>
 <tr class="odd">
 <td align="left">GDP</td>
-<td align="right">-0.0000066</td>
-<td align="right">0.5607391</td>
+<td align="right">0.0000044</td>
+<td align="right">0.7551193</td>
 </tr>
 <tr class="even">
+<td align="left">population</td>
+<td align="right">-0.0027533</td>
+<td align="right">0.1800214</td>
+</tr>
+<tr class="odd">
 <td align="left">developmentDeveloping</td>
-<td align="right">-0.1096876</td>
-<td align="right">0.1403518</td>
+<td align="right">-0.0875213</td>
+<td align="right">0.2492473</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">developmentLeast Developed</td>
-<td align="right">0.0176445</td>
-<td align="right">0.8598391</td>
+<td align="right">0.0358069</td>
+<td align="right">0.7219710</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">continentAsia</td>
-<td align="right">-0.1247569</td>
-<td align="right">0.1038164</td>
+<td align="right">-0.1084208</td>
+<td align="right">0.1614065</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">continentEurope</td>
-<td align="right">-0.2211527</td>
-<td align="right">0.0178381</td>
-</tr>
-<tr class="even">
-<td align="left">continentNorth America</td>
-<td align="right">-0.1367619</td>
-<td align="right">0.1492751</td>
+<td align="right">-0.2158619</td>
+<td align="right">0.0205606</td>
 </tr>
 <tr class="odd">
-<td align="left">continentOceania</td>
-<td align="right">-0.0151796</td>
-<td align="right">0.8877381</td>
+<td align="left">continentNorth America</td>
+<td align="right">-0.1440205</td>
+<td align="right">0.1287667</td>
 </tr>
 <tr class="even">
+<td align="left">continentOceania</td>
+<td align="right">-0.0219779</td>
+<td align="right">0.8378814</td>
+</tr>
+<tr class="odd">
 <td align="left">continentSouth America</td>
-<td align="right">-0.0818944</td>
-<td align="right">0.4882106</td>
+<td align="right">-0.0800786</td>
+<td align="right">0.4969813</td>
 </tr>
 </tbody>
 </table>
@@ -677,11 +656,11 @@ align="left">political_stability_and_absence_of_violence_terrorism</td>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="right">167.1942</td>
-<td align="right">-43.93509</td>
-<td align="right">117.8702</td>
-<td align="right">21.03754</td>
-<td align="right">0.8983053</td>
+<td align="right">170.5324</td>
+<td align="right">-42.96004</td>
+<td align="right">117.9201</td>
+<td align="right">22.12111</td>
+<td align="right">0.8987517</td>
 </tr>
 </tbody>
 </table>
@@ -689,11 +668,11 @@ align="left">political_stability_and_absence_of_violence_terrorism</td>
 <h2>check normality and remove outlier</h2>
 <p>Plots below shows that the residuals are overall normally
 distributed. The qq-plot shows that the regression is linear and there
-is no need to add transformation variables. Then, outliers are detected
-and removed by using cutoffs based on t-distribution. With data after
-removing outliers, the full model is updated, and BIC and AIC are all
-decreased, which indicate a better balance between explaining the data
-and avoiding overfitting.</p>
+is no need to add transformation variables. But potential outliers are
+presented. Then, outliers are detected and removed by using cutoffs
+based on t-distribution. With data after removing outliers, the full
+model is updated, and BIC and AIC are all decreased, which indicate a
+better balance between explaining the data and avoiding overfitting.</p>
 <pre class="r"><code>SR = stdres(full.model)
 n = length(full.model$residuals) 
 p = length(full.model$coefficients)
@@ -735,7 +714,7 @@ outliers|&gt;
 </table>
 <pre class="r"><code>new.data = overall_dataset[-outliers,]
 
-full.model = lm(corruption_index ~ ., data = new.data)
+full.model = lm(con_cor ~ ., data = new.data)
 All.Criteria(full.model)|&gt;
   knitr::kable(caption =&quot;Estimate and P-value for updated full model&quot;)</code></pre>
 <table>
@@ -751,11 +730,11 @@ All.Criteria(full.model)|&gt;
 </thead>
 <tbody>
 <tr class="odd">
-<td align="right">121.2881</td>
-<td align="right">-21.1351</td>
-<td align="right">72.27019</td>
-<td align="right">16.45733</td>
-<td align="right">0.9183903</td>
+<td align="right">124.7907</td>
+<td align="right">-20.25249</td>
+<td align="right">72.50499</td>
+<td align="right">17.67333</td>
+<td align="right">0.9186777</td>
 </tr>
 </tbody>
 </table>
@@ -767,11 +746,9 @@ All.Criteria(full.model)|&gt;
 function is applied to gain selected models.</p>
 <div id="backward-model-selection" class="section level2">
 <h2>backward model selection</h2>
-<p>The summary of backward selected model is shown below.
-political_stability_and_absence_of_violence_terrorism,
-regulatory_quality, GDP are deleted. This is expected because these
-three variables have relatively high p-value that presented in full
-model above.</p>
+<p>The summary of backward selected model is shown below. pol_vio,
+regu_qual, GDP are deleted. This is expected because these variables
+have relatively high p-value that presented in full model above.</p>
 <pre class="r"><code>backward.model.AIC = stepAIC(full.model, scope = list(lower = empty.model, upper= full.model), k = 2,direction = &quot;backward&quot;,trace = FALSE)
 forward.model.AIC = stepAIC(empty.model, scope = list(lower = empty.model, upper= full.model), k = 2,direction = &quot;forward&quot;,trace = FALSE)</code></pre>
 <pre class="r"><code>backward.model.AIC|&gt;
@@ -790,58 +767,63 @@ forward.model.AIC = stepAIC(empty.model, scope = list(lower = empty.model, upper
 <tbody>
 <tr class="odd">
 <td align="left">(Intercept)</td>
-<td align="right">0.1376752</td>
-<td align="right">0.0643409</td>
+<td align="right">0.1360034</td>
+<td align="right">0.0668905</td>
 </tr>
 <tr class="even">
-<td align="left">government_effectiveness</td>
-<td align="right">0.4179061</td>
+<td align="left">gov_eff</td>
+<td align="right">0.4338981</td>
 <td align="right">0.0000000</td>
 </tr>
 <tr class="odd">
-<td align="left">rule_of_law</td>
-<td align="right">0.4672865</td>
+<td align="left">rul_law</td>
+<td align="right">0.4574146</td>
 <td align="right">0.0000000</td>
 </tr>
 <tr class="even">
-<td align="left">voice_and_accountability</td>
-<td align="right">0.1650610</td>
-<td align="right">0.0001498</td>
+<td align="left">voi_acc</td>
+<td align="right">0.1639242</td>
+<td align="right">0.0001597</td>
 </tr>
 <tr class="odd">
+<td align="left">population</td>
+<td align="right">-0.0020295</td>
+<td align="right">0.1548008</td>
+</tr>
+<tr class="even">
 <td align="left">developmentDeveloping</td>
-<td align="right">-0.0972708</td>
-<td align="right">0.1397905</td>
+<td align="right">-0.0830818</td>
+<td align="right">0.2107660</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">developmentLeast Developed</td>
-<td align="right">0.0038976</td>
-<td align="right">0.9645571</td>
+<td align="right">0.0155433</td>
+<td align="right">0.8595612</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">continentAsia</td>
-<td align="right">-0.1489371</td>
-<td align="right">0.0321245</td>
+<td align="right">-0.1376894</td>
+<td align="right">0.0482038</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">continentEurope</td>
-<td align="right">-0.2443750</td>
-<td align="right">0.0038247</td>
-</tr>
-<tr class="odd">
-<td align="left">continentNorth America</td>
-<td align="right">-0.1315702</td>
-<td align="right">0.1044792</td>
+<td align="right">-0.2462142</td>
+<td align="right">0.0034882</td>
 </tr>
 <tr class="even">
-<td align="left">continentOceania</td>
-<td align="right">0.0714741</td>
-<td align="right">0.4446223</td>
+<td align="left">continentNorth America</td>
+<td align="right">-0.1360832</td>
+<td align="right">0.0925339</td>
 </tr>
 <tr class="odd">
+<td align="left">continentOceania</td>
+<td align="right">0.0645921</td>
+<td align="right">0.4889771</td>
+</tr>
+<tr class="even">
 <td align="left">continentSouth America</td>
-<td align="right">-0.0796026</td>
-<td align="right">0.4484500</td>
+<td align="right">-0.0793981</td>
+<td align="right">0.4483360</td>
 </tr>
 </tbody>
 </table>
@@ -860,24 +842,23 @@ forward.model.AIC = stepAIC(empty.model, scope = list(lower = empty.model, upper
 </thead>
 <tbody>
 <tr class="odd">
-<td align="right">106.0023</td>
-<td align="right">-21.39401</td>
-<td align="right">66.78802</td>
-<td align="right">15.978</td>
-<td align="right">0.9195136</td>
+<td align="right">109.1065</td>
+<td align="right">-20.31216</td>
+<td align="right">66.62433</td>
+<td align="right">16.12417</td>
+<td align="right">0.919969</td>
 </tr>
 </tbody>
 </table>
 </div>
 <div id="forward-model-selection" class="section level2">
 <h2>forward model selection</h2>
-<p>The summary of forward selected model is shown below.
-political_stability_and_absence_of_violence_terrorism,
-regulatory_quality, GDP, continent are deleted. Comparing to backward
-selected model, continent is also deleted. The possible reason is that
-forward selection may be more sensitive to the order in which variable
-are added; on the other hand, backward selection tends to be more stable
-and less dependent on the order of variable removal.</p>
+<p>The summary of forward selected model is shown below. pol_vio, GDP,
+continent are deleted. Comparing to backward selected model, continent
+is also deleted instead of regu_qual.The possible reason is that forward
+selection may be more sensitive to the order in which variable are
+added; on the other hand, backward selection tends to be more stable and
+less dependent on the order of variable removal.</p>
 <pre class="r"><code>forward.model.AIC|&gt;
   broom::tidy()|&gt;
   dplyr::select(term, estimate, p.value)|&gt;
@@ -894,33 +875,43 @@ and less dependent on the order of variable removal.</p>
 <tbody>
 <tr class="odd">
 <td align="left">(Intercept)</td>
-<td align="right">-0.0288657</td>
-<td align="right">0.5590166</td>
+<td align="right">-0.0092939</td>
+<td align="right">0.8550218</td>
 </tr>
 <tr class="even">
-<td align="left">rule_of_law</td>
-<td align="right">0.4763815</td>
+<td align="left">rul_law</td>
+<td align="right">0.4944472</td>
 <td align="right">0.0000000</td>
 </tr>
 <tr class="odd">
-<td align="left">government_effectiveness</td>
-<td align="right">0.4057927</td>
-<td align="right">0.0000001</td>
+<td align="left">gov_eff</td>
+<td align="right">0.4731432</td>
+<td align="right">0.0000000</td>
 </tr>
 <tr class="even">
-<td align="left">voice_and_accountability</td>
-<td align="right">0.1599748</td>
-<td align="right">0.0000248</td>
+<td align="left">voi_acc</td>
+<td align="right">0.1582462</td>
+<td align="right">0.0000360</td>
 </tr>
 <tr class="odd">
 <td align="left">developmentDeveloping</td>
-<td align="right">-0.0211514</td>
-<td align="right">0.7460158</td>
+<td align="right">-0.0281897</td>
+<td align="right">0.6759664</td>
 </tr>
 <tr class="even">
 <td align="left">developmentLeast Developed</td>
-<td align="right">0.1691951</td>
-<td align="right">0.0443599</td>
+<td align="right">0.1464242</td>
+<td align="right">0.0937479</td>
+</tr>
+<tr class="odd">
+<td align="left">population</td>
+<td align="right">-0.0027154</td>
+<td align="right">0.0879449</td>
+</tr>
+<tr class="even">
+<td align="left">regu_qual</td>
+<td align="right">-0.0954539</td>
+<td align="right">0.1661501</td>
 </tr>
 </tbody>
 </table>
@@ -939,11 +930,11 @@ and less dependent on the order of variable removal.</p>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="right">134.9283</td>
-<td align="right">-48.9552</td>
-<td align="right">111.9104</td>
-<td align="right">20.29352</td>
-<td align="right">0.8974732</td>
+<td align="right">140.8401</td>
+<td align="right">-46.62285</td>
+<td align="right">111.2457</td>
+<td align="right">20.37547</td>
+<td align="right">0.8988063</td>
 </tr>
 </tbody>
 </table>
@@ -987,33 +978,35 @@ model</caption>
 <tbody>
 <tr class="odd">
 <td align="left">full</td>
-<td align="right">121.2881</td>
-<td align="right">-21.13510</td>
-<td align="right">72.27019</td>
-<td align="right">16.45733</td>
-<td align="right">0.9183903</td>
+<td align="right">124.7907</td>
+<td align="right">-20.25249</td>
+<td align="right">72.50499</td>
+<td align="right">17.67333</td>
+<td align="right">0.9186777</td>
 </tr>
 <tr class="even">
 <td align="left">forward</td>
-<td align="right">134.9283</td>
-<td align="right">-48.95520</td>
-<td align="right">111.91040</td>
-<td align="right">20.29352</td>
-<td align="right">0.8974732</td>
+<td align="right">140.8401</td>
+<td align="right">-46.62285</td>
+<td align="right">111.24569</td>
+<td align="right">20.37547</td>
+<td align="right">0.8988063</td>
 </tr>
 <tr class="odd">
 <td align="left">backward</td>
-<td align="right">106.0023</td>
-<td align="right">-21.39401</td>
-<td align="right">66.78802</td>
-<td align="right">15.97800</td>
-<td align="right">0.9195136</td>
+<td align="right">109.1065</td>
+<td align="right">-20.31216</td>
+<td align="right">66.62433</td>
+<td align="right">16.12417</td>
+<td align="right">0.9199690</td>
 </tr>
 </tbody>
 </table>
 <p>Then, the dataset is divided into train and test datasets 100 times.
 The graph below shows the RMSE distribution in test datasets for three
-models. From the plot,all three models have RMSE around 0.28 to 0.32</p>
+models. From the plot, forward and backward selected model have RMSE
+around 0.2 to 0.4. However, the RMSE of full model is over-spread. The
+interference of GDP and pol_vio could lead to the result.</p>
 <pre class="r"><code>cv_df =
   crossv_mc(new.data, 100) |&gt; 
   mutate(
@@ -1022,9 +1015,9 @@ models. From the plot,all three models have RMSE around 0.28 to 0.32</p>
 <pre class="r"><code>cv_df = 
   cv_df |&gt; 
   mutate(
-    model_full  = map(train, \(df) lm(corruption_index ~ ., data = df)),
-    model_forward  = map(train, \(df) lm(corruption_index ~ rule_of_law + government_effectiveness + voice_and_accountability + development, data = df)),
-    model_backward  = map(train, \(df) lm(corruption_index ~ rule_of_law + government_effectiveness + voice_and_accountability + development+ continent, data = df)))|&gt; 
+    model_full  = map(train, \(df) lm(con_cor ~ ., data = df)),
+    model_forward  = map(train, \(df) lm(con_cor ~ rul_law + gov_eff + voi_acc + development + population + regu_qual, data = df)),
+    model_backward  = map(train, \(df) lm(con_cor ~ rul_law + gov_eff + voi_acc + development + population  + continent, data = df)))|&gt; 
   mutate(
     rmse_full = map2_dbl(model_full, test, \(mod, df) rmse(model = mod, data = df)),
     rmse_forward = map2_dbl(model_forward, test, \(mod, df) rmse(model = mod, data = df)),
@@ -1043,7 +1036,7 @@ models. From the plot,all three models have RMSE around 0.28 to 0.32</p>
 Overall, there is no significant difference between three models.</p>
 <pre class="r"><code>new.data|&gt;
   modelr::add_predictions(full.model)|&gt;
-  ggplot(aes(x = corruption_index, y = pred)) +
+  ggplot(aes(x = con_cor, y = pred)) +
   geom_point() + 
   geom_abline(intercept = 0, slope = 1, color = &quot;blue&quot;) +
   labs(
@@ -1054,7 +1047,7 @@ Overall, there is no significant difference between three models.</p>
 <p><img src="regression_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
 <pre class="r"><code>new.data|&gt;
   modelr::add_predictions(forward.model.AIC)|&gt;
-  ggplot(aes(x = corruption_index, y = pred)) +
+  ggplot(aes(x = con_cor, y = pred)) +
   geom_point() + 
   geom_abline(intercept = 0, slope = 1, color = &quot;blue&quot;) +
   labs(
@@ -1065,7 +1058,7 @@ Overall, there is no significant difference between three models.</p>
 <p><img src="regression_files/figure-html/unnamed-chunk-15-2.png" width="672" /></p>
 <pre class="r"><code>new.data|&gt;
   modelr::add_predictions(backward.model.AIC)|&gt;
-  ggplot(aes(x = corruption_index, y = pred)) +
+  ggplot(aes(x = con_cor, y = pred)) +
   geom_point() + 
   geom_abline(intercept = 0, slope = 1, color = &quot;blue&quot;) +
   labs(

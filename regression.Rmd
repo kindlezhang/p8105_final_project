@@ -45,14 +45,14 @@ NA_table_1|>
 overall_dataset =
   overall_dataset|>
   drop_na()|>
-  dplyr::select(-country_name, -latitude, -longitude)
+  dplyr::select(-country_name, -latitude, -longitude,-country_code)
 ```
 
 
 # Full model
 ```{r}
-full.model = lm(corruption_index ~ ., data = overall_dataset)
-empty.model = lm(corruption_index ~ 1,data = overall_dataset)
+full.model = lm(con_cor ~ ., data = overall_dataset)
+empty.model = lm(con_cor ~ 1,data = overall_dataset)
 ```
 
 
@@ -91,7 +91,7 @@ All.Criteria(full.model)|>
 
 
 
-Plots below shows that the residuals are overall normally distributed. The qq-plot shows that the regression is linear and there is no need to add transformation variables. Then, outliers are detected and removed by using cutoffs based on t-distribution. With data after removing outliers, the full model is updated, and BIC and AIC are all decreased, which indicate a better balance between explaining the data and avoiding overfitting.
+Plots below shows that the residuals are overall normally distributed. The qq-plot shows that the regression is linear and there is no need to add transformation variables. But potential outliers are presented. Then, outliers are detected and removed by using cutoffs based on t-distribution. With data after removing outliers, the full model is updated, and BIC and AIC are all decreased, which indicate a better balance between explaining the data and avoiding overfitting.
 
 ```{r}
 SR = stdres(full.model)
@@ -108,7 +108,7 @@ outliers|>
   knitr::kable(caption = "outliers")
 new.data = overall_dataset[-outliers,]
 
-full.model = lm(corruption_index ~ ., data = new.data)
+full.model = lm(con_cor ~ ., data = new.data)
 All.Criteria(full.model)|>
   knitr::kable(caption ="Estimate and P-value for updated full model")
   
@@ -126,7 +126,7 @@ After the updated full model is built, backward and forward selection function i
 
 
 
-The summary of backward selected model is shown below. political_stability_and_absence_of_violence_terrorism, regulatory_quality, GDP are deleted. This is expected because these three variables have relatively high p-value that presented in full model above.
+The summary of backward selected model is shown below. pol_vio, regu_qual, GDP are deleted. This is expected because these variables have relatively high p-value that presented in full model above.
 
 
 ```{r}
@@ -149,8 +149,7 @@ All.Criteria(backward.model.AIC)|>
 
 
 
-The summary of forward selected model is shown below. political_stability_and_absence_of_violence_terrorism, regulatory_quality, GDP, continent are deleted. Comparing to backward selected model, continent is also deleted.
-The possible reason is that forward selection may be more sensitive to the order in which variable are added; on the other hand, backward selection tends to be more stable and less dependent on the order of variable removal.
+The summary of forward selected model is shown below. pol_vio,  GDP, continent are deleted. Comparing to backward selected model, continent is also deleted instead of regu_qual.The possible reason is that forward selection may be more sensitive to the order in which variable are added; on the other hand, backward selection tends to be more stable and less dependent on the order of variable removal.
 
 ```{r}
 forward.model.AIC|>
@@ -192,8 +191,7 @@ comparsion
 ```
 
 
-Then, the dataset is divided into train and test datasets 100 times. The graph below shows the RMSE distribution in test datasets for three models. From the plot,all three models have RMSE around 0.28 to 0.32
-
+Then, the dataset is divided into train and test datasets 100 times. The graph below shows the RMSE distribution in test datasets for three models. From the plot, forward and backward selected model have RMSE around 0.2 to 0.4. However, the RMSE of full model is over-spread. The interference of GDP and pol_vio could lead to the result.
 
 ```{r}
 cv_df =
@@ -207,9 +205,9 @@ cv_df =
 cv_df = 
   cv_df |> 
   mutate(
-    model_full  = map(train, \(df) lm(corruption_index ~ ., data = df)),
-    model_forward  = map(train, \(df) lm(corruption_index ~ rule_of_law + government_effectiveness + voice_and_accountability + development, data = df)),
-    model_backward  = map(train, \(df) lm(corruption_index ~ rule_of_law + government_effectiveness + voice_and_accountability + development+ continent, data = df)))|> 
+    model_full  = map(train, \(df) lm(con_cor ~ ., data = df)),
+    model_forward  = map(train, \(df) lm(con_cor ~ rul_law + gov_eff + voi_acc + development + population + regu_qual, data = df)),
+    model_backward  = map(train, \(df) lm(con_cor ~ rul_law + gov_eff + voi_acc + development + population  + continent, data = df)))|> 
   mutate(
     rmse_full = map2_dbl(model_full, test, \(mod, df) rmse(model = mod, data = df)),
     rmse_forward = map2_dbl(model_forward, test, \(mod, df) rmse(model = mod, data = df)),
@@ -236,7 +234,7 @@ The graphs below show the Prediction VS Actual for three models. Overall, there 
 ```{r}
 new.data|>
   modelr::add_predictions(full.model)|>
-  ggplot(aes(x = corruption_index, y = pred)) +
+  ggplot(aes(x = con_cor, y = pred)) +
   geom_point() + 
   geom_abline(intercept = 0, slope = 1, color = "blue") +
   labs(
@@ -247,7 +245,7 @@ new.data|>
 
 new.data|>
   modelr::add_predictions(forward.model.AIC)|>
-  ggplot(aes(x = corruption_index, y = pred)) +
+  ggplot(aes(x = con_cor, y = pred)) +
   geom_point() + 
   geom_abline(intercept = 0, slope = 1, color = "blue") +
   labs(
@@ -259,7 +257,7 @@ new.data|>
 
 new.data|>
   modelr::add_predictions(backward.model.AIC)|>
-  ggplot(aes(x = corruption_index, y = pred)) +
+  ggplot(aes(x = con_cor, y = pred)) +
   geom_point() + 
   geom_abline(intercept = 0, slope = 1, color = "blue") +
   labs(

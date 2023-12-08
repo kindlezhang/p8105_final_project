@@ -74,6 +74,17 @@ GDP_EDA=
                )|>
   mutate(GDP=GDP/10^9,
          year=substr(year,2,5))
+
+GDP_per_capita_EDA=
+  read_csv("./data/GDP_per_capita.csv")|>
+  janitor::clean_names()|>
+  select(country_code,x1996:x2022)|>
+  pivot_longer(
+    x1996:x2022,
+    names_to = "year",
+    values_to = "GDP_per_capita"
+               )|>
+  mutate(year=substr(year,2,5))
 ```
 
 We are also interested in whether there is a correlation between a country's level of economic development and the corruption index. This dataset comes from [The World Bank](https://data.worldbank.org/indicator/NY.GDP.MKTP.CD). This dataset records the GDP of each country from 1960 to 2022. we divide the GDP by $10^9$ to make the data more readable. We pivoted this dataset to long format and created `average_GDP` for future analysis.
@@ -236,21 +247,11 @@ corruption_EDA_pre=read_csv("C:/Users/Leon/Desktop/p8105_final_project/data/corr
     values_from = "value"
   )
 
-GDP_EDA=
-  read_csv("./data/GDP.csv")|>
-  janitor::clean_names()|>
-  select(country_code,x1996:x2022)|>
-  pivot_longer(
-    x1996:x2022,
-    names_to = "year",
-    values_to = "GDP"
-               )|>
-  mutate(GDP=GDP/10^9,
-         year=substr(year,2,5))
 
 corruption_EDA=
   corruption_EDA_pre|>
   left_join(GDP_EDA,by = join_by(country_code, year))|>
+  left_join(GDP_per_capita_EDA,by = join_by(country_code, year))|>
   janitor::clean_names()|>
   select(country_name,country_code,year,
          con_cor=control_of_corruption_estimate,
@@ -259,7 +260,7 @@ corruption_EDA=
          regu_qual=regulatory_quality_estimate,
          rul_law=rule_of_law_estimate,
          voi_acc=voice_and_accountability_estimate,
-         gdp)|>
+         gdp,gdp_per_capita)|>
   mutate(continent=case_when(
     country_code %in% Asia ~ "Asia",
     country_code %in% Africa ~ "Africa",
@@ -302,6 +303,7 @@ Since we cleaned the datasets we got, we need to merge these datasets for our fu
 - `rul_law`: Rule of law  
 - `voi_acc`: Voice and accountability   
 - `gdp`:GDP of countries($10^9$)
+- `gdp_per_capita`: GDP per capita of countries
 - `continent`: Continent where the countries are located
 - `development`: Status of development of countries
 - `latitude`: latitude
