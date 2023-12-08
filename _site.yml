@@ -3,30 +3,20 @@ output_dir: "."
 navbar:
   title: "Home"
   right:
-    - text: "Exploratory Analyses"
-      menu:
-        - text: "EDA"
-          href: website.html
-        - text: "Regression"
-          href: website.html
-        - text: "Work"
-          href: website.html
-    - text: "Statistical Analyses"
-      menu:
-        - text: "Statistical test"
-          href: website.html
-        - text: "Statistical test"
-          href: website.html
-        - text: "Statistical test"
-          href: website.html
-    - text: "Mapping"
-      href: website.html
+    - text: "Data"
+      href: data.html
+    - text: "EDA"
+      href: eda.html
     - text: "Shiny"
       href: shiny.html
-    - text: "Project Report"
-      href: project_report.html
-    - text: "Screencast"
+    - text: "Dashboard"
+      href: dashboard.html
+    - text: "Regression"
+      href: regression.html
+    - text: "Video"
       href: website.html
+    - text: "Report"
+      href: project_report.html
     - icon: fa-envelope fa-lg
       href: mailto:<sc5351@cumc.columbia.edu>
     - icon: fa-github fa-lg
