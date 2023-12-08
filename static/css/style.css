@@ -1170,8 +1170,10 @@ section{
 	z-index: 10000;
 	left: 0;
 	right: 0;
-  padding: 15px; 
+  padding: 39px; 
 }
+
+
 
 .navbar-b .navbar-nav .dropdown-item.show .dropdown-menu,
 .navbar-b .dropdown.show .dropdown-menu,
@@ -1263,7 +1265,9 @@ section{
 }
 
 .navbar-b.navbar-reduce .navbar-brand .white-logo {
-	display: none;
+	display: block;
+    	width: 300px; 
+   	height: auto;
 }
 
 .navbar-b.navbar-reduce .navbar-brand .black-logo {
