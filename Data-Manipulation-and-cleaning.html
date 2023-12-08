@@ -527,7 +527,8 @@ population=read_csv(&quot;./data/population.csv&quot;)|&gt;
     x1996:x2022,
     names_to = &quot;year&quot;,
     values_to = &quot;population&quot;)|&gt;
-  mutate(year=substr(year,2,5))</code></pre>
+  mutate(year=substr(year,2,5),
+         population=population/(10^7))</code></pre>
 <p>We are also interested in whether there is a correlation between a
 country’s population and the corruption index. This dataset comes from
 <a href="https://data.worldbank.org/indicator/SP.POP.TOTL">The World
@@ -661,7 +662,8 @@ located</li>
 <li><code>development</code>: Status of development of countries</li>
 <li><code>latitude</code>: latitude</li>
 <li><code>longitude</code>: longitude</li>
-<li><code>population</code>: Population of countries</li>
+<li><code>population</code>: Population of countries(<span
+class="math inline">\(10^7\)</span>)</li>
 </ul>
 <p>For the dataset we used in regression section, we take the average
 value of the numeric variables from 2020-2022.</p>
