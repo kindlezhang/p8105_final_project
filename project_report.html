@@ -10,6 +10,7 @@
 
 
 
+<meta name="date" content="2023-12-09" />
 
 <title>Final Report</title>
 
@@ -379,6 +380,7 @@ div.tocify {
 
 
 <h1 class="title toc-ignore">Final Report</h1>
+<h4 class="date">2023-12-09</h4>
 
 </div>
 
@@ -394,23 +396,1818 @@ socially concerned students, we want to explore some of the subtle and
 deep factors behind the index and the reasons for regional differences.
 And by visualizing the results to deepen the understanding of the index
 for people who see the report.</p>
-<p><span
-style="font-family: &#39;Times New Roman&#39;, Times, serif; font-style: italic; font-weight: bold; color: red;"><strong>Motivation</strong></span></p>
 </div>
 <div id="data-processing-and-cleaning" class="section level1">
 <h1><strong>Data Processing and Cleaning</strong></h1>
+<div id="source-1corruption-index" class="section level2">
+<h2>Source 1:Corruption Index</h2>
+<pre class="r"><code>corruption=read_csv(&quot;./data/corruption_index.csv&quot;)|&gt;
+  janitor::clean_names()|&gt;
+  mutate(value=(as.numeric(x2020_yr2020)+as.numeric(x2020_yr2020)+as.numeric(x2020_yr2020))/3)|&gt;
+  select(country_name,country_code,series_name,value)|&gt;
+  pivot_wider(
+    names_from = &quot;series_name&quot;,
+    values_from = &quot;value&quot;
+  )|&gt;
+  janitor::clean_names()</code></pre>
+<p>We believe that it would be useful to ascertain the officially
+published data on the corruption index for the last 20 years. This data
+is provided by <a
+href="https://databank.worldbank.org/source/world-development-indicators">The
+World bank</a> and is public information. World data bank gives
+estimated scores for countries on the overall corruption indicator.
+Following this indicator, we also find five indicators Government
+Effectiveness, Political Stability and Absence of Violence, Regulatory
+Quality, Rule of Law, Voice and Accountability may be correlated with
+the Corruption Index. This dataset contains information from 1996 to
+2022.</p>
+<p>The World data bank dataset was downloaded and read in. The dataset
+contains data for all indicators from 1996 to 2022 to reflect how they
+change from year to year. In this dataset, we keep all the variables. To
+make the data more readable and easier to analyze later, we made the
+dataset wide and created a new year variable to record year.</p>
+</div>
+<div id="source-2-country-code" class="section level2">
+<h2>Source 2: Country Code</h2>
+<pre class="r"><code>isso_code=
+  read_html(&quot;https://www.countrycode.org/&quot;)|&gt;
+  html_elements(&quot;td:nth-child(3)&quot;)|&gt;
+  html_text()
+
+country_name_isso=
+  read_html(&quot;https://www.countrycode.org/&quot;)|&gt;
+  html_elements(&quot;td:nth-child(1)&quot;)|&gt;
+  html_text()
+
+country_code=data.frame(country_name_isso,str_split_fixed(isso_code, &#39;/&#39;,2))|&gt;
+  rename(c(country_code_2=X1,country_code_3=X2))|&gt;
+  mutate(country_code_2=gsub(&#39;[ ]&#39;,&#39;&#39;,country_code_2),
+         country_code_3=gsub(&#39;[ ]&#39;,&#39;&#39;,country_code_3))|&gt;
+  distinct(country_code_3, .keep_all = T)</code></pre>
+<p>In order to have a better integration of the subsequent data and to
+avoid unnecessary trouble due to the fact that the names of the
+countries recorded are different in different datasets. We decided to
+use the country code to refer to the country.</p>
+<p>This dataset is derived from <a
+href="https://www.countrycode.org/">countrycode.org</a>. The data set
+was not available to download but we were able to scrape it from the
+website. We read the country name and ISSO code columns and split the
+ISSO code into country_code_2 and country_code_3.</p>
+</div>
+<div id="sourse-3gdp" class="section level2">
+<h2>Sourse 3:GDP</h2>
+<pre class="r"><code>average_GDP=read_csv(&quot;./data/GDP.csv&quot;)|&gt;
+  janitor::clean_names()|&gt;
+  filter(average_gdp!=&quot;#DIV/0!&quot;)|&gt;
+  mutate(GDP=as.numeric(average_gdp))|&gt;
+  select(country_name,country_code,GDP)|&gt;
+  mutate(GDP=GDP/10^9)
+
+GDP_EDA=
+  read_csv(&quot;./data/GDP.csv&quot;)|&gt;
+  janitor::clean_names()|&gt;
+  select(country_code,x1996:x2022)|&gt;
+  pivot_longer(
+    x1996:x2022,
+    names_to = &quot;year&quot;,
+    values_to = &quot;GDP&quot;
+               )|&gt;
+  mutate(GDP=GDP/10^9,
+         year=substr(year,2,5))
+
+GDP_per_capita_EDA=
+  read_csv(&quot;./data/GDP_per_capita.csv&quot;)|&gt;
+  janitor::clean_names()|&gt;
+  select(country_code,x1996:x2022)|&gt;
+  pivot_longer(
+    x1996:x2022,
+    names_to = &quot;year&quot;,
+    values_to = &quot;GDP_per_capita&quot;
+               )|&gt;
+  mutate(year=substr(year,2,5))</code></pre>
+<p>We are also interested in whether there is a correlation between a
+country’s level of economic development and the corruption index. This
+dataset comes from <a
+href="https://data.worldbank.org/indicator/NY.GDP.MKTP.CD">The World
+Bank</a>. This dataset records the GDP of each country from 1960 to
+2022. we divide the GDP by <span class="math inline">\(10^9\)</span> to
+make the data more readable. We pivoted this dataset to long format and
+created <code>average_GDP</code> for future analysis.</p>
+</div>
+<div id="source-4continent" class="section level2">
+<h2>Source 4:Continent</h2>
+<pre class="r"><code>Africa=
+  read_html(&quot;https://www.countrycallingcodes.com/iso-country-codes/africa-codes.php&quot;) |&gt;
+  html_elements(&quot;tr+ tr td:nth-child(3) font&quot;) |&gt;
+  html_text()
+
+Asia=
+  read_html(&quot;https://www.countrycallingcodes.com/iso-country-codes/asia-codes.php&quot;) |&gt;
+  html_elements(&quot;tr+ tr td:nth-child(3) font&quot;) |&gt;
+  html_text()
+
+Europe=
+  read_html(&quot;https://www.countrycallingcodes.com/iso-country-codes/europe-codes.php&quot;) |&gt;
+  html_elements(&quot;tr+ tr td:nth-child(3) font&quot;) |&gt;
+  html_text()|&gt;
+  append(&quot;JEY&quot;)
+
+North_America=
+  read_html(&quot;https://www.countrycallingcodes.com/iso-country-codes/north-america-codes.php&quot;) |&gt;
+  html_elements(&quot;tr+ tr td:nth-child(3) font&quot;) |&gt;
+  html_text()
+
+South_America=
+  read_html(&quot;https://www.countrycallingcodes.com/iso-country-codes/south-america-codes.php&quot;) |&gt;
+  html_elements(&quot;tr+ tr td:nth-child(3) font&quot;) |&gt;
+  html_text()
+
+Oceania=
+  read_html(&quot;https://www.countrycallingcodes.com/iso-country-codes/australia-codes.php&quot;) |&gt;
+  html_elements(&quot;tr+ tr td:nth-child(3) font&quot;) |&gt;
+  html_text()
+
+Antarctica=
+  read_html(&quot;https://www.countrycallingcodes.com/iso-country-codes/antarctica-codes.php&quot;) |&gt;
+  html_elements(&quot;tr+ tr td:nth-child(3) font&quot;) |&gt;
+  html_text()</code></pre>
+<p>The geographical location of a country may also have a bearing on a
+country’s corruption index. Therefore, we decided to find the continent
+on which each country is located and explore whether it has an impact on
+the corruption index. This dataset comes from <a
+href="https://www.countrycallingcodes.com/iso-country-codes/">countrycallingcodes.com</a>,
+where we read the country codes of the countries contained in each
+continent. The data set was not available to download but we were able
+to scrape it from the website. In future analyses, we will use this data
+to match the continent of the country.</p>
+</div>
+<div id="source-5-development" class="section level2">
+<h2>Source 5: Development</h2>
+<pre class="r"><code>developed=
+  read_csv(&quot;./data/developed-countries-2023.csv&quot;)|&gt;
+  pull(cca3)
+least_develpoed=
+  read_csv(&quot;./data/least-developed-countries-2023.csv&quot;)|&gt;
+  pull(cca3)</code></pre>
+<p>Countries in the world can be roughly divided into developed
+countries, developing countries and least developed countries. A
+country’s corruption index may be related to its state of development.
+This dataset comes from <a
+href="https://worldpopulationreview.com/">World Population Review</a>.
+This dataset records the state of development of countries in 2023.</p>
+</div>
+<div id="source-6-coordinate" class="section level2">
+<h2>Source 6: Coordinate</h2>
+<pre class="r"><code>coordinate_html=
+  read_html(&quot;https://developers.google.com/public-data/docs/canonical/countries_csv?hl=en&quot;)
+
+country_name=
+  coordinate_html |&gt;
+  html_elements(&quot;td:nth-child(4)&quot;) |&gt;
+  html_text()
+
+country_code2=
+  coordinate_html |&gt;
+  html_elements(&quot;td:nth-child(1)&quot;) |&gt;
+  html_text() 
+
+latitude=
+  coordinate_html |&gt;
+  html_elements(&quot;td:nth-child(2)&quot;) |&gt;
+  html_text()
+
+longitude=
+  coordinate_html |&gt;
+  html_elements(&quot;td:nth-child(3)&quot;) |&gt;
+  html_text()
+
+country_coordinate=
+  data.frame(country_name,country_code2,latitude,longitude)|&gt;
+  left_join(country_code,join_by(country_code2==country_code_2))|&gt;
+  select(country_name,country_code=country_code_3,latitude,longitude)</code></pre>
+<p>We need the coordinates of the countries for the future EDA session.
+This dataset comes from <a
+href="https://developers.google.com/public-data/docs/canonical/countries_csv?hl=en">Google
+for Developers</a>. Since this dataset records two-digit country codes
+and the other datasets use three-digit country codes, we use the
+<code>left_join</code> function to match their country codes and keep
+only the three-digit country code.</p>
+</div>
+<div id="source-7-population" class="section level2">
+<h2>Source 7: Population</h2>
+<pre class="r"><code>average_population=read_csv(&quot;./data/population.csv&quot;)|&gt;
+  janitor::clean_names()|&gt;
+  filter(average_population!=&quot;#DIV/0!&quot;)|&gt;
+  mutate(population=as.numeric(average_population))|&gt;
+  select(country_name,country_code,population)|&gt;
+  mutate(population=population/(10^7))
+
+population=read_csv(&quot;./data/population.csv&quot;)|&gt;
+  janitor::clean_names()|&gt;
+  select(country_name,country_code,x1996:x2022)|&gt;
+  pivot_longer(
+    x1996:x2022,
+    names_to = &quot;year&quot;,
+    values_to = &quot;population&quot;)|&gt;
+  mutate(year=substr(year,2,5),
+         population=population/(10^7))</code></pre>
+<p>We are also interested in whether there is a correlation between a
+country’s population and the corruption index. This dataset comes from
+<a href="https://data.worldbank.org/indicator/SP.POP.TOTL">The World
+Bank</a>. This dataset records the population of each country from 1960
+to 2022. We pivoted this dataset to long format and created
+<code>average_population</code> for future analysis.</p>
+</div>
+<div id="source-8-cpi" class="section level2">
+<h2>Source 8: CPI</h2>
+<pre class="r"><code>country_code_cpi = 
+  country_code |&gt; 
+    select(-country_code_2) |&gt;
+    rename(&quot;Country / Territory&quot; = country_name_isso,
+           &quot;Country code&quot; = country_code_3)
+
+numberlist = c(&quot;A1:M200&quot;, &quot;N1:P200&quot;, &quot;Q1:S200&quot;, &quot;T1:V200&quot;, &quot;W1:Y200&quot;, &quot;Z1:AB200&quot;, &quot;AC1:AE200&quot;, &quot;AF1:AH200&quot;, &quot;AI1:AK200&quot;, &quot;AL1:AN200&quot;, &quot;AO1:AQ200&quot;, &quot;AR1:AT200&quot;, &quot;AU1:AW200&quot;, &quot;AX1:AZ200&quot;, &quot;BA1:BC200&quot;)
+
+read_cpi = 
+  function(address, scope){
+    tidy_data = 
+  read_excel(address, sheet = 1, scope)
+    
+    tidy_data
+}
+
+for (i in 1:length(numberlist)){
+
+  tidy_data = 
+    read_cpi(&quot;./data/Country CPI 1998-2022.xlsx&quot;,
+            numberlist[[i]]) 
+  
+  country_code_cpi = 
+    country_code_cpi |&gt; 
+    left_join(tidy_data, by = &quot;Country / Territory&quot;)
+}
+
+country_code_cpi = 
+    country_code_cpi |&gt;
+    select(&quot;Country / Territory&quot;, &quot;Country code.x&quot;, contains(c(&quot;20&quot;, &quot;19&quot;))) |&gt; 
+  janitor::clean_names() |&gt; 
+  rename(&quot;country_code&quot; = country_code_x)
+
+names(country_code_cpi) = 
+  gsub(&quot;cpi_score_&quot;, &quot;&quot;, names(country_code_cpi))
+
+country_code_cpi$&quot;2005&quot; = as.numeric(country_code_cpi$&quot;2005&quot;)
+
+cols_to_check =  as.character(c(1998 : 2022))
+
+country_code_cpi =
+  country_code_cpi |&gt; 
+  select(sort(names(country_code_cpi))) |&gt; 
+  relocate(country_territory, country_code)|&gt; 
+  mutate_at(vars(c(&quot;1998&quot;:&quot;2011&quot;)), ~ . * 10) |&gt; 
+  filter(!if_all(cols_to_check, is.na))
+
+country_code_cpi |&gt; 
+  write.table(
+    file = &quot;./data/cleaned_data/cpi_data_year.csv&quot;,
+    sep = &quot;,&quot;, 
+    row.names = FALSE)</code></pre>
+<p>We also recorded the CPI dataset for further EDA session. This
+dataset comes from <a
+href="https://www.transparency.org/en/cpi/2022">Transparency
+International</a>. The dataset contains the CPI of each countries from
+1998 to 2022. In this dataset, we make data arranged by wide format.</p>
+</div>
+<div id="merge-datasets" class="section level2">
+<h2>Merge Datasets</h2>
+<pre class="r"><code>corruption_data=left_join(corruption,country_code,join_by(country_code==country_code_3))|&gt;
+  left_join(average_GDP,join_by(country_code==country_code))|&gt;
+  left_join(country_coordinate,join_by(country_code))|&gt;
+  left_join(average_population,by=join_by(country_code))|&gt;
+  mutate(development=case_when(
+    country_code %in% developed ~ &quot;Developed&quot;,
+    country_code %in% least_develpoed ~ &quot;Least Developed&quot;,
+    (!country_code %in% developed) &amp; (!country_code %in% least_develpoed) ~ &quot;Developing&quot;
+  ))|&gt;
+  mutate(continent=case_when(
+    country_code %in% Asia ~ &quot;Asia&quot;,
+    country_code %in% Africa ~ &quot;Africa&quot;,
+    country_code %in% Europe ~ &quot;Europe&quot;,
+    country_code %in% North_America ~ &quot;North America&quot;,
+    country_code %in% South_America ~ &quot;South America&quot;,
+    country_code %in% Oceania ~ &quot;Oceania&quot;,
+    country_code %in% Antarctica ~ &quot;Antarctica&quot;
+  ))|&gt;
+  select(country_name=country_name.x,country_code,
+         con_cor=control_of_corruption_estimate,
+         gov_eff=government_effectiveness_estimate,
+         pol_vio=political_stability_and_absence_of_violence_terrorism_estimate,
+         regu_qual=regulatory_quality_estimate,
+         rul_law=rule_of_law_estimate,
+         voi_acc=voice_and_accountability_estimate,
+         GDP,population,latitude,longitude,development,continent)
+
+write.table(corruption_data,&quot;./data/cleaned_data/overall_dataset.csv&quot;,row.names=FALSE,col.names=TRUE,sep=&quot;,&quot;)
+  
+
+corruption_EDA_pre=read_csv(&quot;./data/corruption_index.csv&quot;)|&gt;
+  janitor::clean_names()|&gt;
+  pivot_longer(
+    cols = x1996_yr1996:x2022_yr2022,
+    names_to = &quot;year&quot;,
+    values_to = &quot;value&quot;
+  )|&gt;
+  mutate(year=substr(year,2,5))|&gt;
+  select(-series_code)|&gt;
+  pivot_wider(
+    names_from = &quot;series_name&quot;,
+    values_from = &quot;value&quot;
+  )
+
+
+corruption_EDA=
+  corruption_EDA_pre|&gt;
+  left_join(GDP_EDA,by = join_by(country_code, year))|&gt;
+  left_join(GDP_per_capita_EDA,by = join_by(country_code, year))|&gt;
+  janitor::clean_names()|&gt;
+  select(country_name,country_code,year,
+         con_cor=control_of_corruption_estimate,
+         gov_eff=government_effectiveness_estimate,
+         pol_vio=political_stability_and_absence_of_violence_terrorism_estimate,
+         regu_qual=regulatory_quality_estimate,
+         rul_law=rule_of_law_estimate,
+         voi_acc=voice_and_accountability_estimate,
+         gdp,gdp_per_capita)|&gt;
+  mutate(continent=case_when(
+    country_code %in% Asia ~ &quot;Asia&quot;,
+    country_code %in% Africa ~ &quot;Africa&quot;,
+    country_code %in% Europe ~ &quot;Europe&quot;,
+    country_code %in% North_America ~ &quot;North America&quot;,
+    country_code %in% South_America ~ &quot;South America&quot;,
+    country_code %in% Oceania ~ &quot;Oceania&quot;,
+    country_code %in% Antarctica ~ &quot;Antarctica&quot;
+  ))|&gt;
+  mutate(development=case_when(
+    country_code %in% developed ~ &quot;Developed&quot;,
+    country_code %in% least_develpoed ~ &quot;Least Developed&quot;,
+    (!country_code %in% developed) &amp; (!country_code %in% least_develpoed) ~ &quot;Developing&quot;
+  ))|&gt;
+    left_join(country_coordinate,join_by(country_code))|&gt;
+  left_join(population,join_by(country_code,year))|&gt;
+  select(country_name=country_name.x,everything(),-country_name.y,-country_name)|&gt;
+  mutate(con_cor=as.numeric(con_cor),
+         gov_eff=as.numeric(gov_eff),
+         pol_vio=as.numeric(pol_vio),
+         regu_qual=as.numeric(regu_qual),
+         rul_law=as.numeric(rul_law),
+         voi_acc=as.numeric(voi_acc),
+         year=as.numeric(year)
+         )
+  
+write.table(corruption_EDA,&quot;./data/corruption_EDA.csv&quot;,row.names=FALSE,col.names=TRUE,sep=&quot;,&quot;)</code></pre>
+<p>Since we cleaned the datasets we got, we need to merge these datasets
+for our future analysis. Since <code>country_code</code> is the common
+variable in every datasets, we use <code>left_join</code> function to
+merge these datasets together. For those dataset is not suitable for
+<code>left_join</code>, we use <code>case_when</code> function to merge
+them into the cleaned dataset. We also need to make sure every variable
+in the apporite type. The cleaned dataset include the following
+variables:</p>
+<ul>
+<li><code>country_name</code>: Country names</li>
+<li><code>country_code</code>: Country codes</li>
+<li><code>year</code>: year</li>
+<li><code>con_cor</code>: Control of corruption<br />
+</li>
+<li><code>gov_eff</code>: Government effectiveness<br />
+</li>
+<li><code>pol_vio</code>: Political stability and absence of violence
+terrorism<br />
+</li>
+<li><code>regu_qual</code>: Regulatory quality<br />
+</li>
+<li><code>rul_law</code>: Rule of law<br />
+</li>
+<li><code>voi_acc</code>: Voice and accountability<br />
+</li>
+<li><code>gdp</code>:GDP of countries(<span
+class="math inline">\(10^9\)</span>)</li>
+<li><code>gdp_per_capita</code>: GDP per capita of countries</li>
+<li><code>continent</code>: Continent where the countries are
+located</li>
+<li><code>development</code>: Status of development of countries</li>
+<li><code>latitude</code>: latitude</li>
+<li><code>longitude</code>: longitude</li>
+<li><code>population</code>: Population of countries(<span
+class="math inline">\(10^7\)</span>)</li>
+</ul>
+<p>For the dataset we used in regression section, we take the average
+value of the numeric variables from 2020-2022.</p>
+<pre class="r"><code>corruption_data|&gt;
+  head(20)|&gt;
+  knitr::kable()</code></pre>
+<table style="width:100%;">
+<colgroup>
+<col width="11%" />
+<col width="7%" />
+<col width="6%" />
+<col width="6%" />
+<col width="6%" />
+<col width="6%" />
+<col width="6%" />
+<col width="6%" />
+<col width="6%" />
+<col width="6%" />
+<col width="6%" />
+<col width="6%" />
+<col width="9%" />
+<col width="8%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">country_name</th>
+<th align="left">country_code</th>
+<th align="right">con_cor</th>
+<th align="right">gov_eff</th>
+<th align="right">pol_vio</th>
+<th align="right">regu_qual</th>
+<th align="right">rul_law</th>
+<th align="right">voi_acc</th>
+<th align="right">GDP</th>
+<th align="right">population</th>
+<th align="left">latitude</th>
+<th align="left">longitude</th>
+<th align="left">development</th>
+<th align="left">continent</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Afghanistan</td>
+<td align="left">AFG</td>
+<td align="right">-1.4936998</td>
+<td align="right">-1.6095092</td>
+<td align="right">-2.7026317</td>
+<td align="right">-1.3891630</td>
+<td align="right">-1.8313743</td>
+<td align="right">-1.0776886</td>
+<td align="right">17.363294</td>
+<td align="right">4.0066821</td>
+<td align="left">33.93911</td>
+<td align="left">67.709953</td>
+<td align="left">Least Developed</td>
+<td align="left">Asia</td>
+</tr>
+<tr class="even">
+<td align="left">Albania</td>
+<td align="left">ALB</td>
+<td align="right">-0.5729245</td>
+<td align="right">-0.1548803</td>
+<td align="right">0.0885765</td>
+<td align="right">0.2219672</td>
+<td align="right">-0.3762492</td>
+<td align="right">0.0864026</td>
+<td align="right">17.325132</td>
+<td align="right">0.2808383</td>
+<td align="left">41.153332</td>
+<td align="left">20.168331</td>
+<td align="left">Developing</td>
+<td align="left">Europe</td>
+</tr>
+<tr class="odd">
+<td align="left">Algeria</td>
+<td align="left">DZA</td>
+<td align="right">-0.6664602</td>
+<td align="right">-0.5734335</td>
+<td align="right">-0.8478143</td>
+<td align="right">-1.3553003</td>
+<td align="right">-0.8003030</td>
+<td align="right">-1.0879523</td>
+<td align="right">167.043000</td>
+<td align="right">4.4177620</td>
+<td align="left">28.033886</td>
+<td align="left">1.659626</td>
+<td align="left">Developing</td>
+<td align="left">Africa</td>
+</tr>
+<tr class="even">
+<td align="left">American Samoa</td>
+<td align="left">ASM</td>
+<td align="right">1.2660053</td>
+<td align="right">0.6328993</td>
+<td align="right">1.0916016</td>
+<td align="right">0.5253105</td>
+<td align="right">1.1194303</td>
+<td align="right">0.9520435</td>
+<td align="right">0.712500</td>
+<td align="right">0.0045166</td>
+<td align="left">-14.270972</td>
+<td align="left">-170.132217</td>
+<td align="left">Developing</td>
+<td align="left">Oceania</td>
+</tr>
+<tr class="odd">
+<td align="left">Andorra</td>
+<td align="left">AND</td>
+<td align="right">1.2660053</td>
+<td align="right">1.7494141</td>
+<td align="right">1.5885718</td>
+<td align="right">1.3354213</td>
+<td align="right">1.6162784</td>
+<td align="right">1.0862534</td>
+<td align="right">3.189393</td>
+<td align="right">0.0078853</td>
+<td align="left">42.546245</td>
+<td align="left">1.601554</td>
+<td align="left">Developed</td>
+<td align="left">Europe</td>
+</tr>
+<tr class="even">
+<td align="left">Angola</td>
+<td align="left">AGO</td>
+<td align="right">-0.9386725</td>
+<td align="right">-1.2583939</td>
+<td align="right">-0.6007260</td>
+<td align="right">-0.8568535</td>
+<td align="right">-0.9509994</td>
+<td align="right">-0.8160028</td>
+<td align="right">74.213601</td>
+<td align="right">3.4507082</td>
+<td align="left">-11.202692</td>
+<td align="left">17.873887</td>
+<td align="left">Least Developed</td>
+<td align="left">Africa</td>
+</tr>
+<tr class="odd">
+<td align="left">Anguilla</td>
+<td align="left">AIA</td>
+<td align="right">0.6324695</td>
+<td align="right">0.9120280</td>
+<td align="right">1.5037429</td>
+<td align="right">0.9303660</td>
+<td align="right">0.3741581</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="left">18.220554</td>
+<td align="left">-63.068615</td>
+<td align="left">Developing</td>
+<td align="left">North America</td>
+</tr>
+<tr class="even">
+<td align="left">Antigua and Barbuda</td>
+<td align="left">ATG</td>
+<td align="right">0.2385333</td>
+<td align="right">-0.2044867</td>
+<td align="right">0.9295049</td>
+<td align="right">0.4976937</td>
+<td align="right">0.4079735</td>
+<td align="right">0.7427933</td>
+<td align="right">1.578157</td>
+<td align="right">0.0093215</td>
+<td align="left">17.060816</td>
+<td align="left">-61.796428</td>
+<td align="left">Developing</td>
+<td align="left">North America</td>
+</tr>
+<tr class="odd">
+<td align="left">Argentina</td>
+<td align="left">ARG</td>
+<td align="right">-0.1637807</td>
+<td align="right">-0.2538182</td>
+<td align="right">-0.0720262</td>
+<td align="right">-0.4983443</td>
+<td align="right">-0.4873348</td>
+<td align="right">0.5852944</td>
+<td align="right">501.846000</td>
+<td align="right">4.5806780</td>
+<td align="left">-38.416097</td>
+<td align="left">-63.616672</td>
+<td align="left">Developed</td>
+<td align="left">South America</td>
+</tr>
+<tr class="even">
+<td align="left">Armenia</td>
+<td align="left">ARM</td>
+<td align="right">-0.0034387</td>
+<td align="right">-0.3046165</td>
+<td align="right">-0.7716423</td>
+<td align="right">0.2387480</td>
+<td align="right">-0.1258523</td>
+<td align="right">0.0471597</td>
+<td align="right">15.335297</td>
+<td align="right">0.2792350</td>
+<td align="left">40.069099</td>
+<td align="left">45.038189</td>
+<td align="left">Developing</td>
+<td align="left">Asia</td>
+</tr>
+<tr class="odd">
+<td align="left">Aruba</td>
+<td align="left">ABW</td>
+<td align="right">1.1993917</td>
+<td align="right">1.0752245</td>
+<td align="right">1.3714974</td>
+<td align="right">0.9148085</td>
+<td align="right">1.2702624</td>
+<td align="right">1.2821430</td>
+<td align="right">2.868029</td>
+<td align="right">0.0106522</td>
+<td align="left">12.52111</td>
+<td align="left">-69.968338</td>
+<td align="left">Developing</td>
+<td align="left">North America</td>
+</tr>
+<tr class="even">
+<td align="left">Australia</td>
+<td align="left">AUS</td>
+<td align="right">1.6329559</td>
+<td align="right">1.5737755</td>
+<td align="right">0.8616769</td>
+<td align="right">1.8139470</td>
+<td align="right">1.6142451</td>
+<td align="right">1.2980305</td>
+<td align="right">1518.350000</td>
+<td align="right">2.5774101</td>
+<td align="left">-25.274398</td>
+<td align="left">133.775136</td>
+<td align="left">Developed</td>
+<td align="left">Oceania</td>
+</tr>
+<tr class="odd">
+<td align="left">Austria</td>
+<td align="left">AUT</td>
+<td align="right">1.4777892</td>
+<td align="right">1.6062636</td>
+<td align="right">0.8875288</td>
+<td align="right">1.3952273</td>
+<td align="right">1.7701634</td>
+<td align="right">1.3944378</td>
+<td align="right">462.331000</td>
+<td align="right">0.8971730</td>
+<td align="left">47.516231</td>
+<td align="left">14.550072</td>
+<td align="left">Developed</td>
+<td align="left">Europe</td>
+</tr>
+<tr class="even">
+<td align="left">Azerbaijan</td>
+<td align="left">AZE</td>
+<td align="right">-1.0770841</td>
+<td align="right">-0.1555638</td>
+<td align="right">-0.8522475</td>
+<td align="right">-0.3360401</td>
+<td align="right">-0.7307201</td>
+<td align="right">-1.5415164</td>
+<td align="right">58.746490</td>
+<td align="right">1.0135296</td>
+<td align="left">40.143105</td>
+<td align="left">47.576927</td>
+<td align="left">Developing</td>
+<td align="left">Asia</td>
+</tr>
+<tr class="odd">
+<td align="left">Bahamas, The</td>
+<td align="left">BHS</td>
+<td align="right">1.1062059</td>
+<td align="right">0.4056442</td>
+<td align="right">0.8302374</td>
+<td align="right">0.0013662</td>
+<td align="right">0.0232638</td>
+<td align="right">0.9154646</td>
+<td align="right">11.393200</td>
+<td align="right">0.0408120</td>
+<td align="left">25.03428</td>
+<td align="left">-77.39628</td>
+<td align="left">Developed</td>
+<td align="left">North America</td>
+</tr>
+<tr class="even">
+<td align="left">Bahrain</td>
+<td align="left">BHR</td>
+<td align="right">-0.0935939</td>
+<td align="right">0.3907681</td>
+<td align="right">-0.6101093</td>
+<td align="right">0.6148575</td>
+<td align="right">0.4553994</td>
+<td align="right">-1.4533018</td>
+<td align="right">39.438677</td>
+<td align="right">0.1470989</td>
+<td align="left">25.930414</td>
+<td align="left">50.637772</td>
+<td align="left">Developed</td>
+<td align="left">Asia</td>
+</tr>
+<tr class="odd">
+<td align="left">Bangladesh</td>
+<td align="left">BGD</td>
+<td align="right">-1.0036772</td>
+<td align="right">-0.7797257</td>
+<td align="right">-0.9158078</td>
+<td align="right">-0.9062135</td>
+<td align="right">-0.5679290</td>
+<td align="right">-0.7695580</td>
+<td align="right">416.789000</td>
+<td align="right">16.9321191</td>
+<td align="left">23.684994</td>
+<td align="left">90.356331</td>
+<td align="left">Least Developed</td>
+<td align="left">Asia</td>
+</tr>
+<tr class="even">
+<td align="left">Barbados</td>
+<td align="left">BRB</td>
+<td align="right">1.1940669</td>
+<td align="right">0.4440223</td>
+<td align="right">1.1205775</td>
+<td align="right">0.4677958</td>
+<td align="right">0.2966763</td>
+<td align="right">1.1254591</td>
+<td align="right">5.051171</td>
+<td align="right">0.0281176</td>
+<td align="left">13.193887</td>
+<td align="left">-59.543198</td>
+<td align="left">Developing</td>
+<td align="left">North America</td>
+</tr>
+<tr class="odd">
+<td align="left">Belarus</td>
+<td align="left">BLR</td>
+<td align="right">-0.1339642</td>
+<td align="right">-0.8295090</td>
+<td align="right">-0.8876082</td>
+<td align="right">-0.7998758</td>
+<td align="right">-1.0822419</td>
+<td align="right">-1.4534981</td>
+<td align="right">67.946320</td>
+<td align="right">0.9297079</td>
+<td align="left">53.709807</td>
+<td align="left">27.953389</td>
+<td align="left">Developed</td>
+<td align="left">Europe</td>
+</tr>
+<tr class="even">
+<td align="left">Belgium</td>
+<td align="left">BEL</td>
+<td align="right">1.4459563</td>
+<td align="right">1.0787830</td>
+<td align="right">0.5210230</td>
+<td align="right">1.3436358</td>
+<td align="right">1.3280041</td>
+<td align="right">1.2784452</td>
+<td align="right">566.056000</td>
+<td align="right">1.1600334</td>
+<td align="left">50.503887</td>
+<td align="left">4.469936</td>
+<td align="left">Developed</td>
+<td align="left">Europe</td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 <div id="exploratory-analysis" class="section level1">
 <h1><strong>Exploratory Analysis</strong></h1>
+<div id="import-control-of-corruption-data" class="section level2">
+<h2>Import control of corruption data</h2>
+<pre class="r"><code>corruption = read_csv(&#39;.\\data\\corruption_EDA.csv&#39;)</code></pre>
+</div>
+<div id="data-trend" class="section level2">
+<h2>Data Trend</h2>
+<pre class="r"><code>corruption|&gt; 
+  group_by(year)|&gt;
+  summarise(mean = mean(signif(con_cor,4),na.rm = TRUE))|&gt;
+  ggplot(aes(x=year, y=mean)) +
+  geom_point(color = &#39;red&#39;)+geom_line(aes(group=1),color = &#39;orange&#39;)+
+  geom_smooth(se = FALSE,color = &quot;purple&quot;)+
+  labs(
+    title = &quot; Trend of control of corruption&quot;,
+    x = &quot;Year&quot;,
+    y = &quot;Control of corruption&quot;
+  )</code></pre>
+<p><img src="project_report_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+<p>We draw a line plot with a smooth line to show the overall trend of
+control of corruption from 1996 to 2022. We can see from the plot, that
+there is a increasing trend for the control of corruption index from
+1996 to 2007,and then declining trend from 2007 to 2015. From 2015 to
+2022, there is a increasing trend for the control of corruption. In
+general, there is a increasing trend for control of corruption from 1996
+to 2022.</p>
+</div>
+<div id="with-governance-indicators" class="section level2">
+<h2>With Governance Indicators</h2>
+<pre class="r"><code>corruption %&gt;% 
+  select(con_cor,gov_eff,pol_vio,regu_qual,rul_law,voi_acc
+) %&gt;% 
+  ggpairs(
+    title = &quot;Correlations Between govenance indicators&quot;,
+    ggplot2::aes(alpha = 0.1)
+  ) + 
+  scale_fill_discrete() + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))</code></pre>
+<p><img src="project_report_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<p>We also managed to show how control of corruption relate to other 5
+types of governance indicator. The plot shows that the control of
+corruption has most significant correlation(bigger than 0.90) with
+government effectiveness and rule of law.</p>
+<p>Then we make scatter plots of control of corruption and fit it with
+linear line against each of 5 types of governance indicators to
+visualize the relationship.</p>
+<div id="level---1" class="section level3">
+<h3>Level - 1</h3>
+<pre class="r"><code>myplots &lt;- vector(&#39;list&#39;, 4)
+for (i in 2019:2022){
+    myplots[[i-2018]] =
+      corruption %&gt;% 
+      filter(year == i) %&gt;% 
+      ggplot(aes(x = gov_eff, y = con_cor))+geom_point()+geom_smooth(method = &#39;lm&#39;, se = TRUE, color = &#39;red&#39;)+labs(title = sprintf(&quot;year %s&quot;, i))
+
+plot_row1 &lt;- plot_grid(myplots[[1]], myplots[[2]])
+plot_row2 &lt;- plot_grid(myplots[[3]], myplots[[4]])
+}
+# title
+title &lt;- ggdraw() + 
+  draw_label(
+    &quot;Control of corruption against effectiveness&quot;,
+    fontface = &#39;bold&#39;,
+    x = 0,
+    hjust = 0
+  ) +
+  theme(
+    # add margin on the left of the drawing canvas,
+    # so title is aligned with left edge of first plot
+    plot.margin = ggplot2::margin(0, 0, 0, 7)
+  )
+plot_grid(title,plot_row1,plot_row2 ,ncol=1,  label_size = 12,rel_heights=c(0.1, 1,1))</code></pre>
+<p><img src="project_report_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+</div>
+<div id="level---2" class="section level3">
+<h3>Level - 2</h3>
+<pre class="r"><code>myplots &lt;- vector(&#39;list&#39;, 4)
+for (i in 2019:2022){
+    myplots[[i-2018]] =
+      corruption %&gt;% 
+      filter(year == i) %&gt;% 
+      ggplot(aes(x = pol_vio, y = con_cor))+geom_point()+geom_smooth(method = &#39;lm&#39;, se = TRUE, color = &#39;red&#39;)+labs(title = sprintf(&quot;year %s&quot;, i))
+}
+
+plot_row1 &lt;- plot_grid(myplots[[1]], myplots[[2]])
+plot_row2 &lt;- plot_grid(myplots[[3]], myplots[[4]])
+# title
+title &lt;- ggdraw() + 
+  draw_label(
+    &quot;Con_cor against political stability and absence of violence terrorism&quot;,
+    fontface = &#39;bold&#39;,
+    x = 0,
+    hjust = 0
+  ) +
+  theme(
+    # add margin on the left of the drawing canvas,
+    # so title is aligned with left edge of first plot
+    plot.margin = ggplot2::margin(0, 0, 0, 7)
+  )
+plot_grid(title,plot_row1,plot_row2 ,ncol=1,  label_size = 12,rel_heights=c(0.1, 1,1))</code></pre>
+<p><img src="project_report_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+</div>
+<div id="level---3" class="section level3">
+<h3>Level - 3</h3>
+<pre class="r"><code>myplots &lt;- vector(&#39;list&#39;, 4)
+for (i in 2019:2022){
+    myplots[[i-2018]] =
+      corruption %&gt;% 
+      filter(year == i) %&gt;% 
+      ggplot(aes(x = regu_qual, y = con_cor))+geom_point()+geom_smooth(method = &#39;lm&#39;, se = TRUE, color = &#39;red&#39;)+labs(title = sprintf(&quot;year %s&quot;, i))
+}
+
+plot_row1 &lt;- plot_grid(myplots[[1]], myplots[[2]])
+plot_row2 &lt;- plot_grid(myplots[[3]], myplots[[4]])
+# title
+title &lt;- ggdraw() + 
+  draw_label(
+    &quot;Control of corruption against regulatory_quality&quot;,
+    fontface = &#39;bold&#39;,
+    x = 0,
+    hjust = 0
+  ) +
+  theme(
+    # add margin on the left of the drawing canvas,
+    # so title is aligned with left edge of first plot
+    plot.margin = ggplot2::margin(0, 0, 0, 7)
+  )
+plot_grid(title,plot_row1,plot_row2 ,ncol=1,  label_size = 12,rel_heights=c(0.1, 1,1))</code></pre>
+<p><img src="project_report_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
+</div>
+<div id="level---4" class="section level3">
+<h3>Level - 4</h3>
+<pre class="r"><code>myplots &lt;- vector(&#39;list&#39;, 4)
+for (i in 2019:2022){
+    myplots[[i-2018]] =
+      corruption %&gt;% 
+      filter(year == i) %&gt;% 
+      ggplot(aes(x = rul_law
+, y = con_cor))+geom_point()+geom_smooth(method = &#39;lm&#39;, se = TRUE, color = &#39;red&#39;)+labs(title = sprintf(&quot;year %s&quot;, i))
+}
+
+plot_row1 &lt;- plot_grid(myplots[[1]], myplots[[2]])
+plot_row2 &lt;- plot_grid(myplots[[3]], myplots[[4]])
+# title
+title &lt;- ggdraw() + 
+  draw_label(
+    &quot;Control of corruption against rule of law&quot;,
+    fontface = &#39;bold&#39;,
+    x = 0,
+    hjust = 0
+  ) +
+  theme(
+    # add margin on the left of the drawing canvas,
+    # so title is aligned with left edge of first plot
+    plot.margin = ggplot2::margin(0, 0, 0, 7)
+  )
+plot_grid(title,plot_row1,plot_row2 ,ncol=1,  label_size = 12,rel_heights=c(0.1, 1,1))</code></pre>
+<p><img src="project_report_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
+</div>
+<div id="level---5" class="section level3">
+<h3>Level - 5</h3>
+<pre class="r"><code>myplots &lt;- vector(&#39;list&#39;, 4)
+for (i in 2019:2022){
+    myplots[[i-2018]] =
+      corruption %&gt;% 
+      filter(year == i) %&gt;% 
+      ggplot(aes(x = voi_acc
+, y = con_cor))+geom_point()+geom_smooth(method = &#39;lm&#39;, se = TRUE, color = &#39;red&#39;)+labs(title = sprintf(&quot;year %s&quot;, i))
+}
+
+plot_row1 &lt;- plot_grid(myplots[[1]], myplots[[2]])
+plot_row2 &lt;- plot_grid(myplots[[3]], myplots[[4]])
+# title
+title &lt;- ggdraw() + 
+  draw_label(
+    &quot;control of corruption against voice and accountability&quot;,
+    fontface = &#39;bold&#39;,
+    x = 0,
+    hjust = 0
+  ) +
+  theme(
+    # add margin on the left of the drawing canvas,
+    # so title is aligned with left edge of first plot
+    plot.margin = ggplot2::margin(0, 0, 0, 7)
+  )
+plot_grid(title,plot_row1,plot_row2 ,ncol=1,  label_size = 12,rel_heights=c(0.1, 1,1))</code></pre>
+<p><img src="project_report_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
+</div>
+</div>
+<div id="with-corruption-by-development" class="section level2">
+<h2>With Corruption by Development</h2>
+<div id="scatter-plot" class="section level3">
+<h3>Scatter Plot</h3>
+<pre class="r"><code>corruption|&gt;
+  group_by(year,development)|&gt;
+  summarize(mean_cpi = mean(signif(con_cor,4),na.rm = TRUE))|&gt;
+  ggplot(aes(x = year,y = mean_cpi, group = development,color = development)) +
+  geom_point(shape=19,size = 3)+geom_line()+
+  labs(
+    title = &quot;Control of corruption over years by development&quot;,
+    x = &quot;Year&quot;,
+    y = &quot;Control of corruption&quot;)</code></pre>
+<p><img src="project_report_files/figure-html/unnamed-chunk-19-1.png" width="672" /></p>
+<p>From the plot,We can see that the control of corruption for
+developing countries is getting better from 1996 to 2022 in general.For
+least developed countries, the control of corruption rate drops from
+2002 to 2005 and then keeps fluctuation.For developed countries, the
+control of corruption index goes up from 1996 to 2014, and then
+falls.</p>
+</div>
+<div id="pie-plot" class="section level3">
+<h3>Pie Plot</h3>
+<pre class="r"><code>development_prop = corruption|&gt;
+  group_by(development)|&gt;
+  summarize(count = n_distinct(country_name))
+
+
+myPalette &lt;- brewer.pal(3, &quot;Set2&quot;)
+pie(pull(development_prop,count) , labels = c(&quot;Developed&quot;,&quot;Developing&quot;,&quot;Least Developed&quot;), border=&quot;white&quot;, col=myPalette )</code></pre>
+<p><img src="project_report_files/figure-html/unnamed-chunk-20-1.png" width="672" /></p>
+<p>We have a pie plot for proportion of population by development.From
+the pie plot, we can read that developing countries account for the
+largest proportion. Developed countries is the second, and least
+developed countries is the third.</p>
+<p>Together with the last plot, we can attribute the rising trend of
+control of corruption index over the world to rising trend of developing
+countries. The rising trend of developing countries outweigh the falling
+trend of least developed countries.</p>
+</div>
+</div>
+<div id="with-corruption-by-continents" class="section level2">
+<h2>With Corruption by Continents</h2>
+<p>Continent is also a import factor we need to consider.We compares the
+population,gdp and control of corruption among continents by a series of
+plots.</p>
+<pre class="r"><code>mean_cpi = corruption|&gt;
+  group_by(continent)|&gt;
+  summarize(mean_cpi = mean(con_cor,na.rm=TRUE))|&gt;
+  ggplot(aes(x = continent,y = mean_cpi,fill = continent))+
+  geom_bar(stat=&#39;identity&#39;)+
+  labs(
+    y = &#39;control of corruption&#39;
+  )
+
+cpi_density = 
+  corruption|&gt;
+  filter(year == 2022) |&gt;
+  group_by(continent)|&gt;
+  ggplot(
+    aes(
+      x = con_cor
+    )
+  ) + 
+  geom_density(aes(fill = continent), alpha = 0.15) + 
+  labs(
+    x = &quot;control of corruption&quot;,
+    y = &quot;Density&quot;
+  )
+cpi_continent = mean_cpi/cpi_density
+cpi_continent</code></pre>
+<p><img src="project_report_files/figure-html/unnamed-chunk-21-1.png" width="672" /></p>
+<p>We draw a bar plot of mean control of corruption index by continents
+and a density plot to show the distribution of control of corruption
+index. From the histogram, we can see that Europe has the highest
+control of corruption index, whereas Africa has the lowest one.</p>
+</div>
+<div id="with-gdp" class="section level2">
+<h2>With GDP</h2>
+<pre class="r"><code>mean_gdp = corruption|&gt;
+  group_by(continent)|&gt;
+  summarize(gdp = mean(gdp,na.rm=TRUE))|&gt;
+  ggplot(aes(x = continent,y = gdp,fill = continent))+
+  geom_bar(stat=&#39;identity&#39;)
+
+gdp_density = corruption|&gt;
+    filter(year == 2022) |&gt;
+  group_by(continent)|&gt;
+  ggplot(
+    aes(
+      x = gdp
+    )
+  ) + 
+  geom_histogram(aes(fill = continent), alpha = 0.5) + 
+  labs(
+    x = &quot;mean gdp&quot;,
+    y = &quot;Density&quot;
+  )
+gdp_continent = mean_gdp/gdp_density
+
+
+gdp_continent</code></pre>
+<p><img src="project_report_files/figure-html/unnamed-chunk-22-1.png" width="672" /></p>
+<p>The upper bar plot shows mean gdp of countries in each continent.The
+lower histogram plot shows the distribution of gdp in each continent. We
+can get that North America has the highest mean gdp, and Africa has the
+lowest mean gdp.</p>
+</div>
+<div id="with-population" class="section level2">
+<h2>With Population</h2>
+<div id="plot---1" class="section level3">
+<h3>Plot - 1</h3>
+<pre class="r"><code>corruption %&gt;%
+  ggplot( aes(x=continent, y=population, fill=continent)) +
+    geom_boxplot() +
+    scale_fill_viridis(discrete = TRUE, alpha=0.6) +
+    geom_jitter(color=&quot;red&quot;, size=0.4, alpha=0.9) +
+    theme_ipsum() +
+    theme(
+      legend.position=&quot;none&quot;,
+      plot.title = element_text(size=11)
+    ) +
+    ggtitle(&quot;Population among continents&quot;) +
+    ylab(&quot;Population&quot;)+
+    xlab(&quot;Continent&quot;)</code></pre>
+<p><img src="project_report_files/figure-html/unnamed-chunk-23-1.png" width="672" /></p>
+<p>Based on the boxplot of population distribution among countries in
+each continent, we can read that Asia is the most populated area, and
+populated countries in North America has larger population than those
+countries in Europe. Oceania are the least populated area.</p>
+</div>
+<div id="plot---2" class="section level3">
+<h3>Plot - 2</h3>
+<pre class="r"><code>myplots &lt;- vector(&#39;list&#39;, 4)
+for (i in 2019:2022){
+    myplots[[i-2018]] =
+      corruption %&gt;% 
+      filter(year == i) %&gt;% 
+      ggplot(aes(x = gdp_per_capita
+, y = con_cor))+geom_point(color = &#39;purple&#39;)+geom_smooth(method = &#39;lm&#39;, se = FALSE, color = &#39;pink&#39;
+)+labs(title = sprintf(&quot;year %s&quot;, i))+ xlab(&quot;GDP per capita&quot;)
+}
+
+plot_row1 &lt;- plot_grid(myplots[[1]], myplots[[2]])
+plot_row2 &lt;- plot_grid(myplots[[3]], myplots[[4]])
+# title
+title &lt;- ggdraw() + 
+  draw_label(
+    &quot;Corruption against GDP per capita&quot;,
+    fontface = &#39;bold&#39;,
+    x = 0,
+    hjust = 0
+  ) +
+  theme(
+    # add margin on the left of the drawing canvas,
+    # so title is aligned with left edge of first plot
+    plot.margin = ggplot2::margin(0, 0, 0, 7)
+  )
+plot_grid(title,plot_row1,plot_row2 ,ncol=1,  label_size = 12,rel_heights=c(0.1, 1,1))</code></pre>
+<p><img src="project_report_files/figure-html/unnamed-chunk-24-1.png" width="672" /></p>
+<p>In addition, we also draw a scatter plot to check the relationship
+between control of corruption and GDP per capita.We can read that
+control of corruption is positively proportional to GDP per capita.
+However, when GDP per capita is high, the control of corruption keeps
+stable and does not follow the rising trend of GDP per capita.</p>
+</div>
+</div>
 </div>
 <div id="regression-analysis" class="section level1">
 <h1><strong>Regression Analysis</strong></h1>
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>In this part, linear regression models are generated to help us to
+have a better understanding of the relationship between corruption index
+and other variables. After data cleaning, all variables and the number
+of missing data are shown below.</p>
+<pre class="r"><code>overall_dataset = read.csv(&quot;data/cleaned_data/overall_dataset.csv&quot;)</code></pre>
+<pre class="r"><code>NA_table_1 = 
+  overall_dataset|&gt; 
+  is.na()|&gt; 
+  colSums()
+NA_table_1|&gt; 
+    knitr::kable(col.names = c(&quot;Counts of NA&quot;))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="right">Counts of NA</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">country_name</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">country_code</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">con_cor</td>
+<td align="right">3</td>
+</tr>
+<tr class="even">
+<td align="left">gov_eff</td>
+<td align="right">3</td>
+</tr>
+<tr class="odd">
+<td align="left">pol_vio</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="left">regu_qual</td>
+<td align="right">3</td>
+</tr>
+<tr class="odd">
+<td align="left">rul_law</td>
+<td align="right">3</td>
+</tr>
+<tr class="even">
+<td align="left">voi_acc</td>
+<td align="right">6</td>
+</tr>
+<tr class="odd">
+<td align="left">GDP</td>
+<td align="right">14</td>
+</tr>
+<tr class="even">
+<td align="left">population</td>
+<td align="right">9</td>
+</tr>
+<tr class="odd">
+<td align="left">latitude</td>
+<td align="right">3</td>
+</tr>
+<tr class="even">
+<td align="left">longitude</td>
+<td align="right">3</td>
+</tr>
+<tr class="odd">
+<td align="left">development</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">continent</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>overall_dataset =
+  overall_dataset|&gt;
+  drop_na()|&gt;
+  dplyr::select(-country_name, -latitude, -longitude,-country_code)</code></pre>
+</div>
+<div id="full-model" class="section level2">
+<h2>Full model</h2>
+<pre class="r"><code>full.model = lm(con_cor ~ ., data = overall_dataset)
+empty.model = lm(con_cor ~ 1,data = overall_dataset)</code></pre>
+<p>The full model includes all variables except latitude and longitude
+since continent is included as location information. This model is
+treated as the baseline to compare with model after selection.</p>
+<p>Tables below show summary information of the full model. The p-value
+for government_effectiveness, rule_of_law, voice_and_accountability,
+continentEurope have p-value lower than any reasonable significance
+level(1%, 5%, 10%), which means these variable are more significant than
+other in this model. The R2adj for this model is 0.8983053, which
+presents a very high proportion of variance in response variable
+explained the linear relationship between with predictors and response
+variable.</p>
+<pre class="r"><code>All.Criteria = function(the.model){
+  tibble(
+   
+    the.BIC = BIC(the.model),
+    the.LL = logLik(the.model),
+    the.AIC = AIC(the.model),
+    the.PRESS = PRESS(the.model),
+    the.R2adj = summary(the.model)$adj.r.squared,
+  
+  )
+}
+full.model|&gt;
+  broom::tidy()|&gt;
+  dplyr::select(term, estimate, p.value)|&gt;
+  knitr::kable(caption =&quot;Estimate and P-value for full model&quot;)</code></pre>
+<table>
+<caption>Estimate and P-value for full model</caption>
+<thead>
+<tr class="header">
+<th align="left">term</th>
+<th align="right">estimate</th>
+<th align="right">p.value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">0.1405094</td>
+<td align="right">0.0993719</td>
+</tr>
+<tr class="even">
+<td align="left">gov_eff</td>
+<td align="right">0.4658574</td>
+<td align="right">0.0000001</td>
+</tr>
+<tr class="odd">
+<td align="left">pol_vio</td>
+<td align="right">0.0200257</td>
+<td align="right">0.6618070</td>
+</tr>
+<tr class="even">
+<td align="left">regu_qual</td>
+<td align="right">-0.0512946</td>
+<td align="right">0.4923111</td>
+</tr>
+<tr class="odd">
+<td align="left">rul_law</td>
+<td align="right">0.4528029</td>
+<td align="right">0.0000004</td>
+</tr>
+<tr class="even">
+<td align="left">voi_acc</td>
+<td align="right">0.1649606</td>
+<td align="right">0.0008278</td>
+</tr>
+<tr class="odd">
+<td align="left">GDP</td>
+<td align="right">0.0000044</td>
+<td align="right">0.7551193</td>
+</tr>
+<tr class="even">
+<td align="left">population</td>
+<td align="right">-0.0027533</td>
+<td align="right">0.1800214</td>
+</tr>
+<tr class="odd">
+<td align="left">developmentDeveloping</td>
+<td align="right">-0.0875213</td>
+<td align="right">0.2492473</td>
+</tr>
+<tr class="even">
+<td align="left">developmentLeast Developed</td>
+<td align="right">0.0358069</td>
+<td align="right">0.7219710</td>
+</tr>
+<tr class="odd">
+<td align="left">continentAsia</td>
+<td align="right">-0.1084208</td>
+<td align="right">0.1614065</td>
+</tr>
+<tr class="even">
+<td align="left">continentEurope</td>
+<td align="right">-0.2158619</td>
+<td align="right">0.0205606</td>
+</tr>
+<tr class="odd">
+<td align="left">continentNorth America</td>
+<td align="right">-0.1440205</td>
+<td align="right">0.1287667</td>
+</tr>
+<tr class="even">
+<td align="left">continentOceania</td>
+<td align="right">-0.0219779</td>
+<td align="right">0.8378814</td>
+</tr>
+<tr class="odd">
+<td align="left">continentSouth America</td>
+<td align="right">-0.0800786</td>
+<td align="right">0.4969813</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>All.Criteria(full.model)|&gt;
+  knitr::kable(caption = &quot;Criterias for full model&quot;)</code></pre>
+<table>
+<caption>Criterias for full model</caption>
+<thead>
+<tr class="header">
+<th align="right">the.BIC</th>
+<th align="right">the.LL</th>
+<th align="right">the.AIC</th>
+<th align="right">the.PRESS</th>
+<th align="right">the.R2adj</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">170.5324</td>
+<td align="right">-42.96004</td>
+<td align="right">117.9201</td>
+<td align="right">22.12111</td>
+<td align="right">0.8987517</td>
+</tr>
+</tbody>
+</table>
+<div id="check-normality-and-remove-outlier" class="section level3">
+<h3>check normality and remove outlier</h3>
+<p>Plots below shows that the residuals are overall normally
+distributed. The qq-plot shows that the regression is linear and there
+is no need to add transformation variables. But potential outliers are
+presented. Then, outliers are detected and removed by using cutoffs
+based on t-distribution. With data after removing outliers, the full
+model is updated, and BIC and AIC are all decreased, which indicate a
+better balance between explaining the data and avoiding overfitting.</p>
+<pre class="r"><code>SR = stdres(full.model)
+n = length(full.model$residuals) 
+p = length(full.model$coefficients)
+alpha = 0.01 
+t.cutoff = qt(1- alpha/2, n-p)
+
+par(mfrow=c(2,2))
+plot(full.model)</code></pre>
+<p><img src="project_report_files/figure-html/unnamed-chunk-30-1.png" width="672" /></p>
+<pre class="r"><code>outliers = which(abs(SR)&gt;t.cutoff)
+outliers|&gt;
+  knitr::kable(caption = &quot;outliers&quot;)</code></pre>
+<table>
+<caption>outliers</caption>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="right">x</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">18</td>
+<td align="right">18</td>
+</tr>
+<tr class="even">
+<td align="left">22</td>
+<td align="right">22</td>
+</tr>
+<tr class="odd">
+<td align="left">158</td>
+<td align="right">158</td>
+</tr>
+<tr class="even">
+<td align="left">181</td>
+<td align="right">181</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>new.data = overall_dataset[-outliers,]
+
+full.model = lm(con_cor ~ ., data = new.data)
+All.Criteria(full.model)|&gt;
+  knitr::kable(caption =&quot;Estimate and P-value for updated full model&quot;)</code></pre>
+<table>
+<caption>Estimate and P-value for updated full model</caption>
+<thead>
+<tr class="header">
+<th align="right">the.BIC</th>
+<th align="right">the.LL</th>
+<th align="right">the.AIC</th>
+<th align="right">the.PRESS</th>
+<th align="right">the.R2adj</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">124.7907</td>
+<td align="right">-20.25249</td>
+<td align="right">72.50499</td>
+<td align="right">17.67333</td>
+<td align="right">0.9186777</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="selected-model" class="section level2">
+<h2>Selected model</h2>
+<p>After the updated full model is built, backward and forward selection
+function is applied to gain selected models.</p>
+<div id="backward-model-selection" class="section level3">
+<h3>backward model selection</h3>
+<p>The summary of backward selected model is shown below. pol_vio,
+regu_qual, GDP are deleted. This is expected because these variables
+have relatively high p-value that presented in full model above.</p>
+<pre class="r"><code>backward.model.AIC = stepAIC(full.model, scope = list(lower = empty.model, upper= full.model), k = 2,direction = &quot;backward&quot;,trace = FALSE)
+forward.model.AIC = stepAIC(empty.model, scope = list(lower = empty.model, upper= full.model), k = 2,direction = &quot;forward&quot;,trace = FALSE)</code></pre>
+<pre class="r"><code>backward.model.AIC|&gt;
+  broom::tidy()|&gt;
+  dplyr::select(term, estimate, p.value)|&gt;
+  knitr::kable(caption =&quot;Estimate and P-value for backward selected model&quot;)</code></pre>
+<table>
+<caption>Estimate and P-value for backward selected model</caption>
+<thead>
+<tr class="header">
+<th align="left">term</th>
+<th align="right">estimate</th>
+<th align="right">p.value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">0.1360034</td>
+<td align="right">0.0668905</td>
+</tr>
+<tr class="even">
+<td align="left">gov_eff</td>
+<td align="right">0.4338981</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="odd">
+<td align="left">rul_law</td>
+<td align="right">0.4574146</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="even">
+<td align="left">voi_acc</td>
+<td align="right">0.1639242</td>
+<td align="right">0.0001597</td>
+</tr>
+<tr class="odd">
+<td align="left">population</td>
+<td align="right">-0.0020295</td>
+<td align="right">0.1548008</td>
+</tr>
+<tr class="even">
+<td align="left">developmentDeveloping</td>
+<td align="right">-0.0830818</td>
+<td align="right">0.2107660</td>
+</tr>
+<tr class="odd">
+<td align="left">developmentLeast Developed</td>
+<td align="right">0.0155433</td>
+<td align="right">0.8595612</td>
+</tr>
+<tr class="even">
+<td align="left">continentAsia</td>
+<td align="right">-0.1376894</td>
+<td align="right">0.0482038</td>
+</tr>
+<tr class="odd">
+<td align="left">continentEurope</td>
+<td align="right">-0.2462142</td>
+<td align="right">0.0034882</td>
+</tr>
+<tr class="even">
+<td align="left">continentNorth America</td>
+<td align="right">-0.1360832</td>
+<td align="right">0.0925339</td>
+</tr>
+<tr class="odd">
+<td align="left">continentOceania</td>
+<td align="right">0.0645921</td>
+<td align="right">0.4889771</td>
+</tr>
+<tr class="even">
+<td align="left">continentSouth America</td>
+<td align="right">-0.0793981</td>
+<td align="right">0.4483360</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>All.Criteria(backward.model.AIC)|&gt;
+  knitr::kable(caption = &quot;Criterias for backward selected selected model&quot;)</code></pre>
+<table>
+<caption>Criterias for backward selected selected model</caption>
+<thead>
+<tr class="header">
+<th align="right">the.BIC</th>
+<th align="right">the.LL</th>
+<th align="right">the.AIC</th>
+<th align="right">the.PRESS</th>
+<th align="right">the.R2adj</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">109.1065</td>
+<td align="right">-20.31216</td>
+<td align="right">66.62433</td>
+<td align="right">16.12417</td>
+<td align="right">0.919969</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="forward-model-selection" class="section level3">
+<h3>forward model selection</h3>
+<p>The summary of forward selected model is shown below. pol_vio, GDP,
+continent are deleted. Comparing to backward selected model, continent
+is also deleted instead of regu_qual.The possible reason is that forward
+selection may be more sensitive to the order in which variable are
+added; on the other hand, backward selection tends to be more stable and
+less dependent on the order of variable removal.</p>
+<pre class="r"><code>forward.model.AIC|&gt;
+  broom::tidy()|&gt;
+  dplyr::select(term, estimate, p.value)|&gt;
+  knitr::kable(caption =&quot;Estimate and P-value for forward selected model&quot;)</code></pre>
+<table>
+<caption>Estimate and P-value for forward selected model</caption>
+<thead>
+<tr class="header">
+<th align="left">term</th>
+<th align="right">estimate</th>
+<th align="right">p.value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">-0.0092939</td>
+<td align="right">0.8550218</td>
+</tr>
+<tr class="even">
+<td align="left">rul_law</td>
+<td align="right">0.4944472</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="odd">
+<td align="left">gov_eff</td>
+<td align="right">0.4731432</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="even">
+<td align="left">voi_acc</td>
+<td align="right">0.1582462</td>
+<td align="right">0.0000360</td>
+</tr>
+<tr class="odd">
+<td align="left">developmentDeveloping</td>
+<td align="right">-0.0281897</td>
+<td align="right">0.6759664</td>
+</tr>
+<tr class="even">
+<td align="left">developmentLeast Developed</td>
+<td align="right">0.1464242</td>
+<td align="right">0.0937479</td>
+</tr>
+<tr class="odd">
+<td align="left">population</td>
+<td align="right">-0.0027154</td>
+<td align="right">0.0879449</td>
+</tr>
+<tr class="even">
+<td align="left">regu_qual</td>
+<td align="right">-0.0954539</td>
+<td align="right">0.1661501</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>All.Criteria(forward.model.AIC)|&gt;
+  knitr::kable(caption = &quot;Criterias for forward selected selected model&quot;)</code></pre>
+<table>
+<caption>Criterias for forward selected selected model</caption>
+<thead>
+<tr class="header">
+<th align="right">the.BIC</th>
+<th align="right">the.LL</th>
+<th align="right">the.AIC</th>
+<th align="right">the.PRESS</th>
+<th align="right">the.R2adj</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">140.8401</td>
+<td align="right">-46.62285</td>
+<td align="right">111.2457</td>
+<td align="right">20.37547</td>
+<td align="right">0.8988063</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="comparision-of-full-model-forward-and-backward-selected-model"
+class="section level3">
+<h3>Comparision of full model, forward and backward selected model</h3>
+<p>Backward selected model has the lowest BIC and highest R2adj.
+Interestingly, forward selected model has the lower than BIC and R2adj
+than unselected full model, which indicated that continentEurope has
+unexcepted significance in the whole model.</p>
+<pre class="r"><code>forward_model = All.Criteria(forward.model.AIC)|&gt;
+  mutate(the.LL = as.double(the.LL))
+backward_model = All.Criteria(backward.model.AIC)|&gt;
+  mutate(the.LL = as.double(the.LL))
+
+full_model = All.Criteria(full.model)|&gt;
+  mutate(the.LL = as.double(the.LL))
+
+comparsion = 
+  bind_rows( full_model,forward_model, backward_model)|&gt;
+  mutate(model = c(&#39;full&#39;, &#39;forward&#39;, &#39;backward&#39;))|&gt;
+  dplyr::select(model, everything())|&gt;
+  knitr::kable(caption = &quot;Comparision of full model, forward and backward selected model&quot;)
+  
+  
+comparsion</code></pre>
+<table>
+<caption>Comparision of full model, forward and backward selected
+model</caption>
+<thead>
+<tr class="header">
+<th align="left">model</th>
+<th align="right">the.BIC</th>
+<th align="right">the.LL</th>
+<th align="right">the.AIC</th>
+<th align="right">the.PRESS</th>
+<th align="right">the.R2adj</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">full</td>
+<td align="right">124.7907</td>
+<td align="right">-20.25249</td>
+<td align="right">72.50499</td>
+<td align="right">17.67333</td>
+<td align="right">0.9186777</td>
+</tr>
+<tr class="even">
+<td align="left">forward</td>
+<td align="right">140.8401</td>
+<td align="right">-46.62285</td>
+<td align="right">111.24569</td>
+<td align="right">20.37547</td>
+<td align="right">0.8988063</td>
+</tr>
+<tr class="odd">
+<td align="left">backward</td>
+<td align="right">109.1065</td>
+<td align="right">-20.31216</td>
+<td align="right">66.62433</td>
+<td align="right">16.12417</td>
+<td align="right">0.9199690</td>
+</tr>
+</tbody>
+</table>
+<p>Then, the dataset is divided into train and test datasets 100 times.
+The graph below shows the RMSE distribution in test datasets for three
+models. From the plot, forward and backward selected model have RMSE
+around 0.2 to 0.4. However, the RMSE of full model is over-spread. The
+interference of GDP and pol_vio could lead to the result.</p>
+</div>
+</div>
+<div id="test-the-model" class="section level2">
+<h2>Test the model</h2>
+<pre class="r"><code>cv_df =
+  crossv_mc(new.data, 100) |&gt; 
+  mutate(
+    train = map(train, as_tibble),
+    test = map(test, as_tibble))</code></pre>
+<pre class="r"><code>cv_df = 
+  cv_df |&gt; 
+  mutate(
+    model_full  = map(train, \(df) lm(con_cor ~ ., data = df)),
+    model_forward  = map(train, \(df) lm(con_cor ~ rul_law + gov_eff + voi_acc + development + population + regu_qual, data = df)),
+    model_backward  = map(train, \(df) lm(con_cor ~ rul_law + gov_eff + voi_acc + development + population  + continent, data = df)))|&gt; 
+  mutate(
+    rmse_full = map2_dbl(model_full, test, \(mod, df) rmse(model = mod, data = df)),
+    rmse_forward = map2_dbl(model_forward, test, \(mod, df) rmse(model = mod, data = df)),
+    rmse_backward = map2_dbl(model_backward, test, \(mod, df) rmse(model = mod, data = df)))</code></pre>
+<pre class="r"><code>cv_df |&gt; 
+  dplyr::select(starts_with(&quot;rmse&quot;)) |&gt; 
+  pivot_longer(
+    everything(),
+    names_to = &quot;model&quot;, 
+    values_to = &quot;rmse&quot;,
+    names_prefix = &quot;rmse_&quot;) |&gt; 
+  mutate(model = fct_inorder(model)) |&gt; 
+  ggplot(aes(x = model, y = rmse)) + geom_violin()</code></pre>
+<p><img src="project_report_files/figure-html/unnamed-chunk-37-1.png" width="672" /></p>
+<p>The graphs below show the Prediction VS Actual for three models.
+Overall, there is no significant difference between three models.</p>
+<pre class="r"><code>new.data|&gt;
+  modelr::add_predictions(full.model)|&gt;
+  ggplot(aes(x = con_cor, y = pred)) +
+  geom_point() + 
+  geom_abline(intercept = 0, slope = 1, color = &quot;blue&quot;) +
+  labs(
+    title = &quot;Full model :Prediction V.S. Actual corruption_index&quot;,
+    x = &quot;Actual corruption_index&quot;,
+    y = &quot;Prediction&quot;
+  )</code></pre>
+<p><img src="project_report_files/figure-html/unnamed-chunk-38-1.png" width="672" /></p>
+<pre class="r"><code>new.data|&gt;
+  modelr::add_predictions(forward.model.AIC)|&gt;
+  ggplot(aes(x = con_cor, y = pred)) +
+  geom_point() + 
+  geom_abline(intercept = 0, slope = 1, color = &quot;blue&quot;) +
+  labs(
+    title = &quot;Forward selected model: Prediction V.S. Actual corruption_index&quot;,
+    x = &quot;Actual corruption_index&quot;,
+    y = &quot;Prediction&quot;
+  )</code></pre>
+<p><img src="project_report_files/figure-html/unnamed-chunk-38-2.png" width="672" /></p>
+<pre class="r"><code>new.data|&gt;
+  modelr::add_predictions(backward.model.AIC)|&gt;
+  ggplot(aes(x = con_cor, y = pred)) +
+  geom_point() + 
+  geom_abline(intercept = 0, slope = 1, color = &quot;blue&quot;) +
+  labs(
+    title = &quot;Backward selected model: Prediction V.S. Actual corruption_index&quot;,
+    x = &quot;Actual corruption_index&quot;,
+    y = &quot;Prediction&quot;
+  )</code></pre>
+<p><img src="project_report_files/figure-html/unnamed-chunk-38-3.png" width="672" /></p>
+</div>
+<div id="conclusions" class="section level2">
+<h2>Conclusions</h2>
+<p>To sum up, based on all analysis above, there is no significant
+difference between three models. But backward selected model is the most
+optimal model to predict corruption index.</p>
+</div>
 </div>
 <div id="discussion" class="section level1">
 <h1><strong>Discussion</strong></h1>
+<p>Through our group’s research, we discovered that there are certain
+patterns in the geographic distribution of the Government Integrity
+Index. Notably, European countries generally have a higher Integrity
+Index compared to other nations. In exploring the factors influencing
+the Corruption Perceptions Index (CPI) using models, we found that
+government administration, the establishment of legal norms, and being
+located in Europe have the most significant positive impact on the CPI.
+Surprisingly, we observed that GDP has almost no impact on the CPI,
+indicating that a country’s GDP level does not affect the overall
+integrity of its government. This unexpected finding prompts us to delve
+deeper into the reasons behind it. For more details about our research,
+we invite readers to explore further in our report.</p>
 </div>
 <div id="limitations" class="section level1">
 <h1><strong>Limitations</strong></h1>
+<p>In our project, the initial challenge was managing and merging
+datasets from different sources with varying data formats. This required
+extensive data cleaning and standardization, including the introduction
+of country codes to harmonize the disparate naming conventions for
+countries. When visualizing trends, such as in the control of
+corruption, we encountered difficulties using histograms or bar plots
+due to minimal differences between data points. Switching to line plots,
+however, revealed a clear rising trend. Learning and applying new
+visualization methods, like pie plots and 3D plots (using tools like
+Plotly), was also a significant challenge, especially when these methods
+were not always suitable for the data relationships we wanted to
+showcase.</p>
+<p>The process of learning Shiny was complex but interesting, initially
+posing some difficulties for our team. However, we managed to master the
+technology through learning from relevant websites and applied it
+effectively in this assignment.</p>
+<p>The creation of our project’s webpage brought its own set of
+challenges, particularly in making it aesthetically pleasing. We spent
+considerable time searching for images and icons that matched the theme
+of our webpage and struggled with linking the analyzed data to
+corresponding sections effectively. This often led to frustration when
+links did not open as intended. Another critical aspect was recording a
+video to demonstrate our project, which required a deep understanding of
+every project component, such as the regression models used and the
+conclusions drawn from them. This comprehensive approach was crucial to
+effectively communicate our findings and the process behind them.</p>
 </div>
 
 
