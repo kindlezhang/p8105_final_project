@@ -12,10 +12,7 @@ output:
 knitr::opts_chunk$set(
   warning = FALSE, 
   message = FALSE, 
-  echo = TRUE,
-  fig.width = 6,
-  fig.asp = 0.4,
-  out.width = "90%")
+  echo = TRUE)
 
 
 library(ggplot2)
@@ -29,11 +26,33 @@ options(
 
 scale_colour_discrete = scale_colour_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
+
+library(tidyverse)
+library(rvest)
+library(httr)
+library(readxl)
+library(modelr)
+library(mgcv)
+library(MPV)
+library(leaps)
+library(p8105.datasets)
+library(MASS)
+library(car)
+library(patchwork)
+library(GGally)
+library(dplyr)
+library(cowplot)
+library(plotly)
+library(RColorBrewer)
+library(tidyr)
+library(forcats)
+library(hrbrthemes)
+library(viridis)
 ```
 
 
 
-## **Motivation**
+# **Motivation**
 
 “We hang the petty thieves and appoint the great ones to public office.” - Aesop
 
@@ -43,20 +62,14 @@ The government corruption index seems very far away from us, but as socially con
 
 <span style="font-family: 'Times New Roman', Times, serif; font-style: italic; font-weight: bold; color: red;">**Motivation**</span>
 
-## **Initial Questions** 
-* 12344444
-  - 123
-    - 666
-  - 123
+
+# **Data Processing and Cleaning**
+
+# **Exploratory Analysis**
 
 
-## **Data Processing and Cleaning**
+# **Regression Analysis**
 
-## **Exploratory Analysis**
+# **Discussion**
 
-
-## **Regression Analysis**
-
-## **Discussion**
-
-## **Limitations**
+# **Limitations**
