@@ -385,6 +385,8 @@ div.tocify {
 </div>
 
 
+<div id="import-the-data" class="section level2">
+<h2>Import the data</h2>
 <pre class="r"><code>corruption = read_csv(&#39;.\\data\\corruption_EDA.csv&#39;)</code></pre>
 <pre class="r"><code>corruption|&gt; 
   group_by(year)|&gt;
@@ -405,15 +407,16 @@ there is a increasing trend for the control of corruption index from
 2022, there is a increasing trend for the control of corruption. In
 general, there is a increasing trend for control of corruption from 1996
 to 2022.</p>
+</div>
 <div id="control-of-corruption-and-governance-indicators"
-class="section level1">
-<h1>Control of Corruption and Governance Indicators</h1>
+class="section level2">
+<h2>Control of Corruption and Governance Indicators</h2>
 <pre class="r"><code>corruption %&gt;% 
   select(con_cor,gov_eff,pol_vio,regu_qual,rul_law,voi_acc
 ) %&gt;% 
   ggpairs(
     title = &quot;Correlations Between govenance indicators&quot;,
-    ggplot2::aes(alpha = 0.1, size = 4)
+    ggplot2::aes(alpha = 0.1)
   ) + 
   scale_fill_discrete() + 
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))</code></pre>
@@ -552,8 +555,8 @@ title &lt;- ggdraw() +
 plot_grid(title,plot_row1,plot_row2 ,ncol=1,  label_size = 12,rel_heights=c(0.1, 1,1))</code></pre>
 <p><img src="eda_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
 </div>
-<div id="control-of-corruption-by-development" class="section level1">
-<h1>Control of Corruption by Development</h1>
+<div id="control-of-corruption-by-development" class="section level2">
+<h2>Control of Corruption by Development</h2>
 <pre class="r"><code>corruption|&gt;
   group_by(year,development)|&gt;
   summarize(mean_cpi = mean(signif(con_cor,4),na.rm = TRUE))|&gt;
@@ -585,8 +588,8 @@ control of corruption index over the world to rising trend of developing
 countries. The rising trend of developing countries outweogh the falling
 trend of least developed countries.</p>
 </div>
-<div id="control-of-corruption-by-continents" class="section level1">
-<h1>Control of Corruption by Continents</h1>
+<div id="control-of-corruption-by-continents" class="section level2">
+<h2>Control of Corruption by Continents</h2>
 <p>Continent is also a import factor we need to consider.We compares the
 population,gdp and control of corruption amoung continents by a series
 of plots.</p>
@@ -647,8 +650,8 @@ lower histogram plot shows the distribution of gdp in each continent. We
 can get that North America has the highest mean gdp, and Africa has the
 lowest mean gdp.</p>
 </div>
-<div id="control-of-corruption-by-population" class="section level1">
-<h1>Control of Corruption by Population</h1>
+<div id="control-of-corruption-by-population" class="section level2">
+<h2>Control of Corruption by Population</h2>
 <pre class="r"><code>corruption %&gt;%
   ggplot( aes(x=continent, y=population, fill=continent)) +
     geom_boxplot() +

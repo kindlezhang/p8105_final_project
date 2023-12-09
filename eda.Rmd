@@ -34,15 +34,11 @@ library(hrbrthemes)
 library(viridis)
 ```
 
+## Import the data
 
 ```{r}
 corruption = read_csv('.\\data\\corruption_EDA.csv')
 ```
-
-
-
-
-
 ```{r}
 corruption|> 
   group_by(year)|>
@@ -60,7 +56,7 @@ corruption|>
 We draw a line plot with a smooth line to show the overall trend of control of corruption from 1996 to 2022. We can see from the plot, that there is a increasing trend for the control of corruption index from 1996 to 2007,and then declining trend from 2007 to 2015. From 2015 to 2022, there is a increasing trend for the control of corruption. In general, there is a increasing trend for control of corruption from 1996 to 2022.
 
 
-# Control of Corruption and Governance Indicators
+## Control of Corruption and Governance Indicators
 
 ```{r}
 corruption %>% 
@@ -218,7 +214,7 @@ title <- ggdraw() +
 plot_grid(title,plot_row1,plot_row2 ,ncol=1,  label_size = 12,rel_heights=c(0.1, 1,1))
 ```
 
-# Control of Corruption by Development
+## Control of Corruption by Development
 
 ```{r}
 corruption|>
@@ -237,7 +233,6 @@ From the plot,We can see that the control of corruption for developing countries
 
 
 
-
 ```{r}
 development_prop = corruption|>
   group_by(development)|>
@@ -253,7 +248,7 @@ From the pie plot, we can see that developing countries account for the largest 
 Together with the last plot, we can attribute the rising trend of control of corruption index over the world to rising trend of developing countries. The rising trend of developing countries outweogh the falling trend of least developed countries.
 
 
-# Control of Corruption by Continents
+## Control of Corruption by Continents
 
 Continent is also a import factor we need to consider.We compares the population,gdp and control of corruption amoung continents by a series of plots. 
 
@@ -317,7 +312,7 @@ gdp_continent
 The upper bar plot shows mean gdp of countries in each continent.The lower histogram plot shows the distribution of gdp in each continent. We can get that North America has the highest mean gdp, and Africa has the lowest mean gdp.
 
 
-# Control of Corruption by Population
+## Control of Corruption by Population
 
 
 ```{r}

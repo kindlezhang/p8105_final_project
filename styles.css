@@ -1,10 +1,20 @@
-h1 {
-	 font-weight: bold; 
-	color: orange;
+h1, h2, h3, h4 {
+  font-weight: bold;
+  font-family: 'Times New Roman', Times, serif; 
 }
 
-h2{
-	style="font-family: 'Times New Roman', Times, serif; font-style: italic;
-	 font-weight: bold; 
-	color: orange;
+h1 {
+  color: #ff4500; /* 深橘色 */
+}
+
+h2 {
+  color: #ff7f50; /* 较浅的橘色 */
+}
+
+h3 {
+  color: #ff9966; /* 更浅的橘色 */
+}
+
+h4 {
+  color: #ffcc99; /* 最浅的橘色 */
 }
