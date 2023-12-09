@@ -9,9 +9,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
+<meta name="author" content="Kindle zhang" />
 
+<meta name="date" content="2023-12-08" />
 
-<title>Final project proposal</title>
+<title>Data Manipulation and cleaning</title>
 
 <script src="site_libs/header-attrs-2.25/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
@@ -378,128 +380,81 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Final project proposal</h1>
+<h1 class="title toc-ignore">Data Manipulation and cleaning</h1>
+<h4 class="author">Kindle zhang</h4>
+<h4 class="date">2023-12-08</h4>
 
 </div>
 
 
-<div id="the-group-members" class="section level2">
-<h2>The group members</h2>
-<table>
-<thead>
-<tr class="header">
-<th align="left">name</th>
-<th align="left">uni</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">Shaoyu Chen</td>
-<td align="left">sc5351</td>
-</tr>
-<tr class="even">
-<td align="left">Xiangxiong Feng</td>
-<td align="left">xf2270</td>
-</tr>
-<tr class="odd">
-<td align="left">Haitian Huang</td>
-<td align="left">hh3043</td>
-</tr>
-<tr class="even">
-<td align="left">Yunshen Bai</td>
-<td align="left">yb2584</td>
-</tr>
-<tr class="odd">
-<td align="left">Kindle Zhang</td>
-<td align="left">qz2527</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div id="the-tentative-project-title" class="section level2">
-<h2>The tentative project title</h2>
-<p>Preliminary Exploration of Regional Differences and Influencing
-Factors in Government Corruption Index</p>
-</div>
-<div id="the-motivation-for-this-project" class="section level2">
-<h2>The motivation for this project</h2>
-<p>“We hang the petty thieves and appoint the great ones to public
-office.” - Aesop</p>
-<p>The Corruption Perceptions Index (CPI) measures the perceived levels
-of government corruption in different countries.</p>
-<p>The government corruption index seems very far away from us, but as
-socially concerned students, we want to explore some of the subtle and
-deep factors behind the index and the reasons for regional differences.
-And by visualizing the results to deepen the understanding of the index
-for people who see the report.</p>
-</div>
-<div id="the-intended-final-products" class="section level2">
-<h2>The intended final products</h2>
-<p>The final project will cover following<br />
-<strong>Data</strong>:<br />
-- Description of data and variables<br />
-- Data cleaning and manipulation</p>
-<p><strong>Data Visualization</strong>:<br />
-- Use a variety of graphs and tables to present our findings.<br />
-- Perform exploratory data analysis.<br />
-- box plots and histograms<br />
-- A map of the world corruption levels</p>
-<p><strong>Analysis</strong>:<br />
-- Figure out factors related to corruption index<br />
-- Statistical analyses such as several kinds of hypothesis tests.</p>
-<p><strong>Regression Model</strong>:<br />
-- Build a basic regression model<br />
-- Model improvement, model diagnostics and predictions</p>
-</div>
-<div id="the-anticipated-data-sources" class="section level2">
-<h2>The anticipated data sources</h2>
-<p><a
-href="https://databank.worldbank.org/source/worldwide-governance-indicators"
-class="uri">https://databank.worldbank.org/source/worldwide-governance-indicators</a></p>
-<p><a href="https://ourworldindata.org/"
-class="uri">https://ourworldindata.org/</a></p>
-<p><a href="https://www.kaggle.com/datasets/"
-class="uri">https://www.kaggle.com/datasets/</a></p>
-<p><a href="https://github.com/" class="uri">https://github.com/</a></p>
-<p><a href="https://osf.io/" class="uri">https://osf.io/</a></p>
-<p><a href="https://data.gov/" class="uri">https://data.gov/</a></p>
-<p><a href="https://data.world/datasets/corruption"
-class="uri">https://data.world/datasets/corruption</a></p>
-</div>
-<div id="the-planned-analyses-visualizations-coding-challenges"
-class="section level2">
-<h2>The planned analyses / visualizations / coding challenges</h2>
-<p>Analyses： We will try to figure out factors related to corruption
-index. We will model the relationship between corruption index and some
-variables within countries year by year. These variables include
-government effectiveness, voice and accountability, economy stats such
-as GDP per capita, development indicators such as education, etc.
-Corruption index will also be analyzed by continents. We might also do a
-cluster analysis to classify countries. We will build models through
-linear regression, and use cross-validation to choose the best one.</p>
-<p>Visualization: In this part, we will use several different types of
-graphs and tables to illustrate our results and present exploratory data
-analysis. Histograms and boxplots will be used to show arranged
-estimated control of corruption of each region from different years. The
-tendency for each key variable will be presented by correlation and
-scatter plots. Furthermore, the linear plots for each regression model
-will be created to clarify the correlation between different variables
-and the estimated control of corruption.</p>
-<p>Coding Challenges: There are some expected coding challenges. In the
-regression section, there might be some difficulties to code modeling
-and the validation method such as cross-validation. Furthermore, there
-will also be expected difficulties in setting up the website. We might
-need to learn some new html elements and shiny app function.</p>
-</div>
-<div id="time-table" class="section level2">
-<h2>Time table</h2>
-<pre class="mermaid"><code>graph TD
-A(&quot;until November 12th:Assign everyone&#39;s task.&quot;)
-==&gt;B(&quot;November 17th:Group meeting.Check the progress and communicate.&quot;)
-==&gt;C(&quot;November 24th:Group meeting.Communicate to solve the difficulties.&quot;)
-==&gt;D(&quot;November 29th:Push contents to the website.Start to generate final report and screencast.&quot;)
-==&gt;E(&quot;December 6th:Everything is done.&quot;)</code></pre>
-</div>
+<pre class="r"><code>isso_code =
+  read_html(&quot;https://www.countrycode.org/&quot;) |&gt;
+  html_elements(&quot;td:nth-child(3)&quot;) |&gt;
+  html_text()
+
+country_name_isso =
+  read_html(&quot;https://www.countrycode.org/&quot;) |&gt;
+  html_elements(&quot;td:nth-child(1)&quot;) |&gt;
+  html_text()
+
+country_code = 
+  data.frame(country_name_isso, str_split_fixed(isso_code, &#39;/&#39;, 2)) |&gt;
+  rename(c(country_code_2 = X1, country_code_3 = X2)) |&gt;
+  mutate(
+    country_code_2 = gsub(&#39;[ ]&#39;, &#39;&#39;, country_code_2),
+    country_code_3 = gsub(&#39;[ ]&#39;, &#39;&#39;, country_code_3)
+  ) |&gt;
+  distinct(country_code_3, .keep_all = T)</code></pre>
+<pre class="r"><code>country_code = 
+  country_code |&gt; 
+    select(-country_code_2) |&gt;
+    rename(&quot;Country / Territory&quot; = country_name_isso,
+           &quot;Country code&quot; = country_code_3)</code></pre>
+<pre class="r"><code>numberlist = c(&quot;A1:M200&quot;, &quot;N1:P200&quot;, &quot;Q1:S200&quot;, &quot;T1:V200&quot;, &quot;W1:Y200&quot;, &quot;Z1:AB200&quot;, &quot;AC1:AE200&quot;, &quot;AF1:AH200&quot;, &quot;AI1:AK200&quot;, &quot;AL1:AN200&quot;, &quot;AO1:AQ200&quot;, &quot;AR1:AT200&quot;, &quot;AU1:AW200&quot;, &quot;AX1:AZ200&quot;, &quot;BA1:BC200&quot;)
+
+
+
+read_cpi = 
+  function(address, scope){
+    tidy_data = 
+  read_excel(address, sheet = 1, scope)
+    
+    tidy_data
+}</code></pre>
+<pre class="r"><code>for (i in 1:length(numberlist)){
+
+  tidy_data = 
+    read_cpi(&quot;./data/Country CPI 1998-2022.xlsx&quot;,
+            numberlist[[i]]) 
+  
+  country_code = 
+    country_code |&gt; 
+    left_join(tidy_data, by = &quot;Country / Territory&quot;)
+}</code></pre>
+<pre class="r"><code>country_code = 
+    country_code |&gt;
+    select(&quot;Country / Territory&quot;, &quot;Country code.x&quot;, contains(c(&quot;20&quot;, &quot;19&quot;))) |&gt; 
+  janitor::clean_names() |&gt; 
+  rename(&quot;country_code&quot; = country_code_x)
+
+names(country_code) = 
+  gsub(&quot;cpi_score_&quot;, &quot;&quot;, names(country_code))
+
+country_code$&quot;2005&quot; = as.numeric(country_code$&quot;2005&quot;)
+
+cols_to_check =  as.character(c(1998 : 2022))
+
+country_code =
+  country_code |&gt; 
+  select(sort(names(country_code))) |&gt; 
+  relocate(country_territory, country_code)|&gt; 
+  mutate_at(vars(c(&quot;1998&quot;:&quot;2011&quot;)), ~ . * 10) |&gt; 
+  filter(!if_all(cols_to_check, is.na))</code></pre>
+<pre class="r"><code>country_code |&gt; 
+  write.table(
+    file = &quot;./data/cleaned_data/cpi_data_year.csv&quot;,
+    sep = &quot;,&quot;, 
+    row.names = FALSE)</code></pre>
 
 
 

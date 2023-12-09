@@ -4,11 +4,11 @@ navbar:
   title: "Home"
   right:
     - text: "Data"
-      href: data.html
+      href: tidy_data.html
     - text: "EDA"
       href: eda.html
     - text: "Shiny"
-      href: shiny.html
+      href: https://kindle0118.shinyapps.io/corruption_index/
     - text: "Dashboard"
       href: dashboard.html
     - text: "Regression"

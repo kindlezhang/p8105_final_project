@@ -1,13 +1,34 @@
 ---
 title: "Final project proposal"
-author: "p8105 group"
-date: "2023-11-10"
-output: html_document
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: "hide"
+    css: styles.css
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(
+  warning = FALSE, 
+  message = FALSE, 
+  echo = TRUE,
+  fig.width = 6,
+  fig.asp = 0.4,
+  out.width = "90%")
+
 library(tidyverse)
+library(ggplot2)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
 ```
 
 ## The group members
