@@ -11,7 +11,7 @@
 
 <meta name="author" content="Yunshen Bai" />
 
-<meta name="date" content="2023-12-08" />
+<meta name="date" content="2023-12-09" />
 
 <title>Data Manipulation and cleaning</title>
 
@@ -38,8 +38,8 @@
 <script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
-<link href="site_libs/font-awesome-6.4.2/css/all.min.css" rel="stylesheet" />
-<link href="site_libs/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.4.0/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.4.0/css/v4-shims.min.css" rel="stylesheet" />
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -382,7 +382,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Data Manipulation and cleaning</h1>
 <h4 class="author">Yunshen Bai</h4>
-<h4 class="date">2023-12-08</h4>
+<h4 class="date">2023-12-09</h4>
 
 </div>
 
@@ -606,6 +606,66 @@ Bank</a>. This dataset records the population of each country from 1960
 to 2022. We pivoted this dataset to long format and created
 <code>average_population</code> for future analysis.</p>
 </div>
+<div id="source-8-cpi" class="section level2">
+<h2>Source 8: CPI</h2>
+<pre class="r"><code>country_code_cpi = 
+  country_code |&gt; 
+    select(-country_code_2) |&gt;
+    rename(&quot;Country / Territory&quot; = country_name_isso,
+           &quot;Country code&quot; = country_code_3)
+
+numberlist = c(&quot;A1:M200&quot;, &quot;N1:P200&quot;, &quot;Q1:S200&quot;, &quot;T1:V200&quot;, &quot;W1:Y200&quot;, &quot;Z1:AB200&quot;, &quot;AC1:AE200&quot;, &quot;AF1:AH200&quot;, &quot;AI1:AK200&quot;, &quot;AL1:AN200&quot;, &quot;AO1:AQ200&quot;, &quot;AR1:AT200&quot;, &quot;AU1:AW200&quot;, &quot;AX1:AZ200&quot;, &quot;BA1:BC200&quot;)
+
+read_cpi = 
+  function(address, scope){
+    tidy_data = 
+  read_excel(address, sheet = 1, scope)
+    
+    tidy_data
+}
+
+for (i in 1:length(numberlist)){
+
+  tidy_data = 
+    read_cpi(&quot;./data/Country CPI 1998-2022.xlsx&quot;,
+            numberlist[[i]]) 
+  
+  country_code_cpi = 
+    country_code_cpi |&gt; 
+    left_join(tidy_data, by = &quot;Country / Territory&quot;)
+}
+
+country_code_cpi = 
+    country_code_cpi |&gt;
+    select(&quot;Country / Territory&quot;, &quot;Country code.x&quot;, contains(c(&quot;20&quot;, &quot;19&quot;))) |&gt; 
+  janitor::clean_names() |&gt; 
+  rename(&quot;country_code&quot; = country_code_x)
+
+names(country_code_cpi) = 
+  gsub(&quot;cpi_score_&quot;, &quot;&quot;, names(country_code_cpi))
+
+country_code_cpi$&quot;2005&quot; = as.numeric(country_code_cpi$&quot;2005&quot;)
+
+cols_to_check =  as.character(c(1998 : 2022))
+
+country_code_cpi =
+  country_code_cpi |&gt; 
+  select(sort(names(country_code_cpi))) |&gt; 
+  relocate(country_territory, country_code)|&gt; 
+  mutate_at(vars(c(&quot;1998&quot;:&quot;2011&quot;)), ~ . * 10) |&gt; 
+  filter(!if_all(cols_to_check, is.na))
+
+country_code_cpi |&gt; 
+  write.table(
+    file = &quot;./data/cleaned_data/cpi_data_year.csv&quot;,
+    sep = &quot;,&quot;, 
+    row.names = FALSE)</code></pre>
+<p>We also recorded the CPI dataset for further EDA session. This
+dataset comes from <a
+href="https://www.transparency.org/en/cpi/2022">Transparency
+International</a>. The dataset contains the CPI of each countries from
+1998 to 2022. In this dataset, we make data arranged by wide format.</p>
+</div>
 <div id="merge-datasets" class="section level2">
 <h2>Merge Datasets</h2>
 <pre class="r"><code>corruption_data=left_join(corruption,country_code,join_by(country_code==country_code_3))|&gt;
@@ -635,8 +695,10 @@ to 2022. We pivoted this dataset to long format and created
          voi_acc=voice_and_accountability_estimate,
          GDP,population,latitude,longitude,development,continent)
 
-write.table(corruption_data,&quot;./data/cleaned_data/overall_dataset.csv&quot;,row.names=FALSE,col.names=TRUE,sep=&quot;,&quot;)</code></pre>
-<pre class="r"><code>corruption_EDA_pre=read_csv(&quot;./data/corruption_index.csv&quot;)|&gt;
+write.table(corruption_data,&quot;./data/cleaned_data/overall_dataset.csv&quot;,row.names=FALSE,col.names=TRUE,sep=&quot;,&quot;)
+  
+
+corruption_EDA_pre=read_csv(&quot;./data/corruption_index.csv&quot;)|&gt;
   janitor::clean_names()|&gt;
   pivot_longer(
     cols = x1996_yr1996:x2022_yr2022,
@@ -696,7 +758,8 @@ for our future analysis. Since <code>country_code</code> is the common
 variable in every datasets, we use <code>left_join</code> function to
 merge these datasets together. For those dataset is not suitable for
 <code>left_join</code>, we use <code>case_when</code> function to merge
-them into the cleaned dataset. The cleaned dataset include the following
+them into the cleaned dataset. We also need to make sure every variable
+in the apporite type. The cleaned dataset include the following
 variables:</p>
 <ul>
 <li><code>country_name</code>: Country names</li>
