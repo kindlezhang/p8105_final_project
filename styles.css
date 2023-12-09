@@ -18,3 +18,9 @@ h3 {
 h4 {
   color: #ffcc99; /* 最浅的橘色 */
 }
+
+.scrollable-table {
+    height: 500px; /* 或您想要的任何高度 */
+    overflow-y: scroll;
+    display: block;
+}
