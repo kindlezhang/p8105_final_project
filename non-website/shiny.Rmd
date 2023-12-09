@@ -1,6 +1,8 @@
 ---
 title: "Corruption perception index"
-output: flexdashboard::flex_dashboard
+output: 
+    flexdashboard::flex_dashboard:
+      theme: yeti
 runtime: shiny
 ---
 
@@ -9,18 +11,47 @@ runtime: shiny
 library(tidyverse)
 library(flexdashboard)
 library(shiny)
+library(rsconnect)
 
 cpi_data = read_csv("../data/cleaned_data/cpi_data_year.csv")
 
 overall_data = read_csv("../data/cleaned_data/cpi_data_year.csv")
 ```
 
-Column {.sidebar}
------------------------------------------------------------------------
+Sidebar { .sidebar} 
+=====================================
 
-Waiting time between eruptions and the duration of the eruption for the
-Old Faithful geyser in Yellowstone National Park, Wyoming, USA.
+```{r}
+selectInput("variable", 
+            "Variable:",
+            c("Cylinders" = "cyl",
+              "Transmission" = "am",
+              "Gears" = "gear"))
+```
+
+Page 1
+=====================================  
+
+### Chart 1
+    
+```{r}
+renderText({
+  print(input$variable)
+})
+
+```
 
 
-Column
------------------------------------------------------------------------
+### Chart 2
+
+```{r}
+
+```
+
+Page 2
+=====================================     
+
+### Chart 2
+    
+```{r}
+```
