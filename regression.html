@@ -13,7 +13,7 @@
 
 <title>Regression</title>
 
-<script src="site_libs/header-attrs-2.25/header-attrs.js"></script>
+<script src="site_libs/header-attrs-2.24/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/united.min.css" rel="stylesheet" />
@@ -35,8 +35,8 @@
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
-<link href="site_libs/font-awesome-6.4.2/css/all.min.css" rel="stylesheet" />
-<link href="site_libs/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.4.0/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.4.0/css/v4-shims.min.css" rel="stylesheet" />
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -324,13 +324,13 @@ div.tocify {
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="data.html">Data</a>
+  <a href="Data-Manipulation-and-cleaning.html">Data</a>
 </li>
 <li>
   <a href="eda.html">EDA</a>
 </li>
 <li>
-  <a href="shiny.html">Shiny</a>
+  <a href="https://kindle0118.shinyapps.io/corruption_index/">Shiny</a>
 </li>
 <li>
   <a href="dashboard.html">Dashboard</a>
@@ -371,38 +371,51 @@ div.tocify {
 
 
 <pre class="r"><code>library(tidyverse)</code></pre>
-<pre><code>## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
-## ✔ dplyr     1.1.3     ✔ readr     2.1.4
-## ✔ forcats   1.0.0     ✔ stringr   1.5.0
-## ✔ ggplot2   3.4.3     ✔ tibble    3.2.1
-## ✔ lubridate 1.9.2     ✔ tidyr     1.3.0
-## ✔ purrr     1.0.2     
-## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-## ✖ dplyr::filter() masks stats::filter()
-## ✖ dplyr::lag()    masks stats::lag()
-## ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
-<pre class="r"><code>library(modelr)
-library(mgcv)</code></pre>
-<pre><code>## 载入需要的程辑包：nlme
+<pre><code>## Warning: package &#39;tidyverse&#39; was built under R version 4.1.3</code></pre>
+<pre><code>## Warning: package &#39;ggplot2&#39; was built under R version 4.1.3</code></pre>
+<pre><code>## Warning: package &#39;tibble&#39; was built under R version 4.1.3</code></pre>
+<pre><code>## Warning: package &#39;tidyr&#39; was built under R version 4.1.3</code></pre>
+<pre><code>## Warning: package &#39;readr&#39; was built under R version 4.1.3</code></pre>
+<pre><code>## Warning: package &#39;purrr&#39; was built under R version 4.1.3</code></pre>
+<pre><code>## Warning: package &#39;dplyr&#39; was built under R version 4.1.3</code></pre>
+<pre><code>## Warning: package &#39;stringr&#39; was built under R version 4.1.3</code></pre>
+<pre><code>## Warning: package &#39;forcats&#39; was built under R version 4.1.3</code></pre>
+<pre><code>## Warning: package &#39;lubridate&#39; was built under R version 4.1.3</code></pre>
+<pre><code>## -- Attaching core tidyverse packages ------------------------ tidyverse 2.0.0 --
+## v dplyr     1.1.2     v readr     2.1.4
+## v forcats   1.0.0     v stringr   1.5.0
+## v ggplot2   3.4.2     v tibble    3.2.1
+## v lubridate 1.9.2     v tidyr     1.3.0
+## v purrr     1.0.1     
+## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()
+## i Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+<pre class="r"><code>library(modelr)</code></pre>
+<pre><code>## Warning: package &#39;modelr&#39; was built under R version 4.1.3</code></pre>
+<pre class="r"><code>library(mgcv)</code></pre>
+<pre><code>## Warning: package &#39;mgcv&#39; was built under R version 4.1.3</code></pre>
+<pre><code>## Loading required package: nlme
 ## 
-## 载入程辑包：&#39;nlme&#39;
+## Attaching package: &#39;nlme&#39;
 ## 
 ## The following object is masked from &#39;package:dplyr&#39;:
 ## 
 ##     collapse
 ## 
-## This is mgcv 1.9-0. For overview type &#39;help(&quot;mgcv-package&quot;)&#39;.</code></pre>
+## This is mgcv 1.8-42. For overview type &#39;help(&quot;mgcv-package&quot;)&#39;.</code></pre>
 <pre class="r"><code>library(MPV)</code></pre>
-<pre><code>## Warning: 程辑包&#39;MPV&#39;是用R版本4.3.2 来建造的</code></pre>
-<pre><code>## 载入需要的程辑包：lattice
-## 载入需要的程辑包：KernSmooth
+<pre><code>## Loading required package: lattice</code></pre>
+<pre><code>## Warning: package &#39;lattice&#39; was built under R version 4.1.3</code></pre>
+<pre><code>## Loading required package: KernSmooth
 ## KernSmooth 2.23 loaded
 ## Copyright M. P. Wand 1997-2009
-## 载入需要的程辑包：randomForest
-## randomForest 4.7-1.1
+## Loading required package: randomForest</code></pre>
+<pre><code>## Warning: package &#39;randomForest&#39; was built under R version 4.1.3</code></pre>
+<pre><code>## randomForest 4.7-1.1
 ## Type rfNews() to see new features/changes/bug fixes.
 ## 
-## 载入程辑包：&#39;randomForest&#39;
+## Attaching package: &#39;randomForest&#39;
 ## 
 ## The following object is masked from &#39;package:dplyr&#39;:
 ## 
@@ -412,11 +425,11 @@ library(mgcv)</code></pre>
 ## 
 ##     margin</code></pre>
 <pre class="r"><code>library(leaps)</code></pre>
-<pre><code>## Warning: 程辑包&#39;leaps&#39;是用R版本4.3.2 来建造的</code></pre>
+<pre><code>## Warning: package &#39;leaps&#39; was built under R version 4.1.2</code></pre>
 <pre class="r"><code>library(p8105.datasets)
 library(MASS)</code></pre>
 <pre><code>## 
-## 载入程辑包：&#39;MASS&#39;
+## Attaching package: &#39;MASS&#39;
 ## 
 ## The following object is masked from &#39;package:MPV&#39;:
 ## 
@@ -427,10 +440,9 @@ library(MASS)</code></pre>
 ##     select</code></pre>
 <pre class="r"><code>library(ggplot2)
 library(car)</code></pre>
-<pre><code>## Warning: 程辑包&#39;car&#39;是用R版本4.3.2 来建造的</code></pre>
-<pre><code>## 载入需要的程辑包：carData
+<pre><code>## Loading required package: carData
 ## 
-## 载入程辑包：&#39;car&#39;
+## Attaching package: &#39;car&#39;
 ## 
 ## The following object is masked from &#39;package:dplyr&#39;:
 ## 
