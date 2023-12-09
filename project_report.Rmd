@@ -49,6 +49,8 @@ library(tidyr)
 library(forcats)
 library(hrbrthemes)
 library(viridis)
+library(knitr)
+library(kableExtra)
 ```
 
 
@@ -912,7 +914,6 @@ forward.model.AIC|>
 All.Criteria(forward.model.AIC)|>
   knitr::kable(caption = "Criterias for forward selected selected model")
 ```
-
 
 ### Comparision of full model, forward and backward selected model
 
