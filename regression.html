@@ -385,8 +385,8 @@ div.tocify {
 </div>
 
 
-<div id="introduction" class="section level1">
-<h1>Introduction</h1>
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
 <p>In this part, linear regression models are generated to help us to
 have a better understanding of the relationship between corruption index
 and other variables. After data cleaning, all variables and the number
@@ -469,8 +469,8 @@ NA_table_1|&gt;
   drop_na()|&gt;
   dplyr::select(-country_name, -latitude, -longitude,-country_code)</code></pre>
 </div>
-<div id="full-model" class="section level1">
-<h1>Full model</h1>
+<div id="full-model" class="section level2">
+<h2>Full model</h2>
 <pre class="r"><code>full.model = lm(con_cor ~ ., data = overall_dataset)
 empty.model = lm(con_cor ~ 1,data = overall_dataset)</code></pre>
 <p>The full model includes all variables except latitude and longitude
@@ -492,8 +492,7 @@ variable.</p>
     the.AIC = AIC(the.model),
     the.PRESS = PRESS(the.model),
     the.R2adj = summary(the.model)$adj.r.squared,
-   
-    
+  
   )
 }
 full.model|&gt;
@@ -610,8 +609,8 @@ full.model|&gt;
 </tr>
 </tbody>
 </table>
-<div id="check-normality-and-remove-outlier" class="section level2">
-<h2>check normality and remove outlier</h2>
+<div id="check-normality-and-remove-outlier" class="section level3">
+<h3>check normality and remove outlier</h3>
 <p>Plots below shows that the residuals are overall normally
 distributed. The qq-plot shows that the regression is linear and there
 is no need to add transformation variables. But potential outliers are
@@ -686,12 +685,12 @@ All.Criteria(full.model)|&gt;
 </table>
 </div>
 </div>
-<div id="selected-model" class="section level1">
-<h1>Selected model</h1>
+<div id="selected-model" class="section level2">
+<h2>Selected model</h2>
 <p>After the updated full model is built, backward and forward selection
 function is applied to gain selected models.</p>
-<div id="backward-model-selection" class="section level2">
-<h2>backward model selection</h2>
+<div id="backward-model-selection" class="section level3">
+<h3>backward model selection</h3>
 <p>The summary of backward selected model is shown below. pol_vio,
 regu_qual, GDP are deleted. This is expected because these variables
 have relatively high p-value that presented in full model above.</p>
@@ -797,8 +796,8 @@ forward.model.AIC = stepAIC(empty.model, scope = list(lower = empty.model, upper
 </tbody>
 </table>
 </div>
-<div id="forward-model-selection" class="section level2">
-<h2>forward model selection</h2>
+<div id="forward-model-selection" class="section level3">
+<h3>forward model selection</h3>
 <p>The summary of forward selected model is shown below. pol_vio, GDP,
 continent are deleted. Comparing to backward selected model, continent
 is also deleted instead of regu_qual.The possible reason is that forward
@@ -886,8 +885,8 @@ less dependent on the order of variable removal.</p>
 </table>
 </div>
 <div id="comparision-of-full-model-forward-and-backward-selected-model"
-class="section level2">
-<h2>Comparision of full model, forward and backward selected model</h2>
+class="section level3">
+<h3>Comparision of full model, forward and backward selected model</h3>
 <p>Backward selected model has the lowest BIC and highest R2adj.
 Interestingly, forward selected model has the lower than BIC and R2adj
 than unselected full model, which indicated that continentEurope has
@@ -953,6 +952,10 @@ The graph below shows the RMSE distribution in test datasets for three
 models. From the plot, forward and backward selected model have RMSE
 around 0.2 to 0.4. However, the RMSE of full model is over-spread. The
 interference of GDP and pol_vio could lead to the result.</p>
+</div>
+</div>
+<div id="test-the-model" class="section level2">
+<h2>Test the model</h2>
 <pre class="r"><code>cv_df =
   crossv_mc(new.data, 100) |&gt; 
   mutate(
@@ -1013,10 +1016,12 @@ Overall, there is no significant difference between three models.</p>
     y = &quot;Prediction&quot;
   )</code></pre>
 <p><img src="regression_files/figure-html/unnamed-chunk-14-3.png" width="672" /></p>
+</div>
+<div id="conclusions" class="section level2">
+<h2>Conclusions</h2>
 <p>To sum up, based on all analysis above, there is no significant
 difference between three models. But backward selected model is the most
 optimal model to predict corruption index.</p>
-</div>
 </div>
 
 
