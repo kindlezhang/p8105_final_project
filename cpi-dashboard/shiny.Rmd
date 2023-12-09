@@ -3,6 +3,8 @@ title: "Corruption perception index"
 output: 
     flexdashboard::flex_dashboard:
       theme: yeti
+      orientation: columns
+      source_code: embed
 runtime: shiny
 ---
 
@@ -12,46 +14,109 @@ library(tidyverse)
 library(flexdashboard)
 library(shiny)
 library(rsconnect)
+library(ggplot2)
+library(viridis)
+library(plotly)
 
-cpi_data = read_csv("../data/cleaned_data/cpi_data_year.csv")
+cpi_data = read_csv("./data/cpi_data_year.csv")
 
-overall_data = read_csv("../data/cleaned_data/cpi_data_year.csv")
+overall_data = read_csv("./data/overall_dataset.csv")
 ```
 
-Sidebar { .sidebar} 
+Sidebar { .sidebar data-width=400} 
 =====================================
 
 ```{r}
 selectInput("variable", 
             "Variable:",
-            c("Cylinders" = "cyl",
-              "Transmission" = "am",
-              "Gears" = "gear"))
+            c("government effectiveness" = "gov_eff", 
+              "political stability and absence of violence" = "pol_vio",
+            "regulatory quality" = "regu_qual",
+            "rule of law" = "rul_law",
+            "voice and accountability" = "voi_acc",
+            "GDP" = "GDP",
+            "development" = "development",
+            "continent" = "continent"))
+
 ```
 
-Page 1
+
+
+Examine variable
 =====================================  
 
-### Chart 1
-    
+
+Column {data-width=650}
+-----------------------------------------------------------------------
+
+### A map shows different countries' cpi and a variable
+
 ```{r}
-renderText({
-  print(input$variable)
+
+ # selectedData = reactive({
+ #  color_name = input$variable
+ # 
+ #  color_name
+ # })
+
+
+renderPlotly({
+  overall_data |>
+    plot_ly(
+      x = ~ latitude,
+      y = ~ longitude,
+      type = 'scatter',
+      mode = 'markers',
+      size = ~ con_cor,
+      color = ~ overall_data[[input$variable]],
+      text = ~ paste("Country:", country_name, "<br>Code:", country_code),
+      hoverinfo = 'text'
+    ) |>
+    layout(
+      title = str_c("Countries Scatter Plot, CPI & ", input$variable),
+      xaxis = list(title = "Latitude"),
+      yaxis = list(title = "Longitude")
+    )
 })
-
 ```
 
+Column {data-width=350}
+-----------------------------------------------------------------------
 
-### Chart 2
+### Histogram
 
 ```{r}
 
+renderPlot({
+  if (!input$variable %in% c("development", "continent"))
+  overall_data |> 
+  ggplot(aes(x = overall_data[[input$variable]]))+
+  geom_histogram(binwidth = 0.5, fill = "green", color = "yellow") +
+  ggtitle("Histogram of Values") +
+  xlab(input$variable) +
+  theme_minimal()
+})
 ```
 
-Page 2
+### Correlection
+
+```{r}
+
+renderPlot({
+  overall_data |> 
+    ggplot(aes(x = overall_data[[input$variable]], 
+               y = con_cor)) + 
+    geom_point(alpha = .4) + 
+    geom_smooth(method = "lm", se = TRUE)+
+    scale_color_viridis() + 
+    ggtitle("simple linear regression") +
+    xlab(input$variable)
+})
+```
+Analyze variable
 =====================================     
 
-### Chart 2
+### A picture
     
 ```{r}
 ```
