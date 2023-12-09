@@ -15,10 +15,11 @@ world_spdf =
     layer = "TM_WORLD_BORDERS_SIMPL-0.3")
 
 world_cor = 
-  read_excel("./data/CPI_2015.xlsx", sheet = 1) |> 
-  janitor::clean_names() |> 
-  select(country_territory, cpi_2015_score) |> 
-  rename("2015" = cpi_2015_score) |> 
+  # read_excel("./data/CPI_2015.xlsx", sheet = 1) |> 
+  read_csv("./data/cpi_data_year.csv") |> 
+  # janitor::clean_names() |> 
+  # select(country_territory, cpi_2015_score) |> 
+  # rename("2015" = cpi_2015_score) |> 
   rename("NAME" = "country_territory") |> 
   left_join(world_spdf, by = "NAME") |> 
   st_as_sf()
@@ -31,28 +32,28 @@ ui <- fluidPage(
     
     sidebarPanel(
       img(
-        src = "rstudio.png",
-        height = 40,
-        width = 120
+        src = "corruption-perception-index.jpg",
+        height = 100,
+        width = 220
       ),
       br(),
       h4(strong("explanation")),
       helpText(
         div(
-        "say whatever you want",
+        "An interactive mapping",
         style = "color:blue"
       ), 
-        "whatever you want"),
+        "you can choose year to have a clearer visulization upon the 
+      trend and distribution of CPI and other varia"),
       selectInput("var", 
                   label = h4(strong("Choose a variable to display")),
                   choices = c("CPI", 
-                              "GDP",
-                              "something else", 
-                              "something else2"),
+                              "GDP"
+                              ),
                   selected = "CPI"),
       sliderInput("slider", 
                   h4(strong("year")),
-                  min = 1980, max = 2023, value = 1980)
+                  min = 1998, max = 2022, value = 1980)
     ),
     mainPanel(
       tabsetPanel(
