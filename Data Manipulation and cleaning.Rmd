@@ -34,7 +34,7 @@ scale_fill_discrete = scale_fill_viridis_d
 library(tidyverse)
 library(rvest)
 library(httr)
-
+library(readxl)
 ```
 
 ## Source 1:Corruption Index
@@ -224,8 +224,68 @@ population=read_csv("./data/population.csv")|>
 
 We are also interested in whether there is a correlation between a country's population and the corruption index. This dataset comes from [The World Bank](https://data.worldbank.org/indicator/SP.POP.TOTL). This dataset records the population of each country from 1960 to 2022. We pivoted this dataset to long format and created `average_population` for future analysis.
 
+## Source 8: CPI
+```{r,warning=FALSE}
+country_code_cpi = 
+  country_code |> 
+    select(-country_code_2) |>
+    rename("Country / Territory" = country_name_isso,
+           "Country code" = country_code_3)
+
+numberlist = c("A1:M200", "N1:P200", "Q1:S200", "T1:V200", "W1:Y200", "Z1:AB200", "AC1:AE200", "AF1:AH200", "AI1:AK200", "AL1:AN200", "AO1:AQ200", "AR1:AT200", "AU1:AW200", "AX1:AZ200", "BA1:BC200")
+
+read_cpi = 
+  function(address, scope){
+    tidy_data = 
+  read_excel(address, sheet = 1, scope)
+    
+    tidy_data
+}
+
+for (i in 1:length(numberlist)){
+
+  tidy_data = 
+    read_cpi("./data/Country CPI 1998-2022.xlsx",
+            numberlist[[i]]) 
+  
+  country_code_cpi = 
+    country_code_cpi |> 
+    left_join(tidy_data, by = "Country / Territory")
+}
+
+country_code_cpi = 
+    country_code_cpi |>
+    select("Country / Territory", "Country code.x", contains(c("20", "19"))) |> 
+  janitor::clean_names() |> 
+  rename("country_code" = country_code_x)
+
+names(country_code_cpi) = 
+  gsub("cpi_score_", "", names(country_code_cpi))
+
+country_code_cpi$"2005" = as.numeric(country_code_cpi$"2005")
+
+cols_to_check =  as.character(c(1998 : 2022))
+
+country_code_cpi =
+  country_code_cpi |> 
+  select(sort(names(country_code_cpi))) |> 
+  relocate(country_territory, country_code)|> 
+  mutate_at(vars(c("1998":"2011")), ~ . * 10) |> 
+  filter(!if_all(cols_to_check, is.na))
+
+country_code_cpi |> 
+  write.table(
+    file = "./data/cleaned_data/cpi_data_year.csv",
+    sep = ",", 
+    row.names = FALSE)
+```
+
+We also recorded the CPI dataset for further EDA session. This dataset comes from [Transparency International](https://www.transparency.org/en/cpi/2022). The dataset contains the CPI of each countries from 1998 to 2022. In this dataset, we make data arranged by wide format. 
+
+
+
 ## Merge Datasets
-```{r}
+```{r,message=FALSE,warning=FALSE}
 corruption_data=left_join(corruption,country_code,join_by(country_code==country_code_3))|>
   left_join(average_GDP,join_by(country_code==country_code))|>
   left_join(country_coordinate,join_by(country_code))|>
@@ -255,9 +315,7 @@ corruption_data=left_join(corruption,country_code,join_by(country_code==country_
 
 write.table(corruption_data,"./data/cleaned_data/overall_dataset.csv",row.names=FALSE,col.names=TRUE,sep=",")
   
-```
 
-```{r,message=FALSE,warning=FALSE}
 corruption_EDA_pre=read_csv("./data/corruption_index.csv")|>
   janitor::clean_names()|>
   pivot_longer(
@@ -316,7 +374,7 @@ write.table(corruption_EDA,"./data/corruption_EDA.csv",row.names=FALSE,col.names
 
 ```
 
-Since we cleaned the datasets we got, we need to merge these datasets for our future analysis. Since `country_code` is the common variable in every datasets, we use `left_join` function to merge these datasets together. For those dataset is not suitable for `left_join`, we use `case_when` function to merge them into the cleaned dataset. The cleaned dataset include the following variables:
+Since we cleaned the datasets we got, we need to merge these datasets for our future analysis. Since `country_code` is the common variable in every datasets, we use `left_join` function to merge these datasets together. For those dataset is not suitable for `left_join`, we use `case_when` function to merge them into the cleaned dataset. We also need to make sure every variable in the apporite type. The cleaned dataset include the following variables:
 
 - `country_name`: Country names
 - `country_code`: Country codes
