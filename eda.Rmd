@@ -1,20 +1,19 @@
 ---
 title: "EDA"
+date: "`r Sys.Date()`"
 output:
   html_document:
     toc: true
     toc_float: true
+    code_folding: "show"
+    css: styles.css
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE,
+knitr::opts_chunk$set(echo = TRUE,
                       message = FALSE,
                       warning = FALSE
                       )
-
-```
-
-```{r}
 library(patchwork)
 library(GGally)
 library(dplyr)
@@ -29,15 +28,14 @@ library(hrbrthemes)
 library(viridis)
 ```
 
+## Import control of corruption data
 
 ```{r}
 corruption = read_csv('.\\data\\corruption_EDA.csv')
 ```
 
 
-
-
-## con_cor trend
+## Data Trend
 ```{r}
 corruption|> 
   group_by(year)|>
@@ -54,11 +52,8 @@ corruption|>
 
 We draw a line plot with a smooth line to show the overall trend of control of corruption from 1996 to 2022. We can see from the plot, that there is a increasing trend for the control of corruption index from 1996 to 2007,and then declining trend from 2007 to 2015. From 2015 to 2022, there is a increasing trend for the control of corruption. In general, there is a increasing trend for control of corruption from 1996 to 2022.
 
+## With Governance Indicators
 
-
-
-
-### con_cor vs govern_correlation
 
 ```{r}
 corruption %>% 
@@ -76,7 +71,7 @@ We also managed to show how control of corruption relate to other 5 types of gov
 
 Then we make scatter plots of control of corruption and fit it with linear line against each of 5 types of governance indicators to visualize the relationship.
 
-### con_cor vs 
+### Level - 1
 ```{r warning = FALSE}
 myplots <- vector('list', 4)
 for (i in 2019:2022){
@@ -105,6 +100,8 @@ plot_grid(title,plot_row1,plot_row2 ,ncol=1,  label_size = 12,rel_heights=c(0.1,
 
 ```
 
+### Level - 2
+
 ```{r}
 myplots <- vector('list', 4)
 for (i in 2019:2022){
@@ -132,6 +129,7 @@ title <- ggdraw() +
 plot_grid(title,plot_row1,plot_row2 ,ncol=1,  label_size = 12,rel_heights=c(0.1, 1,1))
 ```
 
+### Level - 3
 
 ```{r}
 myplots <- vector('list', 4)
@@ -160,6 +158,7 @@ title <- ggdraw() +
 plot_grid(title,plot_row1,plot_row2 ,ncol=1,  label_size = 12,rel_heights=c(0.1, 1,1))
 ```
 
+### Level - 4
 
 ```{r}
 myplots <- vector('list', 4)
@@ -189,6 +188,8 @@ title <- ggdraw() +
 plot_grid(title,plot_row1,plot_row2 ,ncol=1,  label_size = 12,rel_heights=c(0.1, 1,1))
 ```
 
+### Level - 5
+
 ```{r}
 myplots <- vector('list', 4)
 for (i in 2019:2022){
@@ -217,7 +218,9 @@ title <- ggdraw() +
 plot_grid(title,plot_row1,plot_row2 ,ncol=1,  label_size = 12,rel_heights=c(0.1, 1,1))
 ```
 
-# Control of Corruption by Development
+## With Corruption by Development
+
+### Scatter Plot
 
 ```{r}
 corruption|>
@@ -236,7 +239,8 @@ From the plot,We can see that the control of corruption for developing countries
 
 
 
-## proportion by development
+### Pie Plot
+
 ```{r}
 development_prop = corruption|>
   group_by(development)|>
@@ -252,10 +256,7 @@ We have a pie plot for proportion of population by development.From the pie plot
 Together with the last plot, we can attribute the rising trend of control of corruption index over the world to rising trend of developing countries. The rising trend of developing countries outweigh the falling trend of least developed countries.
 
 
-
-
-
-# Control of Corruption by Continents
+## With Corruption by Continents
 
 Continent is also a import factor we need to consider.We compares the population,gdp and control of corruption among continents by a series of plots. 
 
@@ -290,7 +291,7 @@ cpi_continent
 
 We draw a bar plot of mean control of corruption index by continents and a density plot to show the distribution of control of corruption index. From the histogram, we can see that Europe has the highest control of corruption index, whereas Africa has the lowest one.
 
-## control of corruption by GDP
+## With GDP
 
 ```{r}
 mean_gdp = corruption|>
@@ -322,11 +323,9 @@ The upper bar plot shows mean gdp of countries in each continent.The lower histo
 
 
 
+## With Population
 
-
-## Control of Corruption by Population
-
-
+### Plot - 1
 ```{r}
 corruption %>%
   ggplot( aes(x=continent, y=population, fill=continent)) +
@@ -346,6 +345,7 @@ corruption %>%
 Based on the boxplot of  population distribution among countries in each continent, we can read that Asia is the most populated area, and populated countries in North America has larger population than those countries in Europe. Oceania are the least populated area.
 
 
+### Plot - 2
 ```{r warning = FALSE}
 myplots <- vector('list', 4)
 for (i in 2019:2022){
