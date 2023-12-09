@@ -2,10 +2,35 @@
 title: "Data Manipulation and cleaning"
 author: "Yunshen Bai"
 date: "`r Sys.Date()`"
-output: html_document
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: "hide"
+    css: styles.css
 ---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  warning = FALSE, 
+  message = FALSE, 
+  echo = TRUE,
+  fig.width = 6,
+  fig.asp = 0.4,
+  out.width = "90%")
 
-```{r setup,message=FALSE,warning=FALSE}
+
+library(ggplot2)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+
 library(tidyverse)
 library(rvest)
 library(httr)
@@ -15,7 +40,7 @@ library(httr)
 ## Source 1:Corruption Index
 
 ```{r,message=FALSE,warning=FALSE}
-corruption=read_csv("C:/Users/Leon/Desktop/p8105_final_project/data/corruption_index.csv")|>
+corruption=read_csv("./data/corruption_index.csv")|>
   janitor::clean_names()|>
   mutate(value=(as.numeric(x2020_yr2020)+as.numeric(x2020_yr2020)+as.numeric(x2020_yr2020))/3)|>
   select(country_name,country_code,series_name,value)|>
@@ -134,10 +159,10 @@ The geographical location of a country may also have a bearing on a country's co
 
 ```{r,message=FALSE}
 developed=
-  read_csv("C:/Users/Leon/Desktop/p8105_final_project/data/developed-countries-2023.csv")|>
+  read_csv("./data/developed-countries-2023.csv")|>
   pull(cca3)
 least_develpoed=
-  read_csv("C:/Users/Leon/Desktop/p8105_final_project/data/least-developed-countries-2023.csv")|>
+  read_csv("./data/least-developed-countries-2023.csv")|>
   pull(cca3)
 ```
 
@@ -233,7 +258,7 @@ write.table(corruption_data,"./data/cleaned_data/overall_dataset.csv",row.names=
 ```
 
 ```{r,message=FALSE,warning=FALSE}
-corruption_EDA_pre=read_csv("C:/Users/Leon/Desktop/p8105_final_project/data/corruption_index.csv")|>
+corruption_EDA_pre=read_csv("./data/corruption_index.csv")|>
   janitor::clean_names()|>
   pivot_longer(
     cols = x1996_yr1996:x2022_yr2022,
