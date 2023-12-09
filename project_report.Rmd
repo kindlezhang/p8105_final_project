@@ -399,7 +399,6 @@ corruption_EDA=
          )
   
 write.table(corruption_EDA,"./data/corruption_EDA.csv",row.names=FALSE,col.names=TRUE,sep=",")
-
 ```
 
 Since we cleaned the datasets we got, we need to merge these datasets for our future analysis. Since `country_code` is the common variable in every datasets, we use `left_join` function to merge these datasets together. For those dataset is not suitable for `left_join`, we use `case_when` function to merge them into the cleaned dataset. We also need to make sure every variable in the apporite type. The cleaned dataset include the following variables:
@@ -424,11 +423,15 @@ Since we cleaned the datasets we got, we need to merge these datasets for our fu
 For the dataset we used in regression section, we take the average value of the numeric variables from 2020-2022.
 
 
-```{r}
-corruption_data|>
-  head(20)|>
-  knitr::kable()
+```{r, results='asis', echo=FALSE}
+cat(htmltools::HTML("<div class=\"scrollable-table\">"))
+corruption_data |> 
+  head(20) |> 
+  kable("html", escape = FALSE) |> 
+  kable_styling("striped", full_width = F)
+cat(htmltools::HTML("</div>"))
 ```
+
 
 # **Exploratory Analysis**
 
