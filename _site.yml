@@ -4,7 +4,7 @@ navbar:
   title: "Home"
   right:
     - text: "Data"
-      href: tidy_data.html
+      href: Data-Manipulation-and-cleaning.html
     - text: "EDA"
       href: eda.html
     - text: "Shiny"
