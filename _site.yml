@@ -10,7 +10,7 @@ navbar:
     - text: "Shiny"
       href: https://kindle0118.shinyapps.io/corruption_index/
     - text: "Dashboard"
-      href: dashboard.html
+      href: https://kindle0118.shinyapps.io/cpi-dashboard/
     - text: "Regression"
       href: regression.html
     - text: "Video"
