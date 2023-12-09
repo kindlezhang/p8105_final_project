@@ -5,7 +5,7 @@ account: kindle0118
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 10706309
-bundleId: 8002359
+bundleId: 8029413
 url: https://kindle0118.shinyapps.io/corruption_index/
 version: 1
 asMultiple: FALSE
