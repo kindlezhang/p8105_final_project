@@ -1,35 +1,39 @@
 ---
 title: "eda"
-output: html_document
-date: "2023-12-01"
+output:
+  html_document:
+    toc: true
+    toc_float: true
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE
+                      )
+
 ```
 
 ```{r}
+library(patchwork)
+library(GGally)
 library(dplyr)
 library(tidyverse)
 library(cowplot)
+library(plotly)
+library(RColorBrewer)
 
+library(ggplot2)
+
+library(tidyr)
+library(forcats)
+library(hrbrthemes)
+library(viridis)
 ```
-read combined dataset.
+
+
 ```{r}
-overall = read_csv('.\\data\\overall_dataset.csv')
-continent = read_csv('.\\data\\continents.csv')
-```
-
-
-add country code
-```{r}
-country_code = continent|>
-  select(name,'alpha-3')|>
-  rename(country_name = name,
-         country_code = 'alpha-3')
-
-  
-overall = left_join(overall,country_code)
+corruption = read_csv('.\\data\\corruption_EDA.csv')
 ```
 
 
@@ -37,63 +41,55 @@ overall = left_join(overall,country_code)
 
 
 ```{r}
-gov = read_csv('.\\data\\gov.csv')|>
-  janitor::clean_names()|>
-  select(country_code,series_name,x2019_yr2019:x2022_yr2022)|>
-  filter(x2019_yr2019 !='..')|>
-  filter(x2022_yr2022 !='..')|>
-  pivot_longer(
-    x2019_yr2019:x2022_yr2022,
-    names_to = 'year',
-    values_to = 'value'
-  )|>
-  pivot_wider(
-    names_from = series_name,
-    values_from = value
-  )|>
-  mutate(year = recode(year,x2019_yr2019 = '2019',
-                       x2020_yr2020 = '2020',
-                       x2021_yr2021 = '2021',
-                       x2022_yr2022 = '2022'
-                       
-                       
-                       )
-         )|>
-  janitor::clean_names()|>
-  mutate(government_effectiveness_estimate = as.numeric(government_effectiveness_estimate))|>
-  mutate(government_effectiveness_estimate = signif(government_effectiveness_estimate,3))|>
-  mutate(control_of_corruption_estimate = as.numeric(control_of_corruption_estimate))|>
-  mutate(control_of_corruption_estimate = signif(control_of_corruption_estimate,3))
-```
-corruption index
-
-```{r}
-corruption = gov|>
-  select(country_code,year,control_of_corruption_estimate)
+corruption|> 
+  group_by(year)|>
+  summarise(mean = mean(signif(con_cor,4),na.rm = TRUE))|>
+  ggplot(aes(x=year, y=mean)) +
+  geom_point(color = 'red')+geom_line(aes(group=1),color = 'orange')+
+  geom_smooth(se = FALSE,color = "purple")+
+  labs(
+    title = " Trend of control of corruption",
+    x = "Year",
+    y = "Control of corruption"
+  )
 ```
 
+We draw a line plot with a smooth line to show the overall trend of control of corruption from 1996 to 2022. We can see from the plot, that there is a increasing trend for the control of corruption index from 1996 to 2007,and then declining trend from 2007 to 2015. From 2015 to 2022, there is a increasing trend for the control of corruption. In general, there is a increasing trend for control of corruption from 1996 to 2022.
 
 
+# Control of Corruption and Governance Indicators
 
 ```{r}
+corruption %>% 
+  select(con_cor,gov_eff,pol_vio,regu_qual,rul_law,voi_acc
+) %>% 
+  ggpairs(
+    title = "Correlations Between govenance indicators",
+    ggplot2::aes(alpha = 0.1)
+  ) + 
+  scale_fill_discrete() + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+We also managed to show how control of corruption related to other 5 types of governance indicator. The graph shows that the control of corruption has most significant correlation with government effectiveness and rule of law.
+
+Then we make scatter plots of control of corruption against each of 5 types of governance indicator.
+
+```{r warning = FALSE}
 myplots <- vector('list', 4)
 for (i in 2019:2022){
     myplots[[i-2018]] =
-      gov %>% 
+      corruption %>% 
       filter(year == i) %>% 
-      ggplot(aes(x = government_effectiveness_estimate, y = control_of_corruption_estimate))+geom_point()+geom_smooth(method = 'lm', se = TRUE, color = 'red'
-                                                                                                                      )+
-      labs(title = sprintf("year %s", i))
-    
-  
-}
+      ggplot(aes(x = gov_eff, y = con_cor))+geom_point()+geom_smooth(method = 'lm', se = TRUE, color = 'red')+labs(title = sprintf("year %s", i))
 
 plot_row1 <- plot_grid(myplots[[1]], myplots[[2]])
 plot_row2 <- plot_grid(myplots[[3]], myplots[[4]])
+}
 # title
 title <- ggdraw() + 
   draw_label(
-    "Scatter Plot for corruption and effectiveness",
+    "Corruption against effectiveness",
     fontface = 'bold',
     x = 0,
     hjust = 0
@@ -106,101 +102,271 @@ title <- ggdraw() +
 plot_grid(title,plot_row1,plot_row2 ,ncol=1,  label_size = 12,rel_heights=c(0.1, 1,1))
 
 ```
+
 ```{r}
-iou = gov|>
-  select(year,control_of_corruption_estimate)
+myplots <- vector('list', 4)
+for (i in 2019:2022){
+    myplots[[i-2018]] =
+      corruption %>% 
+      filter(year == i) %>% 
+      ggplot(aes(x = pol_vio, y = con_cor))+geom_point()+geom_smooth(method = 'lm', se = TRUE, color = 'red')+labs(title = sprintf("year %s", i))
+}
 
-
-  iou |>
-  ggplot(aes(x = year, y = control_of_corruption_estimate)) + 
-geom_boxplot()+
-  labs(
- 
-    x = "YEAR", 
-    y = "CPI") 
-
-
+plot_row1 <- plot_grid(myplots[[1]], myplots[[2]])
+plot_row2 <- plot_grid(myplots[[3]], myplots[[4]])
+# title
+title <- ggdraw() + 
+  draw_label(
+    "Corruption against political stability and absence of violence terrorism",
+    fontface = 'bold',
+    x = 0,
+    hjust = 0
+  ) +
+  theme(
+    # add margin on the left of the drawing canvas,
+    # so title is aligned with left edge of first plot
+    plot.margin = margin(0, 0, 0, 7)
+  )
+plot_grid(title,plot_row1,plot_row2 ,ncol=1,  label_size = 12,rel_heights=c(0.1, 1,1))
 ```
 
 
 ```{r}
-develop = overall|>
-  select(country_name,country_code,development)|>
+myplots <- vector('list', 4)
+for (i in 2019:2022){
+    myplots[[i-2018]] =
+      corruption %>% 
+      filter(year == i) %>% 
+      ggplot(aes(x = regu_qual, y = con_cor))+geom_point()+geom_smooth(method = 'lm', se = TRUE, color = 'red')+labs(title = sprintf("year %s", i))
+}
 
-  left_join(corruption)|>
+plot_row1 <- plot_grid(myplots[[1]], myplots[[2]])
+plot_row2 <- plot_grid(myplots[[3]], myplots[[4]])
+# title
+title <- ggdraw() + 
+  draw_label(
+    "Corruption against regulatory_quality",
+    fontface = 'bold',
+    x = 0,
+    hjust = 0
+  ) +
+  theme(
+    # add margin on the left of the drawing canvas,
+    # so title is aligned with left edge of first plot
+    plot.margin = margin(0, 0, 0, 7)
+  )
+plot_grid(title,plot_row1,plot_row2 ,ncol=1,  label_size = 12,rel_heights=c(0.1, 1,1))
+```
+
+
+```{r}
+myplots <- vector('list', 4)
+for (i in 2019:2022){
+    myplots[[i-2018]] =
+      corruption %>% 
+      filter(year == i) %>% 
+      ggplot(aes(x = rul_law
+, y = con_cor))+geom_point()+geom_smooth(method = 'lm', se = TRUE, color = 'red')+labs(title = sprintf("year %s", i))
+}
+
+plot_row1 <- plot_grid(myplots[[1]], myplots[[2]])
+plot_row2 <- plot_grid(myplots[[3]], myplots[[4]])
+# title
+title <- ggdraw() + 
+  draw_label(
+    "Corruption against rule of law",
+    fontface = 'bold',
+    x = 0,
+    hjust = 0
+  ) +
+  theme(
+    # add margin on the left of the drawing canvas,
+    # so title is aligned with left edge of first plot
+    plot.margin = margin(0, 0, 0, 7)
+  )
+plot_grid(title,plot_row1,plot_row2 ,ncol=1,  label_size = 12,rel_heights=c(0.1, 1,1))
+```
+
+```{r}
+myplots <- vector('list', 4)
+for (i in 2019:2022){
+    myplots[[i-2018]] =
+      corruption %>% 
+      filter(year == i) %>% 
+      ggplot(aes(x = voi_acc
+, y = con_cor))+geom_point()+geom_smooth(method = 'lm', se = TRUE, color = 'red')+labs(title = sprintf("year %s", i))
+}
+
+plot_row1 <- plot_grid(myplots[[1]], myplots[[2]])
+plot_row2 <- plot_grid(myplots[[3]], myplots[[4]])
+# title
+title <- ggdraw() + 
+  draw_label(
+    "corruption against voice and accountability",
+    fontface = 'bold',
+    x = 0,
+    hjust = 0
+  ) +
+  theme(
+    # add margin on the left of the drawing canvas,
+    # so title is aligned with left edge of first plot
+    plot.margin = margin(0, 0, 0, 7)
+  )
+plot_grid(title,plot_row1,plot_row2 ,ncol=1,  label_size = 12,rel_heights=c(0.1, 1,1))
+```
+
+# Control of Corruption by Development
+
+```{r}
+corruption|>
   group_by(year,development)|>
-  summarize(mean_of_cpi = mean(control_of_corruption_estimate,na.rm = TRUE))
-
-develop|>
-  ggplot(aes(x = year,y = mean_of_cpi, group = development,color = development)) +
-  geom_point(shape=19,size = 3)+geom_line()
+  summarize(mean_cpi = mean(signif(con_cor,4),na.rm = TRUE))|>
+  ggplot(aes(x = year,y = mean_cpi, group = development,color = development)) +
+  geom_point(shape=19,size = 3)+geom_line()+
+  labs(
+    title = "Control of corruption over years by development",
+    x = "Year",
+    y = "Control of corruption")
 
 ```
-plot continent
+
+From the plot,We can see that the control of corruption for developing countries is getting better from 1996 to 2022 in general.For least developed country, the control of corruption rate drops from 2002 to 2005 and then keeps fluctuation.For developed country, the control of corruption index goes up from 1996 to 2014, and then falls.
+
+
+
+
 ```{r}
-continent = overall|>
-  select(country_name,country_code,continent)|>
-  left_join(corruption)|>
+development_prop = corruption|>
+  group_by(development)|>
+  summarize(count = n_distinct(country_name))
+
+
+myPalette <- brewer.pal(3, "Set2")
+pie(pull(development_prop,count) , labels = c("Developed","Developing","Least Developed"), border="white", col=myPalette )
+```
+
+From the pie plot, we can see that developing countries account for the largest proportion. Developed countries are the second, and least developed country is the third.
+
+Together with the last plot, we can attribute the rising trend of control of corruption index over the world to rising trend of developing countries. The rising trend of developing countries outweogh the falling trend of least developed countries.
+
+
+# Control of Corruption by Continents
+
+Continent is also a import factor we need to consider.We compares the population,gdp and control of corruption amoung continents by a series of plots. 
+
+```{r message = FALSE}
+
+mean_cpi = corruption|>
   group_by(continent)|>
-  summarize(mean_cpi = mean(control_of_corruption_estimate,na.rm=TRUE))
-
-
-continent|>
+  summarize(mean_cpi = mean(con_cor,na.rm=TRUE))|>
   ggplot(aes(x = continent,y = mean_cpi,fill = continent))+
   geom_bar(stat='identity')
-```
 
-plot gdp
-```{r}
-
-overall|>
-  select(country_name,country_code,GDP)|>
-  ggplot(aes(x = GDP))+geom_histogram(bins = 60)
-
-
-```
-
-```{r}
-gdp = overall|>
-  select(country_code,GDP,corruption_index)|>
-  arrange(GDP)|>
-  mutate(order = order(GDP))|>
-  mutate(
-    gdp_group = case_when(
-      order<120~'low',
-      order<190 & order >120 ~'middle',
-      .default = 'high'
-    
-      
+cpi_density = 
+  corruption|>
+  filter(year == 2022) |>
+  group_by(continent)|>
+  ggplot(
+    aes(
+      x = con_cor
     )
-  )|>
-  group_by(gdp_group)|>
-  summarize(mean_cpi = mean(corruption_index,na.rm = TRUE) )|>
-  mutate(gdp_group = forcats::fct_relevel(gdp_group, c("low", "middle", "high")))
+  ) + 
+  geom_density(aes(fill = continent), alpha = 0.15) + 
+  labs(
+    x = "cpi",
+    y = "Density"
+  )
+cpi_continent = mean_cpi/cpi_density
+cpi_continent
+```
+
+We draw a bar plot of mean control of corruption by continents and a density plot to show the distribution of control of corruption index. From the histogram, we can see that Europe has the highest control of corruption index, whereas Africa has the lowest one.
 
 
-gdp|>
-  ggplot(aes(x = gdp_group,y = mean_cpi,fill = gdp_group))+
+
+```{r}
+mean_gdp = corruption|>
+  group_by(continent)|>
+  summarize(gdp = mean(gdp,na.rm=TRUE))|>
+  ggplot(aes(x = continent,y = gdp,fill = continent))+
   geom_bar(stat='identity')
 
+gdp_density = corruption|>
+    filter(year == 2022) |>
+  group_by(continent)|>
+  ggplot(
+    aes(
+      x = gdp
+    )
+  ) + 
+  geom_histogram(aes(fill = continent), alpha = 0.5) + 
+  labs(
+    x = "mean gdp",
+    y = "Density"
+  )
+
+
+gdp_continent = mean_gdp/gdp_density
+
+gdp_continent
+```
+
+The upper bar plot shows mean gdp of countries in each continent.The lower histogram plot shows the distribution of gdp in each continent. We can get that North America has the highest mean gdp, and Africa has the lowest mean gdp.
+
+
+# Control of Corruption by Population
+
+
+```{r}
+corruption %>%
+  ggplot( aes(x=continent, y=population, fill=continent)) +
+    geom_boxplot() +
+    scale_fill_viridis(discrete = TRUE, alpha=0.6) +
+    geom_jitter(color="red", size=0.4, alpha=0.9) +
+    theme_ipsum() +
+    theme(
+      legend.position="none",
+      plot.title = element_text(size=11)
+    ) +
+    ggtitle("Population among continents") +
+    ylab("Population")+
+    xlab("Continent")
+```
+
+Based on the boxplot of distribution of population, we can read that Asia is the most populated area, and populated countries in North America has larger population than those countries in Europe. Oceania are the least populated area.
+
+
+```{r warning = FALSE}
+myplots <- vector('list', 4)
+for (i in 2019:2022){
+    myplots[[i-2018]] =
+      corruption %>% 
+      filter(year == i) %>% 
+      ggplot(aes(x = gdp/population, y = con_cor))+geom_point()+geom_smooth(method = 'lm', se = TRUE, color = 'red'
+                                                                                                                      )+
+      labs(title = sprintf("year %s", i))+
+      xlab("GDP per capita")
+}
+
+plot_row1 <- plot_grid(myplots[[1]], myplots[[2]])
+plot_row2 <- plot_grid(myplots[[3]], myplots[[4]])
+# title
+title <- ggdraw() + 
+  draw_label(
+    "Corruption against GDP per capita",
+    fontface = 'bold',
+    x = 0,
+    hjust = 0
+  ) +
+  theme(
+    # add margin on the left of the drawing canvas,
+    # so title is aligned with left edge of first plot
+    plot.margin = margin(0, 0, 0, 7)
+  )
+plot_grid(title,plot_row1,plot_row2 ,ncol=1,  label_size = 12,rel_heights=c(0.1, 1,1))
 
 ```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+In addition, we also draw a scatterplot to check the relationship between control of corruption and GDP per capita.We can read that control of corruption is positively proportional to GDP per capita. However, when GDP per capita is high, the control of corruption keeps stable and does not follow the rising trend of GDP per capita.
 
 
