@@ -424,7 +424,6 @@ For the dataset we used in regression section, we take the average value of the 
 
 
 ```{r, results='asis', echo=FALSE}
-# cat(htmltools::HTML('<link rel="stylesheet" type="text/css" href="table.css">'))
 cat(htmltools::HTML("<div class=\"scrollable-table\">"))
 corruption_data |> 
   head(20) |> 
@@ -680,8 +679,8 @@ mean_cpi = corruption|>
 
 cpi_density = 
   corruption|>
-  filter(year == 2022) |>
-  group_by(continent)|>
+  group_by(continent,country_name)|>
+  summarize(con_cor = mean(con_cor,na.rm = TRUE))|>
   ggplot(
     aes(
       x = con_cor
@@ -705,11 +704,14 @@ mean_gdp = corruption|>
   group_by(continent)|>
   summarize(gdp = mean(gdp,na.rm=TRUE))|>
   ggplot(aes(x = continent,y = gdp,fill = continent))+
-  geom_bar(stat='identity')
+  geom_bar(stat='identity')+
+  labs(
+    y = 'GDP'
+  )
 
 gdp_density = corruption|>
-    filter(year == 2022) |>
-  group_by(continent)|>
+  group_by(continent,country_name)|>
+  summarize(gdp = mean(gdp,na.rm = TRUE))|>
   ggplot(
     aes(
       x = gdp
@@ -717,7 +719,7 @@ gdp_density = corruption|>
   ) + 
   geom_histogram(aes(fill = continent), alpha = 0.5) + 
   labs(
-    x = "mean gdp",
+    x = "GDP",
     y = "Density"
   )
 gdp_continent = mean_gdp/gdp_density
@@ -726,7 +728,7 @@ gdp_continent = mean_gdp/gdp_density
 gdp_continent
 ```
 
-The upper bar plot shows mean gdp of countries in each continent.The lower histogram plot shows the distribution of gdp in each continent. We can get that North America has the highest mean gdp, and Africa has the lowest mean gdp.
+The upper bar plot shows mean GDP of countries in each continent.The lower histogram plot shows the distribution of GDP in each continent. We can get that North America has the highest mean GDP, and Africa has the lowest mean GDP.
 
 
 
