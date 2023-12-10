@@ -398,6 +398,7 @@ For the dataset we used in regression section, we take the average value of the 
 
 
 ```{r, results='asis', echo=FALSE}
+cat(htmltools::HTML('<link rel="stylesheet" type="text/css" href="table.css">'))
 cat(htmltools::HTML("<div class=\"scrollable-table\">"))
 corruption_data |> 
   head(20) |> 
