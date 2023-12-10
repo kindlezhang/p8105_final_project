@@ -9,7 +9,6 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Yunshen Bai" />
 
 <meta name="date" content="2023-12-09" />
 
@@ -38,8 +37,10 @@
 <script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
-<link href="site_libs/font-awesome-6.4.0/css/all.min.css" rel="stylesheet" />
-<link href="site_libs/font-awesome-6.4.0/css/v4-shims.min.css" rel="stylesheet" />
+<script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="site_libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.4.2/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet" />
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -340,7 +341,7 @@ div.tocify {
   <a href="https://kindle0118.shinyapps.io/corruption_index/">Shiny</a>
 </li>
 <li>
-  <a href="dashboard.html">Dashboard</a>
+  <a href="https://kindle0118.shinyapps.io/cpi-dashboard/">Dashboard</a>
 </li>
 <li>
   <a href="regression.html">Regression</a>
@@ -381,7 +382,6 @@ div.tocify {
 
 
 <h1 class="title toc-ignore">Data Manipulation and cleaning</h1>
-<h4 class="author">Yunshen Bai</h4>
 <h4 class="date">2023-12-09</h4>
 
 </div>
@@ -791,367 +791,938 @@ class="math inline">\(10^7\)</span>)</li>
 </ul>
 <p>For the dataset we used in regression section, we take the average
 value of the numeric variables from 2020-2022.</p>
-<pre class="r"><code>corruption_data|&gt;
-  head(20)|&gt;
-  knitr::kable()</code></pre>
-<table style="width:100%;">
-<colgroup>
-<col width="11%" />
-<col width="7%" />
-<col width="6%" />
-<col width="6%" />
-<col width="6%" />
-<col width="6%" />
-<col width="6%" />
-<col width="6%" />
-<col width="6%" />
-<col width="6%" />
-<col width="6%" />
-<col width="6%" />
-<col width="9%" />
-<col width="8%" />
-</colgroup>
+<div class="scrollable-table">
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <thead>
-<tr class="header">
-<th align="left">country_name</th>
-<th align="left">country_code</th>
-<th align="right">con_cor</th>
-<th align="right">gov_eff</th>
-<th align="right">pol_vio</th>
-<th align="right">regu_qual</th>
-<th align="right">rul_law</th>
-<th align="right">voi_acc</th>
-<th align="right">GDP</th>
-<th align="right">population</th>
-<th align="left">latitude</th>
-<th align="left">longitude</th>
-<th align="left">development</th>
-<th align="left">continent</th>
+<tr>
+<th style="text-align:left;">
+country_name
+</th>
+<th style="text-align:left;">
+country_code
+</th>
+<th style="text-align:right;">
+con_cor
+</th>
+<th style="text-align:right;">
+gov_eff
+</th>
+<th style="text-align:right;">
+pol_vio
+</th>
+<th style="text-align:right;">
+regu_qual
+</th>
+<th style="text-align:right;">
+rul_law
+</th>
+<th style="text-align:right;">
+voi_acc
+</th>
+<th style="text-align:right;">
+GDP
+</th>
+<th style="text-align:right;">
+population
+</th>
+<th style="text-align:left;">
+latitude
+</th>
+<th style="text-align:left;">
+longitude
+</th>
+<th style="text-align:left;">
+development
+</th>
+<th style="text-align:left;">
+continent
+</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
-<td align="left">Afghanistan</td>
-<td align="left">AFG</td>
-<td align="right">-1.4936998</td>
-<td align="right">-1.6095092</td>
-<td align="right">-2.7026317</td>
-<td align="right">-1.3891630</td>
-<td align="right">-1.8313743</td>
-<td align="right">-1.0776886</td>
-<td align="right">17.363294</td>
-<td align="right">4.0066821</td>
-<td align="left">33.93911</td>
-<td align="left">67.709953</td>
-<td align="left">Least Developed</td>
-<td align="left">Asia</td>
+<tr>
+<td style="text-align:left;">
+Afghanistan
+</td>
+<td style="text-align:left;">
+AFG
+</td>
+<td style="text-align:right;">
+-1.4936998
+</td>
+<td style="text-align:right;">
+-1.6095092
+</td>
+<td style="text-align:right;">
+-2.7026317
+</td>
+<td style="text-align:right;">
+-1.3891630
+</td>
+<td style="text-align:right;">
+-1.8313743
+</td>
+<td style="text-align:right;">
+-1.0776886
+</td>
+<td style="text-align:right;">
+17.363294
+</td>
+<td style="text-align:right;">
+4.0066821
+</td>
+<td style="text-align:left;">
+33.93911
+</td>
+<td style="text-align:left;">
+67.709953
+</td>
+<td style="text-align:left;">
+Least Developed
+</td>
+<td style="text-align:left;">
+Asia
+</td>
 </tr>
-<tr class="even">
-<td align="left">Albania</td>
-<td align="left">ALB</td>
-<td align="right">-0.5729245</td>
-<td align="right">-0.1548803</td>
-<td align="right">0.0885765</td>
-<td align="right">0.2219672</td>
-<td align="right">-0.3762492</td>
-<td align="right">0.0864026</td>
-<td align="right">17.325132</td>
-<td align="right">0.2808383</td>
-<td align="left">41.153332</td>
-<td align="left">20.168331</td>
-<td align="left">Developing</td>
-<td align="left">Europe</td>
+<tr>
+<td style="text-align:left;">
+Albania
+</td>
+<td style="text-align:left;">
+ALB
+</td>
+<td style="text-align:right;">
+-0.5729245
+</td>
+<td style="text-align:right;">
+-0.1548803
+</td>
+<td style="text-align:right;">
+0.0885765
+</td>
+<td style="text-align:right;">
+0.2219672
+</td>
+<td style="text-align:right;">
+-0.3762492
+</td>
+<td style="text-align:right;">
+0.0864026
+</td>
+<td style="text-align:right;">
+17.325132
+</td>
+<td style="text-align:right;">
+0.2808383
+</td>
+<td style="text-align:left;">
+41.153332
+</td>
+<td style="text-align:left;">
+20.168331
+</td>
+<td style="text-align:left;">
+Developing
+</td>
+<td style="text-align:left;">
+Europe
+</td>
 </tr>
-<tr class="odd">
-<td align="left">Algeria</td>
-<td align="left">DZA</td>
-<td align="right">-0.6664602</td>
-<td align="right">-0.5734335</td>
-<td align="right">-0.8478143</td>
-<td align="right">-1.3553003</td>
-<td align="right">-0.8003030</td>
-<td align="right">-1.0879523</td>
-<td align="right">167.043000</td>
-<td align="right">4.4177620</td>
-<td align="left">28.033886</td>
-<td align="left">1.659626</td>
-<td align="left">Developing</td>
-<td align="left">Africa</td>
+<tr>
+<td style="text-align:left;">
+Algeria
+</td>
+<td style="text-align:left;">
+DZA
+</td>
+<td style="text-align:right;">
+-0.6664602
+</td>
+<td style="text-align:right;">
+-0.5734335
+</td>
+<td style="text-align:right;">
+-0.8478143
+</td>
+<td style="text-align:right;">
+-1.3553003
+</td>
+<td style="text-align:right;">
+-0.8003030
+</td>
+<td style="text-align:right;">
+-1.0879523
+</td>
+<td style="text-align:right;">
+167.043000
+</td>
+<td style="text-align:right;">
+4.4177620
+</td>
+<td style="text-align:left;">
+28.033886
+</td>
+<td style="text-align:left;">
+1.659626
+</td>
+<td style="text-align:left;">
+Developing
+</td>
+<td style="text-align:left;">
+Africa
+</td>
 </tr>
-<tr class="even">
-<td align="left">American Samoa</td>
-<td align="left">ASM</td>
-<td align="right">1.2660053</td>
-<td align="right">0.6328993</td>
-<td align="right">1.0916016</td>
-<td align="right">0.5253105</td>
-<td align="right">1.1194303</td>
-<td align="right">0.9520435</td>
-<td align="right">0.712500</td>
-<td align="right">0.0045166</td>
-<td align="left">-14.270972</td>
-<td align="left">-170.132217</td>
-<td align="left">Developing</td>
-<td align="left">Oceania</td>
+<tr>
+<td style="text-align:left;">
+American Samoa
+</td>
+<td style="text-align:left;">
+ASM
+</td>
+<td style="text-align:right;">
+1.2660053
+</td>
+<td style="text-align:right;">
+0.6328993
+</td>
+<td style="text-align:right;">
+1.0916016
+</td>
+<td style="text-align:right;">
+0.5253105
+</td>
+<td style="text-align:right;">
+1.1194303
+</td>
+<td style="text-align:right;">
+0.9520435
+</td>
+<td style="text-align:right;">
+0.712500
+</td>
+<td style="text-align:right;">
+0.0045166
+</td>
+<td style="text-align:left;">
+-14.270972
+</td>
+<td style="text-align:left;">
+-170.132217
+</td>
+<td style="text-align:left;">
+Developing
+</td>
+<td style="text-align:left;">
+Oceania
+</td>
 </tr>
-<tr class="odd">
-<td align="left">Andorra</td>
-<td align="left">AND</td>
-<td align="right">1.2660053</td>
-<td align="right">1.7494141</td>
-<td align="right">1.5885718</td>
-<td align="right">1.3354213</td>
-<td align="right">1.6162784</td>
-<td align="right">1.0862534</td>
-<td align="right">3.189393</td>
-<td align="right">0.0078853</td>
-<td align="left">42.546245</td>
-<td align="left">1.601554</td>
-<td align="left">Developed</td>
-<td align="left">Europe</td>
+<tr>
+<td style="text-align:left;">
+Andorra
+</td>
+<td style="text-align:left;">
+AND
+</td>
+<td style="text-align:right;">
+1.2660053
+</td>
+<td style="text-align:right;">
+1.7494141
+</td>
+<td style="text-align:right;">
+1.5885718
+</td>
+<td style="text-align:right;">
+1.3354213
+</td>
+<td style="text-align:right;">
+1.6162784
+</td>
+<td style="text-align:right;">
+1.0862534
+</td>
+<td style="text-align:right;">
+3.189393
+</td>
+<td style="text-align:right;">
+0.0078853
+</td>
+<td style="text-align:left;">
+42.546245
+</td>
+<td style="text-align:left;">
+1.601554
+</td>
+<td style="text-align:left;">
+Developed
+</td>
+<td style="text-align:left;">
+Europe
+</td>
 </tr>
-<tr class="even">
-<td align="left">Angola</td>
-<td align="left">AGO</td>
-<td align="right">-0.9386725</td>
-<td align="right">-1.2583939</td>
-<td align="right">-0.6007260</td>
-<td align="right">-0.8568535</td>
-<td align="right">-0.9509994</td>
-<td align="right">-0.8160028</td>
-<td align="right">74.213601</td>
-<td align="right">3.4507082</td>
-<td align="left">-11.202692</td>
-<td align="left">17.873887</td>
-<td align="left">Least Developed</td>
-<td align="left">Africa</td>
+<tr>
+<td style="text-align:left;">
+Angola
+</td>
+<td style="text-align:left;">
+AGO
+</td>
+<td style="text-align:right;">
+-0.9386725
+</td>
+<td style="text-align:right;">
+-1.2583939
+</td>
+<td style="text-align:right;">
+-0.6007260
+</td>
+<td style="text-align:right;">
+-0.8568535
+</td>
+<td style="text-align:right;">
+-0.9509994
+</td>
+<td style="text-align:right;">
+-0.8160028
+</td>
+<td style="text-align:right;">
+74.213601
+</td>
+<td style="text-align:right;">
+3.4507082
+</td>
+<td style="text-align:left;">
+-11.202692
+</td>
+<td style="text-align:left;">
+17.873887
+</td>
+<td style="text-align:left;">
+Least Developed
+</td>
+<td style="text-align:left;">
+Africa
+</td>
 </tr>
-<tr class="odd">
-<td align="left">Anguilla</td>
-<td align="left">AIA</td>
-<td align="right">0.6324695</td>
-<td align="right">0.9120280</td>
-<td align="right">1.5037429</td>
-<td align="right">0.9303660</td>
-<td align="right">0.3741581</td>
-<td align="right">NA</td>
-<td align="right">NA</td>
-<td align="right">NA</td>
-<td align="left">18.220554</td>
-<td align="left">-63.068615</td>
-<td align="left">Developing</td>
-<td align="left">North America</td>
+<tr>
+<td style="text-align:left;">
+Anguilla
+</td>
+<td style="text-align:left;">
+AIA
+</td>
+<td style="text-align:right;">
+0.6324695
+</td>
+<td style="text-align:right;">
+0.9120280
+</td>
+<td style="text-align:right;">
+1.5037429
+</td>
+<td style="text-align:right;">
+0.9303660
+</td>
+<td style="text-align:right;">
+0.3741581
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:left;">
+18.220554
+</td>
+<td style="text-align:left;">
+-63.068615
+</td>
+<td style="text-align:left;">
+Developing
+</td>
+<td style="text-align:left;">
+North America
+</td>
 </tr>
-<tr class="even">
-<td align="left">Antigua and Barbuda</td>
-<td align="left">ATG</td>
-<td align="right">0.2385333</td>
-<td align="right">-0.2044867</td>
-<td align="right">0.9295049</td>
-<td align="right">0.4976937</td>
-<td align="right">0.4079735</td>
-<td align="right">0.7427933</td>
-<td align="right">1.578157</td>
-<td align="right">0.0093215</td>
-<td align="left">17.060816</td>
-<td align="left">-61.796428</td>
-<td align="left">Developing</td>
-<td align="left">North America</td>
+<tr>
+<td style="text-align:left;">
+Antigua and Barbuda
+</td>
+<td style="text-align:left;">
+ATG
+</td>
+<td style="text-align:right;">
+0.2385333
+</td>
+<td style="text-align:right;">
+-0.2044867
+</td>
+<td style="text-align:right;">
+0.9295049
+</td>
+<td style="text-align:right;">
+0.4976937
+</td>
+<td style="text-align:right;">
+0.4079735
+</td>
+<td style="text-align:right;">
+0.7427933
+</td>
+<td style="text-align:right;">
+1.578157
+</td>
+<td style="text-align:right;">
+0.0093215
+</td>
+<td style="text-align:left;">
+17.060816
+</td>
+<td style="text-align:left;">
+-61.796428
+</td>
+<td style="text-align:left;">
+Developing
+</td>
+<td style="text-align:left;">
+North America
+</td>
 </tr>
-<tr class="odd">
-<td align="left">Argentina</td>
-<td align="left">ARG</td>
-<td align="right">-0.1637807</td>
-<td align="right">-0.2538182</td>
-<td align="right">-0.0720262</td>
-<td align="right">-0.4983443</td>
-<td align="right">-0.4873348</td>
-<td align="right">0.5852944</td>
-<td align="right">501.846000</td>
-<td align="right">4.5806780</td>
-<td align="left">-38.416097</td>
-<td align="left">-63.616672</td>
-<td align="left">Developed</td>
-<td align="left">South America</td>
+<tr>
+<td style="text-align:left;">
+Argentina
+</td>
+<td style="text-align:left;">
+ARG
+</td>
+<td style="text-align:right;">
+-0.1637807
+</td>
+<td style="text-align:right;">
+-0.2538182
+</td>
+<td style="text-align:right;">
+-0.0720262
+</td>
+<td style="text-align:right;">
+-0.4983443
+</td>
+<td style="text-align:right;">
+-0.4873348
+</td>
+<td style="text-align:right;">
+0.5852944
+</td>
+<td style="text-align:right;">
+501.846000
+</td>
+<td style="text-align:right;">
+4.5806780
+</td>
+<td style="text-align:left;">
+-38.416097
+</td>
+<td style="text-align:left;">
+-63.616672
+</td>
+<td style="text-align:left;">
+Developed
+</td>
+<td style="text-align:left;">
+South America
+</td>
 </tr>
-<tr class="even">
-<td align="left">Armenia</td>
-<td align="left">ARM</td>
-<td align="right">-0.0034387</td>
-<td align="right">-0.3046165</td>
-<td align="right">-0.7716423</td>
-<td align="right">0.2387480</td>
-<td align="right">-0.1258523</td>
-<td align="right">0.0471597</td>
-<td align="right">15.335297</td>
-<td align="right">0.2792350</td>
-<td align="left">40.069099</td>
-<td align="left">45.038189</td>
-<td align="left">Developing</td>
-<td align="left">Asia</td>
+<tr>
+<td style="text-align:left;">
+Armenia
+</td>
+<td style="text-align:left;">
+ARM
+</td>
+<td style="text-align:right;">
+-0.0034387
+</td>
+<td style="text-align:right;">
+-0.3046165
+</td>
+<td style="text-align:right;">
+-0.7716423
+</td>
+<td style="text-align:right;">
+0.2387480
+</td>
+<td style="text-align:right;">
+-0.1258523
+</td>
+<td style="text-align:right;">
+0.0471597
+</td>
+<td style="text-align:right;">
+15.335297
+</td>
+<td style="text-align:right;">
+0.2792350
+</td>
+<td style="text-align:left;">
+40.069099
+</td>
+<td style="text-align:left;">
+45.038189
+</td>
+<td style="text-align:left;">
+Developing
+</td>
+<td style="text-align:left;">
+Asia
+</td>
 </tr>
-<tr class="odd">
-<td align="left">Aruba</td>
-<td align="left">ABW</td>
-<td align="right">1.1993917</td>
-<td align="right">1.0752245</td>
-<td align="right">1.3714974</td>
-<td align="right">0.9148085</td>
-<td align="right">1.2702624</td>
-<td align="right">1.2821430</td>
-<td align="right">2.868029</td>
-<td align="right">0.0106522</td>
-<td align="left">12.52111</td>
-<td align="left">-69.968338</td>
-<td align="left">Developing</td>
-<td align="left">North America</td>
+<tr>
+<td style="text-align:left;">
+Aruba
+</td>
+<td style="text-align:left;">
+ABW
+</td>
+<td style="text-align:right;">
+1.1993917
+</td>
+<td style="text-align:right;">
+1.0752245
+</td>
+<td style="text-align:right;">
+1.3714974
+</td>
+<td style="text-align:right;">
+0.9148085
+</td>
+<td style="text-align:right;">
+1.2702624
+</td>
+<td style="text-align:right;">
+1.2821430
+</td>
+<td style="text-align:right;">
+2.868029
+</td>
+<td style="text-align:right;">
+0.0106522
+</td>
+<td style="text-align:left;">
+12.52111
+</td>
+<td style="text-align:left;">
+-69.968338
+</td>
+<td style="text-align:left;">
+Developing
+</td>
+<td style="text-align:left;">
+North America
+</td>
 </tr>
-<tr class="even">
-<td align="left">Australia</td>
-<td align="left">AUS</td>
-<td align="right">1.6329559</td>
-<td align="right">1.5737755</td>
-<td align="right">0.8616769</td>
-<td align="right">1.8139470</td>
-<td align="right">1.6142451</td>
-<td align="right">1.2980305</td>
-<td align="right">1518.350000</td>
-<td align="right">2.5774101</td>
-<td align="left">-25.274398</td>
-<td align="left">133.775136</td>
-<td align="left">Developed</td>
-<td align="left">Oceania</td>
+<tr>
+<td style="text-align:left;">
+Australia
+</td>
+<td style="text-align:left;">
+AUS
+</td>
+<td style="text-align:right;">
+1.6329559
+</td>
+<td style="text-align:right;">
+1.5737755
+</td>
+<td style="text-align:right;">
+0.8616769
+</td>
+<td style="text-align:right;">
+1.8139470
+</td>
+<td style="text-align:right;">
+1.6142451
+</td>
+<td style="text-align:right;">
+1.2980305
+</td>
+<td style="text-align:right;">
+1518.350000
+</td>
+<td style="text-align:right;">
+2.5774101
+</td>
+<td style="text-align:left;">
+-25.274398
+</td>
+<td style="text-align:left;">
+133.775136
+</td>
+<td style="text-align:left;">
+Developed
+</td>
+<td style="text-align:left;">
+Oceania
+</td>
 </tr>
-<tr class="odd">
-<td align="left">Austria</td>
-<td align="left">AUT</td>
-<td align="right">1.4777892</td>
-<td align="right">1.6062636</td>
-<td align="right">0.8875288</td>
-<td align="right">1.3952273</td>
-<td align="right">1.7701634</td>
-<td align="right">1.3944378</td>
-<td align="right">462.331000</td>
-<td align="right">0.8971730</td>
-<td align="left">47.516231</td>
-<td align="left">14.550072</td>
-<td align="left">Developed</td>
-<td align="left">Europe</td>
+<tr>
+<td style="text-align:left;">
+Austria
+</td>
+<td style="text-align:left;">
+AUT
+</td>
+<td style="text-align:right;">
+1.4777892
+</td>
+<td style="text-align:right;">
+1.6062636
+</td>
+<td style="text-align:right;">
+0.8875288
+</td>
+<td style="text-align:right;">
+1.3952273
+</td>
+<td style="text-align:right;">
+1.7701634
+</td>
+<td style="text-align:right;">
+1.3944378
+</td>
+<td style="text-align:right;">
+462.331000
+</td>
+<td style="text-align:right;">
+0.8971730
+</td>
+<td style="text-align:left;">
+47.516231
+</td>
+<td style="text-align:left;">
+14.550072
+</td>
+<td style="text-align:left;">
+Developed
+</td>
+<td style="text-align:left;">
+Europe
+</td>
 </tr>
-<tr class="even">
-<td align="left">Azerbaijan</td>
-<td align="left">AZE</td>
-<td align="right">-1.0770841</td>
-<td align="right">-0.1555638</td>
-<td align="right">-0.8522475</td>
-<td align="right">-0.3360401</td>
-<td align="right">-0.7307201</td>
-<td align="right">-1.5415164</td>
-<td align="right">58.746490</td>
-<td align="right">1.0135296</td>
-<td align="left">40.143105</td>
-<td align="left">47.576927</td>
-<td align="left">Developing</td>
-<td align="left">Asia</td>
+<tr>
+<td style="text-align:left;">
+Azerbaijan
+</td>
+<td style="text-align:left;">
+AZE
+</td>
+<td style="text-align:right;">
+-1.0770841
+</td>
+<td style="text-align:right;">
+-0.1555638
+</td>
+<td style="text-align:right;">
+-0.8522475
+</td>
+<td style="text-align:right;">
+-0.3360401
+</td>
+<td style="text-align:right;">
+-0.7307201
+</td>
+<td style="text-align:right;">
+-1.5415164
+</td>
+<td style="text-align:right;">
+58.746490
+</td>
+<td style="text-align:right;">
+1.0135296
+</td>
+<td style="text-align:left;">
+40.143105
+</td>
+<td style="text-align:left;">
+47.576927
+</td>
+<td style="text-align:left;">
+Developing
+</td>
+<td style="text-align:left;">
+Asia
+</td>
 </tr>
-<tr class="odd">
-<td align="left">Bahamas, The</td>
-<td align="left">BHS</td>
-<td align="right">1.1062059</td>
-<td align="right">0.4056442</td>
-<td align="right">0.8302374</td>
-<td align="right">0.0013662</td>
-<td align="right">0.0232638</td>
-<td align="right">0.9154646</td>
-<td align="right">11.393200</td>
-<td align="right">0.0408120</td>
-<td align="left">25.03428</td>
-<td align="left">-77.39628</td>
-<td align="left">Developed</td>
-<td align="left">North America</td>
+<tr>
+<td style="text-align:left;">
+Bahamas, The
+</td>
+<td style="text-align:left;">
+BHS
+</td>
+<td style="text-align:right;">
+1.1062059
+</td>
+<td style="text-align:right;">
+0.4056442
+</td>
+<td style="text-align:right;">
+0.8302374
+</td>
+<td style="text-align:right;">
+0.0013662
+</td>
+<td style="text-align:right;">
+0.0232638
+</td>
+<td style="text-align:right;">
+0.9154646
+</td>
+<td style="text-align:right;">
+11.393200
+</td>
+<td style="text-align:right;">
+0.0408120
+</td>
+<td style="text-align:left;">
+25.03428
+</td>
+<td style="text-align:left;">
+-77.39628
+</td>
+<td style="text-align:left;">
+Developed
+</td>
+<td style="text-align:left;">
+North America
+</td>
 </tr>
-<tr class="even">
-<td align="left">Bahrain</td>
-<td align="left">BHR</td>
-<td align="right">-0.0935939</td>
-<td align="right">0.3907681</td>
-<td align="right">-0.6101093</td>
-<td align="right">0.6148575</td>
-<td align="right">0.4553994</td>
-<td align="right">-1.4533018</td>
-<td align="right">39.438677</td>
-<td align="right">0.1470989</td>
-<td align="left">25.930414</td>
-<td align="left">50.637772</td>
-<td align="left">Developed</td>
-<td align="left">Asia</td>
+<tr>
+<td style="text-align:left;">
+Bahrain
+</td>
+<td style="text-align:left;">
+BHR
+</td>
+<td style="text-align:right;">
+-0.0935939
+</td>
+<td style="text-align:right;">
+0.3907681
+</td>
+<td style="text-align:right;">
+-0.6101093
+</td>
+<td style="text-align:right;">
+0.6148575
+</td>
+<td style="text-align:right;">
+0.4553994
+</td>
+<td style="text-align:right;">
+-1.4533018
+</td>
+<td style="text-align:right;">
+39.438677
+</td>
+<td style="text-align:right;">
+0.1470989
+</td>
+<td style="text-align:left;">
+25.930414
+</td>
+<td style="text-align:left;">
+50.637772
+</td>
+<td style="text-align:left;">
+Developed
+</td>
+<td style="text-align:left;">
+Asia
+</td>
 </tr>
-<tr class="odd">
-<td align="left">Bangladesh</td>
-<td align="left">BGD</td>
-<td align="right">-1.0036772</td>
-<td align="right">-0.7797257</td>
-<td align="right">-0.9158078</td>
-<td align="right">-0.9062135</td>
-<td align="right">-0.5679290</td>
-<td align="right">-0.7695580</td>
-<td align="right">416.789000</td>
-<td align="right">16.9321191</td>
-<td align="left">23.684994</td>
-<td align="left">90.356331</td>
-<td align="left">Least Developed</td>
-<td align="left">Asia</td>
+<tr>
+<td style="text-align:left;">
+Bangladesh
+</td>
+<td style="text-align:left;">
+BGD
+</td>
+<td style="text-align:right;">
+-1.0036772
+</td>
+<td style="text-align:right;">
+-0.7797257
+</td>
+<td style="text-align:right;">
+-0.9158078
+</td>
+<td style="text-align:right;">
+-0.9062135
+</td>
+<td style="text-align:right;">
+-0.5679290
+</td>
+<td style="text-align:right;">
+-0.7695580
+</td>
+<td style="text-align:right;">
+416.789000
+</td>
+<td style="text-align:right;">
+16.9321191
+</td>
+<td style="text-align:left;">
+23.684994
+</td>
+<td style="text-align:left;">
+90.356331
+</td>
+<td style="text-align:left;">
+Least Developed
+</td>
+<td style="text-align:left;">
+Asia
+</td>
 </tr>
-<tr class="even">
-<td align="left">Barbados</td>
-<td align="left">BRB</td>
-<td align="right">1.1940669</td>
-<td align="right">0.4440223</td>
-<td align="right">1.1205775</td>
-<td align="right">0.4677958</td>
-<td align="right">0.2966763</td>
-<td align="right">1.1254591</td>
-<td align="right">5.051171</td>
-<td align="right">0.0281176</td>
-<td align="left">13.193887</td>
-<td align="left">-59.543198</td>
-<td align="left">Developing</td>
-<td align="left">North America</td>
+<tr>
+<td style="text-align:left;">
+Barbados
+</td>
+<td style="text-align:left;">
+BRB
+</td>
+<td style="text-align:right;">
+1.1940669
+</td>
+<td style="text-align:right;">
+0.4440223
+</td>
+<td style="text-align:right;">
+1.1205775
+</td>
+<td style="text-align:right;">
+0.4677958
+</td>
+<td style="text-align:right;">
+0.2966763
+</td>
+<td style="text-align:right;">
+1.1254591
+</td>
+<td style="text-align:right;">
+5.051171
+</td>
+<td style="text-align:right;">
+0.0281176
+</td>
+<td style="text-align:left;">
+13.193887
+</td>
+<td style="text-align:left;">
+-59.543198
+</td>
+<td style="text-align:left;">
+Developing
+</td>
+<td style="text-align:left;">
+North America
+</td>
 </tr>
-<tr class="odd">
-<td align="left">Belarus</td>
-<td align="left">BLR</td>
-<td align="right">-0.1339642</td>
-<td align="right">-0.8295090</td>
-<td align="right">-0.8876082</td>
-<td align="right">-0.7998758</td>
-<td align="right">-1.0822419</td>
-<td align="right">-1.4534981</td>
-<td align="right">67.946320</td>
-<td align="right">0.9297079</td>
-<td align="left">53.709807</td>
-<td align="left">27.953389</td>
-<td align="left">Developed</td>
-<td align="left">Europe</td>
+<tr>
+<td style="text-align:left;">
+Belarus
+</td>
+<td style="text-align:left;">
+BLR
+</td>
+<td style="text-align:right;">
+-0.1339642
+</td>
+<td style="text-align:right;">
+-0.8295090
+</td>
+<td style="text-align:right;">
+-0.8876082
+</td>
+<td style="text-align:right;">
+-0.7998758
+</td>
+<td style="text-align:right;">
+-1.0822419
+</td>
+<td style="text-align:right;">
+-1.4534981
+</td>
+<td style="text-align:right;">
+67.946320
+</td>
+<td style="text-align:right;">
+0.9297079
+</td>
+<td style="text-align:left;">
+53.709807
+</td>
+<td style="text-align:left;">
+27.953389
+</td>
+<td style="text-align:left;">
+Developed
+</td>
+<td style="text-align:left;">
+Europe
+</td>
 </tr>
-<tr class="even">
-<td align="left">Belgium</td>
-<td align="left">BEL</td>
-<td align="right">1.4459563</td>
-<td align="right">1.0787830</td>
-<td align="right">0.5210230</td>
-<td align="right">1.3436358</td>
-<td align="right">1.3280041</td>
-<td align="right">1.2784452</td>
-<td align="right">566.056000</td>
-<td align="right">1.1600334</td>
-<td align="left">50.503887</td>
-<td align="left">4.469936</td>
-<td align="left">Developed</td>
-<td align="left">Europe</td>
+<tr>
+<td style="text-align:left;">
+Belgium
+</td>
+<td style="text-align:left;">
+BEL
+</td>
+<td style="text-align:right;">
+1.4459563
+</td>
+<td style="text-align:right;">
+1.0787830
+</td>
+<td style="text-align:right;">
+0.5210230
+</td>
+<td style="text-align:right;">
+1.3436358
+</td>
+<td style="text-align:right;">
+1.3280041
+</td>
+<td style="text-align:right;">
+1.2784452
+</td>
+<td style="text-align:right;">
+566.056000
+</td>
+<td style="text-align:right;">
+1.1600334
+</td>
+<td style="text-align:left;">
+50.503887
+</td>
+<td style="text-align:left;">
+4.469936
+</td>
+<td style="text-align:left;">
+Developed
+</td>
+<td style="text-align:left;">
+Europe
+</td>
 </tr>
 </tbody>
 </table>
+</div>
 </div>
 
 
@@ -1191,7 +1762,7 @@ $(document).ready(function () {
 <!-- code folding -->
 <script>
 $(document).ready(function () {
-  window.initializeCodeFolding("hide" === "show");
+  window.initializeCodeFolding("show" === "show");
 });
 </script>
 

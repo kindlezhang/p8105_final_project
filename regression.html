@@ -10,6 +10,7 @@
 
 
 
+<meta name="date" content="2023-12-09" />
 
 <title>Regression</title>
 
@@ -33,10 +34,11 @@
 <link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
 <script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
-<link href="site_libs/font-awesome-6.4.0/css/all.min.css" rel="stylesheet" />
-<link href="site_libs/font-awesome-6.4.0/css/v4-shims.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.4.2/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet" />
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -63,6 +65,7 @@ if (window.hljs) {
 
 
 
+<link rel="stylesheet" href="styles.css" type="text/css" />
 
 
 
@@ -221,6 +224,9 @@ $(document).ready(function () {
 </style>
 
 <!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
 
 
 
@@ -333,7 +339,7 @@ div.tocify {
   <a href="https://kindle0118.shinyapps.io/corruption_index/">Shiny</a>
 </li>
 <li>
-  <a href="dashboard.html">Dashboard</a>
+  <a href="https://kindle0118.shinyapps.io/cpi-dashboard/">Dashboard</a>
 </li>
 <li>
   <a href="regression.html">Regression</a>
@@ -363,96 +369,24 @@ div.tocify {
 
 <div id="header">
 
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
 
 
 <h1 class="title toc-ignore">Regression</h1>
+<h4 class="date">2023-12-09</h4>
 
 </div>
 
 
-<pre class="r"><code>library(tidyverse)</code></pre>
-<pre><code>## Warning: package &#39;tidyverse&#39; was built under R version 4.1.3</code></pre>
-<pre><code>## Warning: package &#39;ggplot2&#39; was built under R version 4.1.3</code></pre>
-<pre><code>## Warning: package &#39;tibble&#39; was built under R version 4.1.3</code></pre>
-<pre><code>## Warning: package &#39;tidyr&#39; was built under R version 4.1.3</code></pre>
-<pre><code>## Warning: package &#39;readr&#39; was built under R version 4.1.3</code></pre>
-<pre><code>## Warning: package &#39;purrr&#39; was built under R version 4.1.3</code></pre>
-<pre><code>## Warning: package &#39;dplyr&#39; was built under R version 4.1.3</code></pre>
-<pre><code>## Warning: package &#39;stringr&#39; was built under R version 4.1.3</code></pre>
-<pre><code>## Warning: package &#39;forcats&#39; was built under R version 4.1.3</code></pre>
-<pre><code>## Warning: package &#39;lubridate&#39; was built under R version 4.1.3</code></pre>
-<pre><code>## -- Attaching core tidyverse packages ------------------------ tidyverse 2.0.0 --
-## v dplyr     1.1.2     v readr     2.1.4
-## v forcats   1.0.0     v stringr   1.5.0
-## v ggplot2   3.4.2     v tibble    3.2.1
-## v lubridate 1.9.2     v tidyr     1.3.0
-## v purrr     1.0.1     
-## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
-## x dplyr::filter() masks stats::filter()
-## x dplyr::lag()    masks stats::lag()
-## i Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
-<pre class="r"><code>library(modelr)</code></pre>
-<pre><code>## Warning: package &#39;modelr&#39; was built under R version 4.1.3</code></pre>
-<pre class="r"><code>library(mgcv)</code></pre>
-<pre><code>## Warning: package &#39;mgcv&#39; was built under R version 4.1.3</code></pre>
-<pre><code>## Loading required package: nlme
-## 
-## Attaching package: &#39;nlme&#39;
-## 
-## The following object is masked from &#39;package:dplyr&#39;:
-## 
-##     collapse
-## 
-## This is mgcv 1.8-42. For overview type &#39;help(&quot;mgcv-package&quot;)&#39;.</code></pre>
-<pre class="r"><code>library(MPV)</code></pre>
-<pre><code>## Loading required package: lattice</code></pre>
-<pre><code>## Warning: package &#39;lattice&#39; was built under R version 4.1.3</code></pre>
-<pre><code>## Loading required package: KernSmooth
-## KernSmooth 2.23 loaded
-## Copyright M. P. Wand 1997-2009
-## Loading required package: randomForest</code></pre>
-<pre><code>## Warning: package &#39;randomForest&#39; was built under R version 4.1.3</code></pre>
-<pre><code>## randomForest 4.7-1.1
-## Type rfNews() to see new features/changes/bug fixes.
-## 
-## Attaching package: &#39;randomForest&#39;
-## 
-## The following object is masked from &#39;package:dplyr&#39;:
-## 
-##     combine
-## 
-## The following object is masked from &#39;package:ggplot2&#39;:
-## 
-##     margin</code></pre>
-<pre class="r"><code>library(leaps)</code></pre>
-<pre><code>## Warning: package &#39;leaps&#39; was built under R version 4.1.2</code></pre>
-<pre class="r"><code>library(p8105.datasets)
-library(MASS)</code></pre>
-<pre><code>## 
-## Attaching package: &#39;MASS&#39;
-## 
-## The following object is masked from &#39;package:MPV&#39;:
-## 
-##     cement
-## 
-## The following object is masked from &#39;package:dplyr&#39;:
-## 
-##     select</code></pre>
-<pre class="r"><code>library(ggplot2)
-library(car)</code></pre>
-<pre><code>## Loading required package: carData
-## 
-## Attaching package: &#39;car&#39;
-## 
-## The following object is masked from &#39;package:dplyr&#39;:
-## 
-##     recode
-## 
-## The following object is masked from &#39;package:purrr&#39;:
-## 
-##     some</code></pre>
-<div id="introduction" class="section level1">
-<h1>Introduction</h1>
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
 <p>In this part, linear regression models are generated to help us to
 have a better understanding of the relationship between corruption index
 and other variables. After data cleaning, all variables and the number
@@ -535,8 +469,8 @@ NA_table_1|&gt;
   drop_na()|&gt;
   dplyr::select(-country_name, -latitude, -longitude,-country_code)</code></pre>
 </div>
-<div id="full-model" class="section level1">
-<h1>Full model</h1>
+<div id="full-model" class="section level2">
+<h2>Full model</h2>
 <pre class="r"><code>full.model = lm(con_cor ~ ., data = overall_dataset)
 empty.model = lm(con_cor ~ 1,data = overall_dataset)</code></pre>
 <p>The full model includes all variables except latitude and longitude
@@ -558,8 +492,7 @@ variable.</p>
     the.AIC = AIC(the.model),
     the.PRESS = PRESS(the.model),
     the.R2adj = summary(the.model)$adj.r.squared,
-   
-    
+  
   )
 }
 full.model|&gt;
@@ -676,8 +609,8 @@ full.model|&gt;
 </tr>
 </tbody>
 </table>
-<div id="check-normality-and-remove-outlier" class="section level2">
-<h2>check normality and remove outlier</h2>
+<div id="check-normality-and-remove-outlier" class="section level3">
+<h3>check normality and remove outlier</h3>
 <p>Plots below shows that the residuals are overall normally
 distributed. The qq-plot shows that the regression is linear and there
 is no need to add transformation variables. But potential outliers are
@@ -693,7 +626,7 @@ t.cutoff = qt(1- alpha/2, n-p)
 
 par(mfrow=c(2,2))
 plot(full.model)</code></pre>
-<p><img src="regression_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<p><img src="regression_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
 <pre class="r"><code>outliers = which(abs(SR)&gt;t.cutoff)
 outliers|&gt;
   knitr::kable(caption = &quot;outliers&quot;)</code></pre>
@@ -752,12 +685,12 @@ All.Criteria(full.model)|&gt;
 </table>
 </div>
 </div>
-<div id="selected-model" class="section level1">
-<h1>Selected model</h1>
+<div id="selected-model" class="section level2">
+<h2>Selected model</h2>
 <p>After the updated full model is built, backward and forward selection
 function is applied to gain selected models.</p>
-<div id="backward-model-selection" class="section level2">
-<h2>backward model selection</h2>
+<div id="backward-model-selection" class="section level3">
+<h3>backward model selection</h3>
 <p>The summary of backward selected model is shown below. pol_vio,
 regu_qual, GDP are deleted. This is expected because these variables
 have relatively high p-value that presented in full model above.</p>
@@ -863,8 +796,8 @@ forward.model.AIC = stepAIC(empty.model, scope = list(lower = empty.model, upper
 </tbody>
 </table>
 </div>
-<div id="forward-model-selection" class="section level2">
-<h2>forward model selection</h2>
+<div id="forward-model-selection" class="section level3">
+<h3>forward model selection</h3>
 <p>The summary of forward selected model is shown below. pol_vio, GDP,
 continent are deleted. Comparing to backward selected model, continent
 is also deleted instead of regu_qual.The possible reason is that forward
@@ -952,8 +885,8 @@ less dependent on the order of variable removal.</p>
 </table>
 </div>
 <div id="comparision-of-full-model-forward-and-backward-selected-model"
-class="section level2">
-<h2>Comparision of full model, forward and backward selected model</h2>
+class="section level3">
+<h3>Comparision of full model, forward and backward selected model</h3>
 <p>Backward selected model has the lowest BIC and highest R2adj.
 Interestingly, forward selected model has the lower than BIC and R2adj
 than unselected full model, which indicated that continentEurope has
@@ -1019,6 +952,10 @@ The graph below shows the RMSE distribution in test datasets for three
 models. From the plot, forward and backward selected model have RMSE
 around 0.2 to 0.4. However, the RMSE of full model is over-spread. The
 interference of GDP and pol_vio could lead to the result.</p>
+</div>
+</div>
+<div id="test-the-model" class="section level2">
+<h2>Test the model</h2>
 <pre class="r"><code>cv_df =
   crossv_mc(new.data, 100) |&gt; 
   mutate(
@@ -1043,7 +980,7 @@ interference of GDP and pol_vio could lead to the result.</p>
     names_prefix = &quot;rmse_&quot;) |&gt; 
   mutate(model = fct_inorder(model)) |&gt; 
   ggplot(aes(x = model, y = rmse)) + geom_violin()</code></pre>
-<p><img src="regression_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+<p><img src="regression_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
 <p>The graphs below show the Prediction VS Actual for three models.
 Overall, there is no significant difference between three models.</p>
 <pre class="r"><code>new.data|&gt;
@@ -1056,7 +993,7 @@ Overall, there is no significant difference between three models.</p>
     x = &quot;Actual corruption_index&quot;,
     y = &quot;Prediction&quot;
   )</code></pre>
-<p><img src="regression_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+<p><img src="regression_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
 <pre class="r"><code>new.data|&gt;
   modelr::add_predictions(forward.model.AIC)|&gt;
   ggplot(aes(x = con_cor, y = pred)) +
@@ -1067,7 +1004,7 @@ Overall, there is no significant difference between three models.</p>
     x = &quot;Actual corruption_index&quot;,
     y = &quot;Prediction&quot;
   )</code></pre>
-<p><img src="regression_files/figure-html/unnamed-chunk-15-2.png" width="672" /></p>
+<p><img src="regression_files/figure-html/unnamed-chunk-14-2.png" width="672" /></p>
 <pre class="r"><code>new.data|&gt;
   modelr::add_predictions(backward.model.AIC)|&gt;
   ggplot(aes(x = con_cor, y = pred)) +
@@ -1078,11 +1015,19 @@ Overall, there is no significant difference between three models.</p>
     x = &quot;Actual corruption_index&quot;,
     y = &quot;Prediction&quot;
   )</code></pre>
-<p><img src="regression_files/figure-html/unnamed-chunk-15-3.png" width="672" /></p>
-<p>To sum up, based on all analysis above, there is no significant
-difference between three models. But backward selected model is the most
-optimal model to predict corruption index.</p>
+<p><img src="regression_files/figure-html/unnamed-chunk-14-3.png" width="672" /></p>
 </div>
+<div id="conclusions" class="section level2">
+<h2>Conclusions</h2>
+<p>To sum up, before building a regression model, we except GDP would be
+one of the most significant variable to predict corruption index.
+However, the result shows that there is nearly no correlation between
+GDP and corruption index. Based on analysis above, there is no
+significant differences between the three models. But backward selected
+model is the most optimal model to predict corruption index.It has the
+lowest BIC and AIC, which means this model achieves a better balance
+between fitting the data well and avoiding overfitting comparing to the
+other two models.</p>
 </div>
 
 
@@ -1120,6 +1065,11 @@ $(document).ready(function () {
 </script>
 
 <!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("show" === "show");
+});
+</script>
 
 <script>
 $(document).ready(function ()  {

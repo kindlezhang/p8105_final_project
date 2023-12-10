@@ -1,0 +1,5 @@
+.scrollable-table {
+    height: 500px; /* 或您想要的任何高度 */
+    overflow-y: scroll;
+    display: block;
+}

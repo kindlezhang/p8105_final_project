@@ -1,13 +1,34 @@
 ---
 title: "Regression"
-output:
+date: "`r Sys.Date()`"
+output: 
   html_document:
     toc: true
     toc_float: true
-
+    code_folding: "show"
+    css: styles.css
 ---
 
-```{r}
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  warning = FALSE, 
+  message = FALSE, 
+  echo = TRUE
+  )
+
+
+library(ggplot2)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+
 library(tidyverse)
 library(modelr)
 library(mgcv)
@@ -17,14 +38,11 @@ library(p8105.datasets)
 library(MASS)
 library(ggplot2)
 library(car)
-
 ```
 
-# Introduction
+## Introduction
 
 In this part, linear regression models are generated to help us to have a better understanding of the relationship between corruption index and other variables. After data cleaning, all variables and the number of missing data are shown below. 
-
-
 
 
 ```{r}
@@ -49,12 +67,11 @@ overall_dataset =
 ```
 
 
-# Full model
+## Full model
 ```{r}
 full.model = lm(con_cor ~ ., data = overall_dataset)
 empty.model = lm(con_cor ~ 1,data = overall_dataset)
 ```
-
 
 The full model includes all variables except latitude and longitude since continent is included as location information. This model is treated as the baseline to compare with model after selection. 
 
@@ -71,8 +88,7 @@ All.Criteria = function(the.model){
     the.AIC = AIC(the.model),
     the.PRESS = PRESS(the.model),
     the.R2adj = summary(the.model)$adj.r.squared,
-   
-    
+  
   )
 }
 full.model|>
@@ -84,10 +100,7 @@ All.Criteria(full.model)|>
   knitr::kable(caption = "Criterias for full model")
 ```
 
-
-
-
-## check normality and remove outlier
+### check normality and remove outlier
 
 
 
@@ -114,7 +127,7 @@ All.Criteria(full.model)|>
   
 ```
 
-# Selected model
+## Selected model
 
 
 
@@ -122,7 +135,7 @@ After the updated full model is built, backward and forward selection function i
 
 
 
-## backward model selection
+### backward model selection
 
 
 
@@ -145,7 +158,7 @@ All.Criteria(backward.model.AIC)|>
 ```
 
 
-## forward model selection 
+### forward model selection 
 
 
 
@@ -162,7 +175,7 @@ All.Criteria(forward.model.AIC)|>
 ```
 
 
-## Comparision of full model, forward and backward selected model
+### Comparision of full model, forward and backward selected model
 
 Backward selected model has the lowest BIC and highest R2adj. Interestingly, forward selected model has the lower than BIC and R2adj than unselected full model, which indicated that continentEurope has unexcepted significance in the whole model.
  
@@ -183,15 +196,11 @@ comparsion =
   
   
 comparsion
-
-
-  
-
-
 ```
 
-
 Then, the dataset is divided into train and test datasets 100 times. The graph below shows the RMSE distribution in test datasets for three models. From the plot, forward and backward selected model have RMSE around 0.2 to 0.4. However, the RMSE of full model is over-spread. The interference of GDP and pol_vio could lead to the result.
+
+## Test the model
 
 ```{r}
 cv_df =
@@ -214,7 +223,6 @@ cv_df =
     rmse_backward = map2_dbl(model_backward, test, \(mod, df) rmse(model = mod, data = df)))
 ```
 
-
 ```{r}
 cv_df |> 
   dplyr::select(starts_with("rmse")) |> 
@@ -226,8 +234,6 @@ cv_df |>
   mutate(model = fct_inorder(model)) |> 
   ggplot(aes(x = model, y = rmse)) + geom_violin()
 ```
-
-
 
 The graphs below show the Prediction VS Actual for three models. Overall, there is no significant difference between three models.
 
@@ -254,7 +260,6 @@ new.data|>
     y = "Prediction"
   )
 
-
 new.data|>
   modelr::add_predictions(backward.model.AIC)|>
   ggplot(aes(x = con_cor, y = pred)) +
@@ -267,5 +272,6 @@ new.data|>
   )
 ```
 
+## Conclusions
 
-To sum up, based on all analysis above, there is no significant difference between three models. But backward selected model is the most optimal model to predict corruption index.
+To sum up, before building a regression model, we except GDP would be one of the most significant variable to predict corruption index. However, the result shows that there is nearly no correlation between GDP and corruption index. Based on analysis above, there is no significant differences between the three models. But backward selected model is the most optimal model to predict corruption index.It has the lowest BIC and AIC, which means this model achieves a better balance between fitting the data well and avoiding overfitting comparing to the other two models. 
