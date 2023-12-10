@@ -630,8 +630,8 @@ plots.</p>
 
 cpi_density = 
   corruption|&gt;
-  filter(year == 2022) |&gt;
-  group_by(continent)|&gt;
+  group_by(continent,country_name)|&gt;
+  summarize(con_cor = mean(con_cor,na.rm = TRUE))|&gt;
   ggplot(
     aes(
       x = con_cor
@@ -656,11 +656,14 @@ control of corruption index, whereas Africa has the lowest one.</p>
   group_by(continent)|&gt;
   summarize(gdp = mean(gdp,na.rm=TRUE))|&gt;
   ggplot(aes(x = continent,y = gdp,fill = continent))+
-  geom_bar(stat=&#39;identity&#39;)
+  geom_bar(stat=&#39;identity&#39;)+
+  labs(
+    y = &#39;Mean GDP&#39;
+  )
 
 gdp_density = corruption|&gt;
-    filter(year == 2022) |&gt;
-  group_by(continent)|&gt;
+  group_by(continent,country_name)|&gt;
+  summarize(gdp = mean(gdp,na.rm = TRUE))|&gt;
   ggplot(
     aes(
       x = gdp
@@ -668,7 +671,7 @@ gdp_density = corruption|&gt;
   ) + 
   geom_histogram(aes(fill = continent), alpha = 0.5) + 
   labs(
-    x = &quot;mean gdp&quot;,
+    x = &quot;GDP&quot;,
     y = &quot;Density&quot;
   )
 gdp_continent = mean_gdp/gdp_density
@@ -676,10 +679,10 @@ gdp_continent = mean_gdp/gdp_density
 
 gdp_continent</code></pre>
 <p><img src="eda_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
-<p>The upper bar plot shows mean gdp of countries in each continent.The
-lower histogram plot shows the distribution of gdp in each continent. We
-can get that North America has the highest mean gdp, and Africa has the
-lowest mean gdp.</p>
+<p>The upper bar plot shows mean GDP of countries in each continent.The
+lower histogram plot shows the distribution of GDP in each continent. We
+can get that North America has the highest mean GDP, and Africa has the
+lowest mean GDP.</p>
 </div>
 <div id="with-population" class="section level2">
 <h2>With Population</h2>
@@ -702,7 +705,7 @@ lowest mean gdp.</p>
 <p>Based on the boxplot of population distribution among countries in
 each continent, we can read that Asia is the most populated area, and
 populated countries in North America has larger population than those
-countries in Europe. Oceania are the least populated area.</p>
+countries in Europe. Oceania is the least populated area.</p>
 </div>
 <div id="plot---2" class="section level3">
 <h3>Plot - 2</h3>

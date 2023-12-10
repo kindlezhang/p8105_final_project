@@ -805,7 +805,8 @@ NA_table_1 =
   is.na()|> 
   colSums()
 NA_table_1|> 
-    knitr::kable(col.names = c("Counts of NA"))
+    knitr::kable(col.names = c("Counts of NA")) |> 
+  kable_styling("striped", full_width = TRUE)
 ```
 
 ```{r}
@@ -843,10 +844,12 @@ All.Criteria = function(the.model){
 full.model|>
   broom::tidy()|>
   dplyr::select(term, estimate, p.value)|>
-  knitr::kable(caption ="Estimate and P-value for full model")
+  knitr::kable(caption ="Estimate and P-value for full model") |> 
+  kable_styling("striped", full_width = TRUE)
   
 All.Criteria(full.model)|>
-  knitr::kable(caption = "Criterias for full model")
+  knitr::kable(caption = "Criterias for full model") |> 
+  kable_styling("striped", full_width = TRUE)
 ```
 
 ### check normality and remove outlier
@@ -867,12 +870,14 @@ plot(full.model)
 
 outliers = which(abs(SR)>t.cutoff)
 outliers|>
-  knitr::kable(caption = "outliers")
+  knitr::kable(caption = "outliers") |> 
+  kable_styling("striped", full_width = TRUE)
 new.data = overall_dataset[-outliers,]
 
 full.model = lm(con_cor ~ ., data = new.data)
 All.Criteria(full.model)|>
-  knitr::kable(caption ="Estimate and P-value for updated full model")
+  knitr::kable(caption ="Estimate and P-value for updated full model") |> 
+  kable_styling("striped", full_width = TRUE)
   
 ```
 
@@ -898,10 +903,12 @@ forward.model.AIC = stepAIC(empty.model, scope = list(lower = empty.model, upper
 backward.model.AIC|>
   broom::tidy()|>
   dplyr::select(term, estimate, p.value)|>
-  knitr::kable(caption ="Estimate and P-value for backward selected model")
+  knitr::kable(caption ="Estimate and P-value for backward selected model") |> 
+  kable_styling("striped", full_width = TRUE)
 
 All.Criteria(backward.model.AIC)|>
-  knitr::kable(caption = "Criterias for backward selected selected model")
+  knitr::kable(caption = "Criterias for backward selected selected model") |> 
+  kable_styling("striped", full_width = TRUE)
 ```
 
 
@@ -915,10 +922,12 @@ The summary of forward selected model is shown below. pol_vio,  GDP, continent a
 forward.model.AIC|>
   broom::tidy()|>
   dplyr::select(term, estimate, p.value)|>
-  knitr::kable(caption ="Estimate and P-value for forward selected model")
+  knitr::kable(caption ="Estimate and P-value for forward selected model") |> 
+  kable_styling("striped", full_width = TRUE)
 
 All.Criteria(forward.model.AIC)|>
-  knitr::kable(caption = "Criterias for forward selected selected model")
+  knitr::kable(caption = "Criterias for forward selected selected model") |> 
+  kable_styling("striped", full_width = TRUE)
 ```
 
 ### Comparision of full model, forward and backward selected model
@@ -938,7 +947,8 @@ comparsion =
   bind_rows( full_model,forward_model, backward_model)|>
   mutate(model = c('full', 'forward', 'backward'))|>
   dplyr::select(model, everything())|>
-  knitr::kable(caption = "Comparision of full model, forward and backward selected model")
+  knitr::kable(caption = "Comparision of full model, forward and backward selected model") |> 
+  kable_styling("striped", full_width = TRUE)
   
   
 comparsion
@@ -1020,7 +1030,7 @@ new.data|>
 
 ## Conclusions
 
-To sum up, based on all analysis above, there is no significant difference between three models. But backward selected model is the most optimal model to predict corruption index.
+To sum up, before building a regression model, we except GDP would be one of the most significant variable to predict corruption index. However, the result shows that there is nearly no correlation between GDP and corruption index. Based on analysis above, there is no significant differences between the three models. But backward selected model is the most optimal model to predict corruption index.It has the lowest BIC and AIC, which means this model achieves a better balance between fitting the data well and avoiding overfitting comparing to the other two models. 
 
 # **Discussion**
 Through our group's research, we discovered that there are certain patterns in the geographic distribution of the Government Integrity Index. Notably, European countries generally have a higher Integrity Index compared to other nations. In exploring the factors influencing the Corruption Perceptions Index (CPI) using models, we found that government administration, the establishment of legal norms, and being located in Europe have the most significant positive impact on the CPI. Surprisingly, we observed that GDP has almost no impact on the CPI, indicating that a country's GDP level does not affect the overall integrity of its government. This unexpected finding prompts us to delve deeper into the reasons behind it. For more details about our research, we invite readers to explore further in our report.
