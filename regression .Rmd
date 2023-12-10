@@ -1,0 +1,277 @@
+---
+title: "Regression"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: "show"
+    css: styles.css
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  warning = FALSE, 
+  message = FALSE, 
+  echo = TRUE
+  )
+
+
+library(ggplot2)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+
+library(tidyverse)
+library(modelr)
+library(mgcv)
+library(MPV)
+library(leaps)
+library(p8105.datasets)
+library(MASS)
+library(ggplot2)
+library(car)
+```
+
+## Introduction
+
+In this part, linear regression models are generated to help us to have a better understanding of the relationship between corruption index and other variables. After data cleaning, all variables and the number of missing data are shown below. 
+
+
+```{r}
+overall_dataset = read.csv("data/cleaned_data/overall_dataset.csv")
+```
+
+
+```{r}
+NA_table_1 = 
+  overall_dataset|> 
+  is.na()|> 
+  colSums()
+NA_table_1|> 
+    knitr::kable(col.names = c("Counts of NA"))
+```
+
+```{r}
+overall_dataset =
+  overall_dataset|>
+  drop_na()|>
+  dplyr::select(-country_name, -latitude, -longitude,-country_code)
+```
+
+
+## Full model
+```{r}
+full.model = lm(con_cor ~ ., data = overall_dataset)
+empty.model = lm(con_cor ~ 1,data = overall_dataset)
+```
+
+The full model includes all variables except latitude and longitude since continent is included as location information. This model is treated as the baseline to compare with model after selection. 
+
+Tables below show summary information of the full model. The p-value for government_effectiveness, rule_of_law, voice_and_accountability, continentEurope 
+have p-value lower than any reasonable significance level(1%, 5%, 10%), which means these variable are more significant than other in this model. The R2adj for this model is 0.8983053, which presents a very high proportion of variance in response variable explained the linear relationship between with predictors and response variable. 
+
+
+```{r}
+All.Criteria = function(the.model){
+  tibble(
+   
+    the.BIC = BIC(the.model),
+    the.LL = logLik(the.model),
+    the.AIC = AIC(the.model),
+    the.PRESS = PRESS(the.model),
+    the.R2adj = summary(the.model)$adj.r.squared,
+  
+  )
+}
+full.model|>
+  broom::tidy()|>
+  dplyr::select(term, estimate, p.value)|>
+  knitr::kable(caption ="Estimate and P-value for full model")
+  
+All.Criteria(full.model)|>
+  knitr::kable(caption = "Criterias for full model")
+```
+
+### check normality and remove outlier
+
+
+
+Plots below shows that the residuals are overall normally distributed. The qq-plot shows that the regression is linear and there is no need to add transformation variables. But potential outliers are presented. Then, outliers are detected and removed by using cutoffs based on t-distribution. With data after removing outliers, the full model is updated, and BIC and AIC are all decreased, which indicate a better balance between explaining the data and avoiding overfitting.
+
+```{r}
+SR = stdres(full.model)
+n = length(full.model$residuals) 
+p = length(full.model$coefficients)
+alpha = 0.01 
+t.cutoff = qt(1- alpha/2, n-p)
+
+par(mfrow=c(2,2))
+plot(full.model)
+
+outliers = which(abs(SR)>t.cutoff)
+outliers|>
+  knitr::kable(caption = "outliers")
+new.data = overall_dataset[-outliers,]
+
+full.model = lm(con_cor ~ ., data = new.data)
+All.Criteria(full.model)|>
+  knitr::kable(caption ="Estimate and P-value for updated full model")
+  
+```
+
+## Selected model
+
+
+
+After the updated full model is built, backward and forward selection function is applied to gain selected  models.
+
+
+
+### backward model selection
+
+
+
+The summary of backward selected model is shown below. pol_vio, regu_qual, GDP are deleted. This is expected because these variables have relatively high p-value that presented in full model above.
+
+
+```{r}
+backward.model.AIC = stepAIC(full.model, scope = list(lower = empty.model, upper= full.model), k = 2,direction = "backward",trace = FALSE)
+forward.model.AIC = stepAIC(empty.model, scope = list(lower = empty.model, upper= full.model), k = 2,direction = "forward",trace = FALSE)
+```
+
+```{r}
+backward.model.AIC|>
+  broom::tidy()|>
+  dplyr::select(term, estimate, p.value)|>
+  knitr::kable(caption ="Estimate and P-value for backward selected model")
+
+All.Criteria(backward.model.AIC)|>
+  knitr::kable(caption = "Criterias for backward selected selected model")
+```
+
+
+### forward model selection 
+
+
+
+The summary of forward selected model is shown below. pol_vio,  GDP, continent are deleted. Comparing to backward selected model, continent is also deleted instead of regu_qual.The possible reason is that forward selection may be more sensitive to the order in which variable are added; on the other hand, backward selection tends to be more stable and less dependent on the order of variable removal.
+
+```{r}
+forward.model.AIC|>
+  broom::tidy()|>
+  dplyr::select(term, estimate, p.value)|>
+  knitr::kable(caption ="Estimate and P-value for forward selected model")
+
+All.Criteria(forward.model.AIC)|>
+  knitr::kable(caption = "Criterias for forward selected selected model")
+```
+
+
+### Comparision of full model, forward and backward selected model
+
+Backward selected model has the lowest BIC and highest R2adj. Interestingly, forward selected model has the lower than BIC and R2adj than unselected full model, which indicated that continentEurope has unexcepted significance in the whole model.
+ 
+```{r}
+forward_model = All.Criteria(forward.model.AIC)|>
+  mutate(the.LL = as.double(the.LL))
+backward_model = All.Criteria(backward.model.AIC)|>
+  mutate(the.LL = as.double(the.LL))
+
+full_model = All.Criteria(full.model)|>
+  mutate(the.LL = as.double(the.LL))
+
+comparsion = 
+  bind_rows( full_model,forward_model, backward_model)|>
+  mutate(model = c('full', 'forward', 'backward'))|>
+  dplyr::select(model, everything())|>
+  knitr::kable(caption = "Comparision of full model, forward and backward selected model")
+  
+  
+comparsion
+```
+
+Then, the dataset is divided into train and test datasets 100 times. The graph below shows the RMSE distribution in test datasets for three models. From the plot, forward and backward selected model have RMSE around 0.2 to 0.4. However, the RMSE of full model is over-spread. The interference of GDP and pol_vio could lead to the result.
+
+## Test the model
+
+```{r}
+cv_df =
+  crossv_mc(new.data, 100) |> 
+  mutate(
+    train = map(train, as_tibble),
+    test = map(test, as_tibble))
+```
+
+```{r}
+cv_df = 
+  cv_df |> 
+  mutate(
+    model_full  = map(train, \(df) lm(con_cor ~ ., data = df)),
+    model_forward  = map(train, \(df) lm(con_cor ~ rul_law + gov_eff + voi_acc + development + population + regu_qual, data = df)),
+    model_backward  = map(train, \(df) lm(con_cor ~ rul_law + gov_eff + voi_acc + development + population  + continent, data = df)))|> 
+  mutate(
+    rmse_full = map2_dbl(model_full, test, \(mod, df) rmse(model = mod, data = df)),
+    rmse_forward = map2_dbl(model_forward, test, \(mod, df) rmse(model = mod, data = df)),
+    rmse_backward = map2_dbl(model_backward, test, \(mod, df) rmse(model = mod, data = df)))
+```
+
+```{r}
+cv_df |> 
+  dplyr::select(starts_with("rmse")) |> 
+  pivot_longer(
+    everything(),
+    names_to = "model", 
+    values_to = "rmse",
+    names_prefix = "rmse_") |> 
+  mutate(model = fct_inorder(model)) |> 
+  ggplot(aes(x = model, y = rmse)) + geom_violin()
+```
+
+The graphs below show the Prediction VS Actual for three models. Overall, there is no significant difference between three models.
+
+```{r}
+new.data|>
+  modelr::add_predictions(full.model)|>
+  ggplot(aes(x = con_cor, y = pred)) +
+  geom_point() + 
+  geom_abline(intercept = 0, slope = 1, color = "blue") +
+  labs(
+    title = "Full model :Prediction V.S. Actual corruption_index",
+    x = "Actual corruption_index",
+    y = "Prediction"
+  )
+
+new.data|>
+  modelr::add_predictions(forward.model.AIC)|>
+  ggplot(aes(x = con_cor, y = pred)) +
+  geom_point() + 
+  geom_abline(intercept = 0, slope = 1, color = "blue") +
+  labs(
+    title = "Forward selected model: Prediction V.S. Actual corruption_index",
+    x = "Actual corruption_index",
+    y = "Prediction"
+  )
+
+new.data|>
+  modelr::add_predictions(backward.model.AIC)|>
+  ggplot(aes(x = con_cor, y = pred)) +
+  geom_point() + 
+  geom_abline(intercept = 0, slope = 1, color = "blue") +
+  labs(
+    title = "Backward selected model: Prediction V.S. Actual corruption_index",
+    x = "Actual corruption_index",
+    y = "Prediction"
+  )
+```
+
+## Conclusions
+
+To sum up, before building a regression model, we except GDP would be one of the most significant variable to predict corruption index. However, the result shows that there is nearly no correlation between GDP and corruption index. Based on analysis above, there is no significant differences between the three models. But backward selected model is the most optimal model to predict corruption index.It has the lowest BIC and AIC, which means this model achieves a better balance between fitting the data well and avoiding overfitting comparing to the other two models. 
