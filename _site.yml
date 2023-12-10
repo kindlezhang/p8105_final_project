@@ -14,7 +14,7 @@ navbar:
     - text: "Regression"
       href: regression.html
     - text: "Video"
-      href: website.html
+      href: https://www.youtube.com/watch?v=blyz8ebA0mk
     - text: "Report"
       href: project_report.html
     - icon: fa-envelope fa-lg
